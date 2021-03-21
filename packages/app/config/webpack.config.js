@@ -41,6 +41,7 @@ const typescriptFormatter = require("react-dev-utils/typescriptFormatter");
 const svgToMiniDataURI = require("mini-svg-data-uri");
 const LoadablePlugin = require("@loadable/webpack-plugin");
 const postcssNormalize = require("postcss-normalize");
+const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 const appPackageJson = require(paths.appPackageJson);
 
@@ -151,9 +152,7 @@ module.exports = function (webpackEnv) {
     mode: isEnvProduction ? "production" : isEnvDevelopment && "development",
     // Stop compilation early in production
     bail: isEnvProduction,
-    devtool: isEnvProduction
-        ? "source-map"
-        : "cheap-module-source-map",
+    devtool: isEnvProduction ? "source-map" : "cheap-module-source-map",
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
     entry: {
@@ -386,27 +385,27 @@ module.exports = function (webpackEnv) {
                   "@babel/plugin-proposal-class-properties",
                   "@babel/plugin-syntax-dynamic-import",
                   [
-                    require.resolve('babel-plugin-transform-imports'),
+                    require.resolve("babel-plugin-transform-imports"),
                     {
-                      '@material-ui/core': {
+                      "@material-ui/core": {
                         // Use "transform: '@material-ui/core/${member}'," if your bundler does not support ES modules
-                        'transform': '@material-ui/core/esm/${member}',
-                        'preventFullImport': true
+                        transform: "@material-ui/core/esm/${member}",
+                        preventFullImport: true
                       },
-                      '@material-ui/icons': {
+                      "@material-ui/icons": {
                         // Use "transform: '@material-ui/icons/${member}'," if your bundler does not support ES modules
-                        'transform': '@material-ui/icons/esm/${member}',
-                        'preventFullImport': true
+                        transform: "@material-ui/icons/esm/${member}",
+                        preventFullImport: true
                       },
-                      '@material-ui/styles': {
+                      "@material-ui/styles": {
                         // Use "transform: '@material-ui/icons/${member}'," if your bundler does not support ES modules
-                        'transform': '@material-ui/styles/esm/${member}',
-                        'preventFullImport': true
+                        transform: "@material-ui/styles/esm/${member}",
+                        preventFullImport: true
                       },
-                      '@material-ui/lab': {
+                      "@material-ui/lab": {
                         // Use "transform: '@material-ui/icons/${member}'," if your bundler does not support ES modules
-                        'transform': '@material-ui/lab/esm/${member}',
-                        'preventFullImport': true
+                        transform: "@material-ui/lab/esm/${member}",
+                        preventFullImport: true
                       }
                     }
                   ],
@@ -560,6 +559,7 @@ module.exports = function (webpackEnv) {
       ]
     },
     plugins: [
+      new MonacoWebpackPlugin(),
       // https://date-fns.org/v2.15.0/docs/webpack
       new webpack.ContextReplacementPlugin(
         /date\-fns[\/\\]/,
