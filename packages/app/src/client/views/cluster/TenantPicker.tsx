@@ -34,13 +34,12 @@ const TenantPicker = () => {
   const history = useHistory();
   const tenants = useTenantList();
 
-  const { activatePickerWithText } = usePickerService(
+  const { activatePickerWithText } = usePickerService<Tenant>(
     {
       activationPrefix: "tenant:",
       options: tenants ? tenants.map(tenantToPickerOption) : [],
       onSelected: option => {
-        if (option?.data)
-          history.push(`/cluster/tenants/${(option.data as Tenant).url_slug}`);
+        history.push(`/cluster/tenants/${option.data.url_slug}`);
       }
     },
     [tenants, history]

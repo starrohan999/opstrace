@@ -227,8 +227,8 @@ function PickerService({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function usePickerService(
-  provider?: PickerProvider,
+export function usePickerService<T>(
+  provider?: PickerProvider<T>,
   dependencies?: any[]
 ) {
   const picker = React.useContext(pickerContext);

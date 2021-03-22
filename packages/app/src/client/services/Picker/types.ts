@@ -15,10 +15,10 @@
  */
 import { ReactNode } from "react";
 
-export type PickerOption = {
+export type PickerOption<T = {}> = {
   id: string;
   text: string;
-  data?: {};
+  data: T;
 };
 
 export type PickerListProps = {
@@ -28,7 +28,7 @@ export type PickerListProps = {
   secondaryAction?: (option: PickerOption) => ReactNode;
 };
 
-export type PickerProvider = {
+export type PickerProvider<T = {}> = {
   title?: string;
   // Disable's the filtering of options
   disableFilter?: boolean;
@@ -38,9 +38,9 @@ export type PickerProvider = {
   textValidator?: RegExp;
   textValidationFailedMessage?: string;
   activationPrefix: string;
-  onSelected: (option: PickerOption, inputText?: string) => void;
-  options: PickerOption[];
-  secondaryAction?: (option: PickerOption) => ReactNode;
+  onSelected: (option: PickerOption<T>, inputText?: string) => void;
+  options: PickerOption<T>[];
+  secondaryAction?: (option: PickerOption<T>) => ReactNode;
 };
 
 export type PickerApi = {
