@@ -1,7 +1,7 @@
 actions:
 - name: getAlertmanager
   definition:
-    kind: synchronous
+    kind: ""
     handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
     headers:
     - name: X-Action-Secret
@@ -19,7 +19,7 @@ actions:
   - role: user_admin
 - name: validateCredential
   definition:
-    kind: synchronous
+    kind: ""
     handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
     headers:
     - name: X-Action-Secret
@@ -28,7 +28,7 @@ actions:
   - role: user_admin
 - name: validateExporter
   definition:
-    kind: synchronous
+    kind: ""
     handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
     headers:
     - name: X-Action-Secret
@@ -38,6 +38,16 @@ actions:
 custom_types:
   enums:
   - name: ErrorType
+    values:
+    - description: null
+      is_deprecated: null
+      value: SERVICE_OFFLINE
+    - description: null
+      is_deprecated: null
+      value: SERVICE_ERROR
+    - description: null
+      is_deprecated: null
+      value: VALIDATION_FAILED
   input_objects:
   - name: AlertmanagerInput
   objects:

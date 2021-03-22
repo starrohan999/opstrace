@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useMemo } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import Skeleton from "@material-ui/lab/Skeleton";
 import { useDispatch } from "react-redux";
@@ -32,23 +32,18 @@ import { Card, CardContent, CardHeader } from "client/components/Card";
 import { Button } from "client/components/Button";
 import { usePickerService } from "client/services/Picker";
 import { useHistory } from "react-router-dom";
-import useTenantList from "state/tenant/hooks/useTenantList";
+import { useTenantByUrlSlug } from "state/tenant/hooks/useTenant";
 import { ExternalLink } from "client/components/Link";
 
 const TenantDetail = () => {
-  const params = useParams<{ tenant: string }>();
+  const params = useParams<{ urlSlug: string }>();
   const history = useHistory();
-  const tenants = useTenantList();
+  const tenant = useTenantByUrlSlug(params.urlSlug);
   const dispatch = useDispatch();
-
-  const selectedTenant = useMemo(
-    () => tenants.find(t => t.name === params.tenant),
-    [params.tenant, tenants]
-  );
 
   const { activatePickerWithText } = usePickerService(
     {
-      title: `Delete ${selectedTenant?.name}?`,
+      title: `Delete ${tenant?.name}?`,
       activationPrefix: "delete tenant directly?:",
       disableFilter: true,
       disableInput: true,
@@ -63,15 +58,15 @@ const TenantDetail = () => {
         }
       ],
       onSelected: option => {
-        if (option.id === "yes" && selectedTenant?.name) {
-          dispatch(deleteTenant(selectedTenant?.name));
+        if (option.id === "yes" && tenant?.id) {
+          dispatch(deleteTenant(tenant?.id));
         }
       }
     },
-    [selectedTenant?.name]
+    [tenant?.id, tenant?.name]
   );
 
-  if (!selectedTenant)
+  if (!tenant)
     return (
       <Layout sidebar={SideBar}>
         <Skeleton variant="rect" width="100%" height="100%" animation="wave" />
@@ -101,7 +96,7 @@ const TenantDetail = () => {
                         size="medium"
                         onClick={() =>
                           history.push(
-                            `/cluster/tenants/${selectedTenant.name}/alert-manager-config`
+                            `/cluster/tenants/${tenant.url_slug}/alert-manager-config`
                           )
                         }
                       >
@@ -112,7 +107,7 @@ const TenantDetail = () => {
                       <Button
                         variant="outlined"
                         size="medium"
-                        disabled={selectedTenant.type === "SYSTEM"}
+                        disabled={tenant.type === "SYSTEM"}
                         onClick={() =>
                           activatePickerWithText("delete tenant directly?: ")
                         }
@@ -122,7 +117,7 @@ const TenantDetail = () => {
                     </Box>
                   </Box>
                 }
-                title={selectedTenant.name}
+                title={tenant.name}
               />
               <CardContent>
                 <Box display="flex">
@@ -133,14 +128,12 @@ const TenantDetail = () => {
                   <Box display="flex" flexDirection="column" flexGrow={1}>
                     <Attribute.Value>
                       <ExternalLink
-                        href={`${window.location.protocol}//${selectedTenant.name}.${window.location.host}`}
+                        href={`${window.location.protocol}//${tenant.name}.${window.location.host}`}
                       >
-                        {`${selectedTenant.name}.${window.location.host}`}
+                        {`${tenant.name}.${window.location.host}`}
                       </ExternalLink>
                     </Attribute.Value>
-                    <Attribute.Value>
-                      {selectedTenant.created_at}
-                    </Attribute.Value>
+                    <Attribute.Value>{tenant.created_at}</Attribute.Value>
                   </Box>
                 </Box>
               </CardContent>

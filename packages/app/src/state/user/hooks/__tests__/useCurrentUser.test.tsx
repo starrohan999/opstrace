@@ -22,8 +22,8 @@ import { StoreProvider } from "state/provider";
 import getSubscriptionID from "state/utils/getSubscriptionID";
 
 import useCurrentUser, {
-  getCurrentUser,
-  getCurrentUserLoaded,
+  selectCurrentUser,
+  selectCurrentUserLoaded,
   getCurrentUserId,
   getUsers,
   getCurrentUserIdLoaded,
@@ -70,7 +70,7 @@ test("useCurrentUser hook", () => {
   expect(result.current).toEqual(user);
 });
 
-test("getCurrentUser selector", () => {
+test("selectCurrentUser selector", () => {
   const user1 = {
     email: "test1@test.com",
     username: "test1",
@@ -96,7 +96,7 @@ test("getCurrentUser selector", () => {
     }
   };
   const state = mainReducer(subState as CombinedState<any>, mockAction);
-  expect(getCurrentUser(state)).toEqual(user2);
+  expect(selectCurrentUser(state)).toEqual(user2);
 });
 
 test("getUsers selector", () => {
@@ -128,7 +128,7 @@ test("getUsers selector", () => {
   expect(getUsers(state)).toEqual({ test1: user1, test2: user2 });
 });
 
-test("getCurrentUserIdLoaded selector", () => {
+test("selectCurrentUserIdLoaded selector", () => {
   const subState = {
     users: {
       currentUserId: "test2",
@@ -165,7 +165,7 @@ test("getUsersLoading selector", () => {
   expect(getUsersLoading(state)).toBeTruthy();
 });
 
-test("getCurrentUserLoaded selector", () => {
+test("selectCurrentUserLoaded selector", () => {
   const subState = {
     users: {
       currentUserId: "test2",
@@ -177,7 +177,7 @@ test("getCurrentUserLoaded selector", () => {
   };
 
   const state = mainReducer(subState as CombinedState<any>, mockAction);
-  expect(getCurrentUserLoaded(state)).toBeFalsy();
+  expect(selectCurrentUserLoaded(state)).toBeFalsy();
 });
 
 test("getCurrentUserId selector", () => {

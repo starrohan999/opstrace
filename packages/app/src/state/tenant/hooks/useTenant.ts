@@ -14,17 +14,34 @@
  * limitations under the License.
  */
 
+import { find, propEq, values } from "ramda";
 import { createSelector } from "reselect";
+
 import { useSelector, State } from "state/provider";
+
+import { Tenant } from "state/tenant/types";
 
 export const selectTenant = createSelector(
   (state: State) => state.tenants.loading,
   (state, _) => state.tenants.tenants,
-  (_: State, tenantName: string) => tenantName,
-  (loading, tenants, tenantName: string) =>
-    loading ? null : tenants[tenantName]
+  (_: State, id: string) => id,
+  (loading, tenants, id: string) => (loading ? null : tenants[id])
 );
 
-export default function useTenant(tenantName: string) {
-  return useSelector((state: State) => selectTenant(state, tenantName));
+export const selectTenantByUrlSlug = createSelector(
+  (state: State) => state.tenants.loading,
+  (state: State) => state.tenants.tenants,
+  (_: State, urlSlug: string) => urlSlug,
+  (loading, tenants, urlSlug): Tenant | null => {
+    // @ts-ignore
+    return loading ? null : find(propEq("url_slug", urlSlug))(values(tenants));
+  }
+);
+
+export default function useTenant(id: string) {
+  return useSelector((state: State) => selectTenant(state, id));
+}
+
+export function useTenantByUrlSlug(urlSlug: string) {
+  return useSelector((state: State) => selectTenantByUrlSlug(state, urlSlug));
 }

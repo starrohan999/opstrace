@@ -24,7 +24,8 @@ import { User } from "state/user/types";
 
 export const userToPickerOption = (user: User): PickerOption => ({
   text: user.email,
-  id: user.id
+  id: user.id,
+  data: user
 });
 
 const UserPicker = () => {
@@ -36,7 +37,7 @@ const UserPicker = () => {
       activationPrefix: "user:",
       options: users ? users.map(userToPickerOption) : [],
       onSelected: option => {
-        history.push(`/cluster/users/${option.id}`);
+        if (option) history.push(`/cluster/users/${(option.data as User).id}`);
       }
     },
     [users, history]

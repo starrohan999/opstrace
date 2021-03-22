@@ -29,7 +29,8 @@ import TextFileModel from "state/file/TextFileModel";
 function fileToPickerOption(file: TextFileModel): PickerOption {
   return {
     text: getFileUri(file.file),
-    id: file.file.id
+    id: file.file.id,
+    data: file
   };
 }
 
@@ -47,7 +48,7 @@ const ModulePicker = () => {
         if (!files) {
           return;
         }
-        const file = files.files.find(f => f.file.id === option.id);
+        const file = option.data as TextFileModel;
         if (!file || !currentBranch) {
           return;
         }

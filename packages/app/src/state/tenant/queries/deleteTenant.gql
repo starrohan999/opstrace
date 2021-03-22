@@ -1,5 +1,6 @@
-mutation DeleteTenant($name: String!) {
-  delete_tenant_by_pk(name: $name) {
+mutation DeleteTenant($id: uuid!) {
+  delete_tenant_by_pk(id: $id) {
+    id
     name
   }
 }

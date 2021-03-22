@@ -68,40 +68,41 @@ describe("render CommandPicker", () => {
     expect(mockedPickerService.activatePickerWithText).toHaveBeenCalledWith("");
   });
 
+  const commandOne = {
+    id: "command-id-1",
+    description: "Command 1",
+    handler: () => null
+  };
+  const commandTwo = {
+    id: "command-id-2",
+    description: "Command 2",
+    handler: () => null
+  };
+
+  const commandThree = {
+    id: "command-id-3",
+    description: "Command 3",
+    handler: () => null,
+    category: "Hidden"
+  };
+
   test("CommandPicker has correct options", async () => {
-    render(
-      <CommandPicker
-        commands={[
-          {
-            id: "command-id-1",
-            description: "Command 1",
-            handler: () => null
-          },
-          {
-            id: "command-id-2",
-            description: "Command 2",
-            handler: () => null
-          },
-          {
-            id: "command-id-3",
-            description: "Command 3",
-            handler: () => null,
-            category: "Hidden"
-          }
-        ]}
-      />
-    );
+    render(<CommandPicker commands={[commandOne, commandTwo, commandThree]} />);
 
     const provider = mockedUsePickerService.mock.calls[0][0];
+
+    console.log(provider.options);
 
     expect(provider.options).toEqual([
       {
         id: "command-id-1",
-        text: "Command 1"
+        text: "Command 1",
+        data: commandOne
       },
       {
         id: "command-id-2",
-        text: "Command 2"
+        text: "Command 2",
+        data: commandTwo
       }
     ]);
   });

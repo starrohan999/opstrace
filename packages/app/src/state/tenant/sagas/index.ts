@@ -73,7 +73,7 @@ function* deleteTenantListener() {
 function* deleteTenant(action: ReturnType<typeof actions.deleteTenant>) {
   try {
     yield graphqlClient.DeleteTenant({
-      name: action.payload
+      id: action.payload
     });
   } catch (err) {
     console.error(err);

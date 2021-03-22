@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback } from "react";
+import React from "react";
 import { PickerOption, usePickerService } from "../Picker";
 import { useCommandService } from "./CommandService";
 import { Command } from "./types";
@@ -30,7 +30,8 @@ type CommandPickerProps = {
 function commandToPickerOption(cmd: Command): PickerOption {
   return {
     id: cmd.id,
-    text: cmd.description
+    text: cmd.description,
+    data: cmd
   };
 }
 
@@ -80,11 +81,6 @@ function CommandPicker({ commands }: CommandPickerProps) {
     keybindings: ["mod+p"]
   });
 
-  const getCommand = useCallback(
-    id => commands.find(command => command.id === id),
-    [commands]
-  );
-
   const { activatePickerWithText } = usePickerService(
     {
       activationPrefix: "",
@@ -92,7 +88,7 @@ function CommandPicker({ commands }: CommandPickerProps) {
       onSelected: option => {
         cmdService.executeCommand(option.id);
       },
-      secondaryAction: option => renderKeybindings(getCommand(option.id))
+      secondaryAction: option => renderKeybindings(option.data as Command)
     },
     [commands]
   );

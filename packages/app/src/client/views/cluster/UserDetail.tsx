@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useMemo } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import Skeleton from "@material-ui/lab/Skeleton";
 import Avatar from "@material-ui/core/Avatar";
@@ -33,22 +33,19 @@ import { Card, CardContent, CardHeader } from "client/components/Card";
 import { Button } from "client/components/Button";
 import { usePickerService } from "client/services/Picker";
 import { useCommandService } from "client/services/Command";
+import useUser from "state/user/hooks/useUser";
 import useCurrentUser from "state/user/hooks/useCurrentUser";
 
 const UserDetail = () => {
-  const params = useParams<{ id: string }>();
+  const params = useParams<{ userId: string }>();
   const users = useUserList();
   const currentUser = useCurrentUser();
+  const user = useUser(params.userId);
   const dispatch = useDispatch();
-
-  const selectedUser = useMemo(() => users.find(u => u.id === params.id), [
-    params.id,
-    users
-  ]);
 
   const { activatePickerWithText } = usePickerService(
     {
-      title: `Delete ${selectedUser?.email}?`,
+      title: `Delete ${user?.email}?`,
       activationPrefix: "delete user directly?:",
       disableFilter: true,
       disableInput: true,
@@ -63,16 +60,15 @@ const UserDetail = () => {
         }
       ],
       onSelected: option => {
-        if (option.id === "yes" && selectedUser?.id)
-          dispatch(deleteUser(selectedUser?.id));
+        if (option.id === "yes" && user?.id) dispatch(deleteUser(user?.id));
       }
     },
-    [selectedUser?.id]
+    [user?.id]
   );
 
   const cmdService = useCommandService();
 
-  if (!selectedUser)
+  if (!user)
     return (
       <Layout sidebar={SideBar}>
         <Skeleton variant="rect" width="100%" height="100%" animation="wave" />
@@ -95,24 +91,24 @@ const UserDetail = () => {
               <CardHeader
                 titleTypographyProps={{ variant: "h5" }}
                 avatar={
-                  selectedUser.avatar ? (
+                  user.avatar ? (
                     <Avatar
-                      alt={selectedUser.username}
+                      alt={user.username}
                       style={{ width: 100, height: 100 }}
-                      src={selectedUser.avatar}
+                      src={user.avatar}
                     />
                   ) : (
                     <Avatar
-                      alt={selectedUser.username}
+                      alt={user.username}
                       style={{ width: 100, height: 100 }}
                     >
-                      {selectedUser.username.slice(0, 1).toUpperCase()}
+                      {user.username.slice(0, 1).toUpperCase()}
                     </Avatar>
                   )
                 }
                 action={
                   <Box ml={3} display="flex" flexWrap="wrap">
-                    {selectedUser.email === currentUser?.email ? (
+                    {user.email === currentUser?.email ? (
                       <Box p={1}>
                         <Button
                           variant="outlined"
@@ -137,7 +133,7 @@ const UserDetail = () => {
                     </Box>
                   </Box>
                 }
-                title={selectedUser.username}
+                title={user.username}
               />
               <CardContent>
                 <Box display="flex">
@@ -149,15 +145,15 @@ const UserDetail = () => {
                     <Attribute.Key>Created:</Attribute.Key>
                   </Box>
                   <Box display="flex" flexDirection="column" flexGrow={1}>
-                    <Attribute.Value>{selectedUser.role}</Attribute.Value>
-                    <Attribute.Value>{selectedUser.username}</Attribute.Value>
-                    <Attribute.Value>{selectedUser.email}</Attribute.Value>
+                    <Attribute.Value>{user.role}</Attribute.Value>
+                    <Attribute.Value>{user.username}</Attribute.Value>
+                    <Attribute.Value>{user.email}</Attribute.Value>
                     <Attribute.Value>
-                      {selectedUser.session_last_updated
-                        ? selectedUser.session_last_updated
+                      {user.session_last_updated
+                        ? user.session_last_updated
                         : "-"}
                     </Attribute.Value>
-                    <Attribute.Value>{selectedUser.created_at}</Attribute.Value>
+                    <Attribute.Value>{user.created_at}</Attribute.Value>
                   </Box>
                 </Box>
               </CardContent>

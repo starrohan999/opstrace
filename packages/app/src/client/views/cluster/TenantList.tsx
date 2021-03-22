@@ -37,7 +37,7 @@ const TenantList = (props: TenantListProps) => {
       <ButtonListItem
         selected={index === selectedTenantIndex}
         onClick={() => onSelect(data)}
-        key={data.name}
+        key={data.id}
       >
         <ListItemAvatar>
           <Avatar alt={data.name} style={avatarStyle}>

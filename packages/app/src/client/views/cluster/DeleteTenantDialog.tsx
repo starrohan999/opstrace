@@ -18,17 +18,10 @@ import React, { useState } from "react";
 
 import useTenantList from "state/tenant/hooks/useTenantList";
 import { deleteTenant } from "state/tenant/actions";
-import { usePickerService, PickerOption } from "client/services/Picker";
+import { usePickerService } from "client/services/Picker";
 import { useCommandService } from "client/services/Command";
-import { Tenant } from "state/tenant/types";
 import { useDispatch } from "react-redux";
-
-function tenantToPickerOption(tenant: Tenant): PickerOption {
-  return {
-    text: tenant.name,
-    id: tenant.name
-  };
-}
+import { tenantToPickerOption } from "./TenantPicker";
 
 const DeleteTenantPicker = () => {
   const tenants = useTenantList();

@@ -1,7 +1,7 @@
 subscription SubscribeToExporterList {
   exporter {
+    tenant_id
     name
-    tenant
     type
     credential
     config

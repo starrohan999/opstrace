@@ -28,8 +28,8 @@ export default {
 
 function IWantToUseAPicker() {
   const [options, setOptions] = React.useState([
-    { id: "1", text: "option 1" },
-    { id: "2", text: "option 2" }
+    { id: "1", text: "option 1", data: {} },
+    { id: "2", text: "option 2", data: {} }
   ]);
 
   const [
@@ -50,7 +50,7 @@ function IWantToUseAPicker() {
 
   const addOption = useCallback(() => {
     const now = Date.now().toString();
-    setOptions([...options, { id: now, text: now }]);
+    setOptions([...options, { id: now, text: now, data: {} }]);
   }, [options]);
 
   // example of updating options in the background

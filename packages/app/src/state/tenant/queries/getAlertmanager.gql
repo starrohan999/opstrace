@@ -1,4 +1,4 @@
-query GetAlertmanager($tenant_id: String!) {
+query GetAlertmanager($tenant_id: uuid!) {
   getAlertmanager(tenant_id: $tenant_id) {
     config
     online

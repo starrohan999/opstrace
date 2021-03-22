@@ -39,7 +39,7 @@ export const reducer = createReducer<TenantState, TenantActions>(
   .handleAction(
     actions.setTenantList,
     (state, action): TenantState => {
-      const tenantIds: string[] = pluck("name", action.payload);
+      const tenantIds: string[] = pluck("id", action.payload);
       const tenants: TenantRecords = zipObj(tenantIds, action.payload);
       return mergeDeepRight(state, { loading: false, tenants: tenants });
     }

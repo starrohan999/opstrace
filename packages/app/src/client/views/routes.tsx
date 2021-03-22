@@ -105,8 +105,8 @@ const AuthenticatedRoutes = () => {
           to="/cluster/tenants/system"
         />
         <Route
-          key="/cluster/users/:id"
-          path="/cluster/users/:id"
+          key="/cluster/users/:userId"
+          path="/cluster/users/:userId"
           component={UserDetail}
         />
         <Route
@@ -115,8 +115,8 @@ const AuthenticatedRoutes = () => {
           component={AlertmanagerConfigEditor}
         />
         <Route
-          key="/cluster/tenants/:tenant"
-          path="/cluster/tenants/:tenant"
+          key="/cluster/tenants/:urlSlug"
+          path="/cluster/tenants/:urlSlug"
           component={TenantDetail}
         />
         <Route key="*" path="*" component={NotFound} />

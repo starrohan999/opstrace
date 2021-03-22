@@ -37,35 +37,35 @@ import TenantList from "./TenantList";
 const ClusterSidebar = () => {
   const [selectedUserIndex, setSelectedUserIndex] = useState<number>(-1);
   const [selectedTenantIndex, setSelectedTenantIndex] = useState<number>(-1);
-  const params = useParams<{ id?: string; tenant?: string }>();
+  const params = useParams<{ userId?: string; tenantId?: string }>();
   const { activatePickerWithText } = usePickerService();
   const users = useUserList();
   const tenants = useTenantList();
   const history = useHistory();
 
   useEffect(() => {
-    const idx = users.findIndex(u => u.id === params.id);
+    const idx = users.findIndex(u => u.id === params.userId);
     if (idx > -1) {
       setSelectedUserIndex(idx);
       setSelectedTenantIndex(-1);
     }
 
-    const tidx = tenants.findIndex(t => t.name === params.tenant);
+    const tidx = tenants.findIndex(t => t.id === params.tenantId);
     if (tidx > -1) {
       setSelectedUserIndex(-1);
       setSelectedTenantIndex(tidx);
     }
     // handle case where the id is invalid
-    if (params.id && idx < 0 && users.length) {
+    if (params.userId && idx < 0 && users.length) {
       // navigate to first user in the list by default
       history.push(`/cluster/users/${users[0].id}`);
     }
     // handle case where the tenant is invalid
-    if (params.tenant && tidx < 0 && tenants.length) {
+    if (params.tenantId && tidx < 0 && tenants.length) {
       // navigate to system tenant by default
       history.push(`/cluster/tenants/system`);
     }
-  }, [users, tenants, params.id, params.tenant, history]);
+  }, [users, tenants, params.userId, params.tenantId, history]);
 
   const addUser = useCallback(() => {
     activatePickerWithText("add user: ");
@@ -83,7 +83,7 @@ const ClusterSidebar = () => {
   );
   const onTenantSelect = useCallback(
     (selected: Tenant) => {
-      history.push(`/cluster/tenants/${selected.name}`);
+      history.push(`/cluster/tenants/${selected.url_slug}`);
     },
     [history]
   );

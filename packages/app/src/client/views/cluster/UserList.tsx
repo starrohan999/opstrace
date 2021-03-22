@@ -37,7 +37,7 @@ const UserList = (props: UserListProps) => {
       <ButtonListItem
         selected={index === selectedUserIndex}
         onClick={() => onSelect(data)}
-        key={data.email}
+        key={data.id}
       >
         <ListItemAvatar>
           {data.avatar ? (
@@ -48,7 +48,7 @@ const UserList = (props: UserListProps) => {
             </Avatar>
           )}
         </ListItemAvatar>
-        <ListItemText primary={data.email} />
+        <ListItemText primary={data.username} />
       </ButtonListItem>
     ),
     [selectedUserIndex, onSelect]

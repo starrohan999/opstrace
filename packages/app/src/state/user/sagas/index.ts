@@ -18,7 +18,7 @@ import * as actions from "../actions";
 import graphqlClient, { User } from "state/clients/graphqlClient";
 
 import userListSubscriptionManager from "./userListSubscription";
-import { getCurrentUser } from "../hooks/useCurrentUser";
+import { selectCurrentUser } from "../hooks/useCurrentUser";
 import { State } from "state/reducer";
 import { getUserList } from "../hooks/useUserList";
 
@@ -101,7 +101,7 @@ function* persistDarkModePreference() {
     const action: ReturnType<typeof actions.setDarkMode> = yield take(
       actions.setDarkMode
     );
-    const user: User | undefined = yield select(getCurrentUser);
+    const user: User | undefined = yield select(selectCurrentUser);
     if (!user?.id) {
       return;
     }

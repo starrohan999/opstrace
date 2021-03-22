@@ -1,6 +1,8 @@
 query GetTenants {
   tenant {
+    id
     name
+    url_slug
     created_at
     type
   }

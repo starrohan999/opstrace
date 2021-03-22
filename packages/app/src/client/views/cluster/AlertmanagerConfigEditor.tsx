@@ -118,17 +118,17 @@ const AlertmanagerConfigEditor = () => {
   }, []);
 
   const handleSave = useCallback(() => {
-    if (tenant?.name) {
+    if (tenant?.id) {
       dispatch(
         updateAlertmanager({
-          tenantId: tenant.name,
+          tenantId: tenant.id,
           header: alertmanager?.header || "",
           config: configRef.current,
           formId: formId
         })
       );
     }
-  }, [tenant?.name, alertmanager?.header, formId, dispatch]);
+  }, [tenant?.id, alertmanager?.header, formId, dispatch]);
 
   if (!tenant || !formState)
     return (

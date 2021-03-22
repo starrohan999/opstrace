@@ -15,24 +15,17 @@
  */
 
 import { createSelector } from "reselect";
-import { useSelector, useDispatch, State } from "state/provider";
+import { useSelector, State } from "state/provider";
 
-import { selectTenant } from "./useTenant";
-import { getAlertmanager } from "state/tenant/actions";
+import { getUsers, getUsersLoading } from "./useCurrentUser";
 
-export const selectAlertmanager = createSelector(
-  selectTenant,
-  tenant => tenant?.alertmanager
+export const selectUser = createSelector(
+  getUsersLoading,
+  getUsers,
+  (_: State, id: string) => id,
+  (loading, users, id: string) => (loading ? null : users[id])
 );
 
-export default function useAlertmanager(tenantId: string) {
-  const data = useSelector((state: State) =>
-    selectAlertmanager(state, tenantId)
-  );
-
-  const dispatch = useDispatch();
-
-  if (!data) dispatch(getAlertmanager(tenantId));
-
-  return data;
+export default function useUser(id: string) {
+  return useSelector((state: State) => selectUser(state, id));
 }

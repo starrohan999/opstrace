@@ -1,6 +1,6 @@
-mutation DeleteExporter($tenant: String!, $name: String!) {
-  delete_exporter_by_pk(tenant: $tenant, name: $name) {
-    tenant
+mutation DeleteExporter($tenant_id: uuid!, $name: String!) {
+  delete_exporter_by_pk(tenant_id: $tenant_id, name: $name) {
+    tenant_id
     name
   }
 }

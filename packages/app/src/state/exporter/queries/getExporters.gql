@@ -1,7 +1,7 @@
 # Returns exporter configurations for a single tenant.
-query GetExporters($tenant: String!) {
-  exporter(where: {tenant: {_eq: $tenant}}) {
-    tenant
+query GetExporters($tenant_id: uuid!) {
+  exporter(where: { tenant_id: { _eq: $tenant_id } }) {
+    tenant_id
     name
     type
     credential

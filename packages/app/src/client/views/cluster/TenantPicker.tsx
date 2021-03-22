@@ -16,16 +16,17 @@
 
 import React from "react";
 
-import { PickerOption, usePickerService } from "client/services/Picker";
+import { usePickerService } from "client/services/Picker";
 import { useCommandService } from "client/services/Command";
 import { useHistory } from "react-router-dom";
 import useTenantList from "state/tenant/hooks/useTenantList";
 import { Tenant } from "state/tenant/types";
 
-function tenantToPickerOption(tenant: Tenant): PickerOption {
+export function tenantToPickerOption(tenant: Tenant) {
   return {
     text: tenant.name,
-    id: tenant.name
+    id: tenant.id,
+    data: tenant
   };
 }
 
@@ -38,7 +39,8 @@ const TenantPicker = () => {
       activationPrefix: "tenant:",
       options: tenants ? tenants.map(tenantToPickerOption) : [],
       onSelected: option => {
-        history.push(`/cluster/tenants/${option.id}`);
+        if (option?.data)
+          history.push(`/cluster/tenants/${(option.data as Tenant).url_slug}`);
       }
     },
     [tenants, history]

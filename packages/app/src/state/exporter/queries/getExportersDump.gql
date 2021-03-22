@@ -2,7 +2,7 @@
 # Used for initial sync of exporter deployments to Kubernetes.
 query GetExportersDump {
   exporter {
-    tenant
+    tenant_id
     name
     type
     credential

@@ -26,7 +26,7 @@ import socket, { WebsocketEvents } from "state/clients/websocket";
 import * as actions from "state/clients/websocket/actions";
 import { Viewer, ViewerSelection, TextOperations } from "state/file/types";
 import getStore from "state/store";
-import { getCurrentUser } from "state/user/hooks/useCurrentUser";
+import { selectCurrentUser } from "state/user/hooks/useCurrentUser";
 import { getUserList } from "state/user/hooks/useUserList";
 import { User } from "state/user/types";
 import { getOpScriptWorker } from "workers";
@@ -344,7 +344,7 @@ class LiveClient {
     }
     const { viewers, editor } = action.payload;
     this.clearViewerSelections();
-    this.currentUser = getCurrentUser(getStore().getState());
+    this.currentUser = selectCurrentUser(getStore().getState());
     if (!this.currentUser) {
       throw Error("no current user defined");
     }

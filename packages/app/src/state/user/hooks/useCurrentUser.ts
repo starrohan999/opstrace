@@ -28,20 +28,20 @@ export const getCurrentUserIdLoaded = (state: State) =>
 
 export const getUsersLoading = (state: State) => state.users.loading;
 
-export const getCurrentUser = createSelector(
+export const selectCurrentUser = createSelector(
   getUsers,
   getCurrentUserId,
   (users, currentUserId) => users[currentUserId]
 );
 
-export const getCurrentUserLoaded = createSelector(
+export const selectCurrentUserLoaded = createSelector(
   getCurrentUserIdLoaded,
   getUsersLoading,
   (currentUserLoaded, usersLoading) => currentUserLoaded && !usersLoading
 );
 
 export function useCurrentUserLoaded() {
-  return useSelector(getCurrentUserLoaded);
+  return useSelector(selectCurrentUserLoaded);
 }
 
 /**
@@ -50,7 +50,7 @@ export function useCurrentUserLoaded() {
  * on unmount.
  */
 export default function useCurrentUser() {
-  const currentUser = useSelector(getCurrentUser);
+  const currentUser = useSelector(selectCurrentUser);
   const dispatch = useDispatch();
 
   useEffect(() => {
