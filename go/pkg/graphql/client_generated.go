@@ -90,8 +90,8 @@ type CreateBranchVariables struct {
 
 type CreateBranchResponse struct {
 	InsertBranchOne struct {
-		Name string `json:"Name"`
-	} `json:"InsertBranchOne"`
+		Name string `json:"name"`
+	} `json:"insert_branch_one"`
 }
 
 type CreateBranchRequest struct {
@@ -156,8 +156,8 @@ type DeleteBranchVariables struct {
 
 type DeleteBranchResponse struct {
 	DeleteBranchByPk struct {
-		Name string `json:"Name"`
-	} `json:"DeleteBranchByPk"`
+		Name string `json:"name"`
+	} `json:"delete_branch_by_pk"`
 }
 
 type DeleteBranchRequest struct {
@@ -223,10 +223,10 @@ type CreateCredentialsVariables struct {
 type CreateCredentialsResponse struct {
 	InsertCredential struct {
 		Returning []struct {
-			TenantId string `json:"TenantId"`
-			Name     string `json:"Name"`
-		} `json:"Returning"`
-	} `json:"InsertCredential"`
+			TenantId string `json:"tenant_id"`
+			Name     string `json:"name"`
+		} `json:"returning"`
+	} `json:"insert_credential"`
 }
 
 type CreateCredentialsRequest struct {
@@ -295,9 +295,9 @@ type DeleteCredentialVariables struct {
 
 type DeleteCredentialResponse struct {
 	DeleteCredentialByPk struct {
-		TenantId string `json:"TenantId"`
-		Name     string `json:"Name"`
-	} `json:"DeleteCredentialByPk"`
+		TenantId string `json:"tenant_id"`
+		Name     string `json:"name"`
+	} `json:"delete_credential_by_pk"`
 }
 
 type DeleteCredentialRequest struct {
@@ -364,12 +364,12 @@ type GetCredentialVariables struct {
 
 type GetCredentialResponse struct {
 	CredentialByPk struct {
-		TenantId  string `json:"TenantId"`
-		Name      string `json:"Name"`
-		Type      string `json:"Type"`
-		CreatedAt string `json:"CreatedAt"`
-		UpdatedAt string `json:"UpdatedAt"`
-	} `json:"CredentialByPk"`
+		TenantId  string `json:"tenant_id"`
+		Name      string `json:"name"`
+		Type      string `json:"type"`
+		CreatedAt string `json:"created_at"`
+		UpdatedAt string `json:"updated_at"`
+	} `json:"credential_by_pk"`
 }
 
 type GetCredentialRequest struct {
@@ -438,12 +438,12 @@ type GetCredentialsVariables struct {
 
 type GetCredentialsResponse struct {
 	Credential []struct {
-		TenantId  string `json:"TenantId"`
-		Name      string `json:"Name"`
-		Type      string `json:"Type"`
-		CreatedAt string `json:"CreatedAt"`
-		UpdatedAt string `json:"UpdatedAt"`
-	} `json:"Credential"`
+		TenantId  string `json:"tenant_id"`
+		Name      string `json:"name"`
+		Type      string `json:"type"`
+		CreatedAt string `json:"created_at"`
+		UpdatedAt string `json:"updated_at"`
+	} `json:"credential"`
 }
 
 type GetCredentialsRequest struct {
@@ -508,13 +508,13 @@ func (client *Client) GetCredentials(vars *GetCredentialsVariables) (*GetCredent
 
 type GetCredentialsDumpResponse struct {
 	Credential []struct {
-		TenantId  string `json:"TenantId"`
-		Name      string `json:"Name"`
-		Type      string `json:"Type"`
-		Value     string `json:"Value"`
-		CreatedAt string `json:"CreatedAt"`
-		UpdatedAt string `json:"UpdatedAt"`
-	} `json:"Credential"`
+		TenantId  string `json:"tenant_id"`
+		Name      string `json:"name"`
+		Type      string `json:"type"`
+		Value     string `json:"value"`
+		CreatedAt string `json:"created_at"`
+		UpdatedAt string `json:"updated_at"`
+	} `json:"credential"`
 }
 
 type GetCredentialsDumpRequest struct {
@@ -582,9 +582,9 @@ type UpdateCredentialVariables struct {
 
 type UpdateCredentialResponse struct {
 	UpdateCredentialByPk struct {
-		TenantId string `json:"TenantId"`
-		Name     string `json:"Name"`
-	} `json:"UpdateCredentialByPk"`
+		TenantId string `json:"tenant_id"`
+		Name     string `json:"name"`
+	} `json:"update_credential_by_pk"`
 }
 
 type UpdateCredentialRequest struct {
@@ -651,10 +651,10 @@ type CreateExportersVariables struct {
 type CreateExportersResponse struct {
 	InsertExporter struct {
 		Returning []struct {
-			TenantId string `json:"TenantId"`
-			Name     string `json:"Name"`
-		} `json:"Returning"`
-	} `json:"InsertExporter"`
+			TenantId string `json:"tenant_id"`
+			Name     string `json:"name"`
+		} `json:"returning"`
+	} `json:"insert_exporter"`
 }
 
 type CreateExportersRequest struct {
@@ -723,9 +723,9 @@ type DeleteExporterVariables struct {
 
 type DeleteExporterResponse struct {
 	DeleteExporterByPk struct {
-		TenantId string `json:"TenantId"`
-		Name     string `json:"Name"`
-	} `json:"DeleteExporterByPk"`
+		TenantId string `json:"tenant_id"`
+		Name     string `json:"name"`
+	} `json:"delete_exporter_by_pk"`
 }
 
 type DeleteExporterRequest struct {
@@ -792,14 +792,14 @@ type GetExporterVariables struct {
 
 type GetExporterResponse struct {
 	ExporterByPk struct {
-		TenantId   string `json:"TenantId"`
-		Name       string `json:"Name"`
-		Type       string `json:"Type"`
-		Credential string `json:"Credential"`
-		Config     string `json:"Config"`
-		CreatedAt  string `json:"CreatedAt"`
-		UpdatedAt  string `json:"UpdatedAt"`
-	} `json:"ExporterByPk"`
+		TenantId   string `json:"tenant_id"`
+		Name       string `json:"name"`
+		Type       string `json:"type"`
+		Credential string `json:"credential"`
+		Config     string `json:"config"`
+		CreatedAt  string `json:"created_at"`
+		UpdatedAt  string `json:"updated_at"`
+	} `json:"exporter_by_pk"`
 }
 
 type GetExporterRequest struct {
@@ -870,14 +870,14 @@ type GetExportersVariables struct {
 
 type GetExportersResponse struct {
 	Exporter []struct {
-		TenantId   string `json:"TenantId"`
-		Name       string `json:"Name"`
-		Type       string `json:"Type"`
-		Credential string `json:"Credential"`
-		Config     string `json:"Config"`
-		CreatedAt  string `json:"CreatedAt"`
-		UpdatedAt  string `json:"UpdatedAt"`
-	} `json:"Exporter"`
+		TenantId   string `json:"tenant_id"`
+		Name       string `json:"name"`
+		Type       string `json:"type"`
+		Credential string `json:"credential"`
+		Config     string `json:"config"`
+		CreatedAt  string `json:"created_at"`
+		UpdatedAt  string `json:"updated_at"`
+	} `json:"exporter"`
 }
 
 type GetExportersRequest struct {
@@ -944,14 +944,14 @@ func (client *Client) GetExporters(vars *GetExportersVariables) (*GetExportersRe
 
 type GetExportersDumpResponse struct {
 	Exporter []struct {
-		TenantId   string `json:"TenantId"`
-		Name       string `json:"Name"`
-		Type       string `json:"Type"`
-		Credential string `json:"Credential"`
-		Config     string `json:"Config"`
-		CreatedAt  string `json:"CreatedAt"`
-		UpdatedAt  string `json:"UpdatedAt"`
-	} `json:"Exporter"`
+		TenantId   string `json:"tenant_id"`
+		Name       string `json:"name"`
+		Type       string `json:"type"`
+		Credential string `json:"credential"`
+		Config     string `json:"config"`
+		CreatedAt  string `json:"created_at"`
+		UpdatedAt  string `json:"updated_at"`
+	} `json:"exporter"`
 }
 
 type GetExportersDumpRequest struct {
@@ -1021,9 +1021,9 @@ type UpdateExporterVariables struct {
 
 type UpdateExporterResponse struct {
 	UpdateExporterByPk struct {
-		TenantId string `json:"TenantId"`
-		Name     string `json:"Name"`
-	} `json:"UpdateExporterByPk"`
+		TenantId string `json:"tenant_id"`
+		Name     string `json:"name"`
+	} `json:"update_exporter_by_pk"`
 }
 
 type UpdateExporterRequest struct {
@@ -1089,11 +1089,11 @@ type GetCompiledOutputVariables struct {
 
 type GetCompiledOutputResponse struct {
 	FileByPk struct {
-		Js            string `json:"Js"`
-		Dts           string `json:"Dts"`
-		Map           string `json:"Map"`
-		CompileErrors string `json:"CompileErrors"`
-	} `json:"FileByPk"`
+		Js            string `json:"js"`
+		Dts           string `json:"dts"`
+		Map           string `json:"map"`
+		CompileErrors string `json:"compile_errors"`
+	} `json:"file_by_pk"`
 }
 
 type GetCompiledOutputRequest struct {
@@ -1161,18 +1161,18 @@ type GetFileVariables struct {
 
 type GetFileResponse struct {
 	FileByPk struct {
-		ID            string `json:"ID"`
-		Ext           string `json:"Ext"`
-		Path          string `json:"Path"`
-		ModuleName    string `json:"ModuleName"`
-		ModuleScope   string `json:"ModuleScope"`
-		ModuleVersion string `json:"ModuleVersion"`
-		CreatedAt     string `json:"CreatedAt"`
-		BranchName    string `json:"BranchName"`
-		BaseFileId    string `json:"BaseFileId"`
-		MarkDeleted   string `json:"MarkDeleted"`
-		Contents      string `json:"Contents"`
-	} `json:"FileByPk"`
+		ID            string `json:"id"`
+		Ext           string `json:"ext"`
+		Path          string `json:"path"`
+		ModuleName    string `json:"module_name"`
+		ModuleScope   string `json:"module_scope"`
+		ModuleVersion string `json:"module_version"`
+		CreatedAt     string `json:"created_at"`
+		BranchName    string `json:"branch_name"`
+		BaseFileId    string `json:"base_file_id"`
+		MarkDeleted   string `json:"mark_deleted"`
+		Contents      string `json:"contents"`
+	} `json:"file_by_pk"`
 }
 
 type GetFileRequest struct {
@@ -1251,9 +1251,9 @@ type GetFileIdVariables struct {
 
 type GetFileIdResponse struct {
 	File []struct {
-		ID         string `json:"ID"`
-		BranchName string `json:"BranchName"`
-	} `json:"File"`
+		ID         string `json:"id"`
+		BranchName string `json:"branch_name"`
+	} `json:"file"`
 }
 
 type GetFileIdRequest struct {
@@ -1324,8 +1324,8 @@ type UpdateContentsVariables struct {
 
 type UpdateContentsResponse struct {
 	UpdateFileByPk struct {
-		ID string `json:"ID"`
-	} `json:"UpdateFileByPk"`
+		ID string `json:"id"`
+	} `json:"update_file_by_pk"`
 }
 
 type UpdateContentsRequest struct {
@@ -1394,18 +1394,18 @@ type CreateModuleVariables struct {
 
 type CreateModuleResponse struct {
 	InsertModuleOne struct {
-		CreatedAt string `json:"CreatedAt"`
-	} `json:"InsertModuleOne"`
+		CreatedAt string `json:"created_at"`
+	} `json:"insert_module_one"`
 	InsertModuleVersion struct {
 		Returning []struct {
-			CreatedAt string `json:"CreatedAt"`
-		} `json:"Returning"`
-	} `json:"InsertModuleVersion"`
+			CreatedAt string `json:"created_at"`
+		} `json:"returning"`
+	} `json:"insert_module_version"`
 	InsertFile struct {
 		Returning []struct {
-			ID string `json:"ID"`
-		} `json:"Returning"`
-	} `json:"InsertFile"`
+			ID string `json:"id"`
+		} `json:"returning"`
+	} `json:"insert_file"`
 }
 
 type CreateModuleRequest struct {
@@ -1482,11 +1482,11 @@ type GetModuleVariables struct {
 
 type GetModuleResponse struct {
 	ModuleByPk struct {
-		CreatedAt string `json:"CreatedAt"`
-	} `json:"ModuleByPk"`
+		CreatedAt string `json:"created_at"`
+	} `json:"module_by_pk"`
 	BranchByPk struct {
-		Protected string `json:"Protected"`
-	} `json:"BranchByPk"`
+		Protected string `json:"protected"`
+	} `json:"branch_by_pk"`
 }
 
 type GetModuleRequest struct {
@@ -1559,14 +1559,14 @@ type CreateVersionedFilesVariables struct {
 type CreateVersionedFilesResponse struct {
 	InsertModuleVersion struct {
 		Returning []struct {
-			CreatedAt string `json:"CreatedAt"`
-		} `json:"Returning"`
-	} `json:"InsertModuleVersion"`
+			CreatedAt string `json:"created_at"`
+		} `json:"returning"`
+	} `json:"insert_module_version"`
 	InsertFile struct {
 		Returning []struct {
-			ID string `json:"ID"`
-		} `json:"Returning"`
-	} `json:"InsertFile"`
+			ID string `json:"id"`
+		} `json:"returning"`
+	} `json:"insert_file"`
 }
 
 type CreateVersionedFilesRequest struct {
@@ -1641,21 +1641,21 @@ type GetModuleVersionFilesVariables struct {
 
 type GetModuleVersionFilesResponse struct {
 	File []struct {
-		ID            string `json:"ID"`
-		Ext           string `json:"Ext"`
-		Path          string `json:"Path"`
-		ModuleName    string `json:"ModuleName"`
-		ModuleScope   string `json:"ModuleScope"`
-		ModuleVersion string `json:"ModuleVersion"`
-		CreatedAt     string `json:"CreatedAt"`
-		BranchName    string `json:"BranchName"`
-		BaseFileId    string `json:"BaseFileId"`
-		MarkDeleted   string `json:"MarkDeleted"`
-		Contents      string `json:"Contents"`
-	} `json:"File"`
+		ID            string `json:"id"`
+		Ext           string `json:"ext"`
+		Path          string `json:"path"`
+		ModuleName    string `json:"module_name"`
+		ModuleScope   string `json:"module_scope"`
+		ModuleVersion string `json:"module_version"`
+		CreatedAt     string `json:"created_at"`
+		BranchName    string `json:"branch_name"`
+		BaseFileId    string `json:"base_file_id"`
+		MarkDeleted   string `json:"mark_deleted"`
+		Contents      string `json:"contents"`
+	} `json:"file"`
 	ModuleVersion []struct {
-		Version string `json:"Version"`
-	} `json:"ModuleVersion"`
+		Version string `json:"version"`
+	} `json:"module_version"`
 }
 
 type GetModuleVersionFilesRequest struct {
@@ -1734,11 +1734,11 @@ type CreateTenantsVariables struct {
 type CreateTenantsResponse struct {
 	InsertTenant struct {
 		Returning []struct {
-			ID      string `json:"ID"`
-			Name    string `json:"Name"`
-			UrlSlug string `json:"UrlSlug"`
-		} `json:"Returning"`
-	} `json:"InsertTenant"`
+			ID      string `json:"id"`
+			Name    string `json:"name"`
+			UrlSlug string `json:"url_slug"`
+		} `json:"returning"`
+	} `json:"insert_tenant"`
 }
 
 type CreateTenantsRequest struct {
@@ -1807,9 +1807,9 @@ type DeleteTenantVariables struct {
 
 type DeleteTenantResponse struct {
 	DeleteTenantByPk struct {
-		ID   string `json:"ID"`
-		Name string `json:"Name"`
-	} `json:"DeleteTenantByPk"`
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"delete_tenant_by_pk"`
 }
 
 type DeleteTenantRequest struct {
@@ -1875,9 +1875,9 @@ type GetAlertmanagerVariables struct {
 
 type GetAlertmanagerResponse struct {
 	GetAlertmanager struct {
-		Config string `json:"Config"`
-		Online string `json:"Online"`
-	} `json:"GetAlertmanager"`
+		Config string `json:"config"`
+		Online string `json:"online"`
+	} `json:"getAlertmanager"`
 }
 
 type GetAlertmanagerRequest struct {
@@ -1939,12 +1939,12 @@ func (client *Client) GetAlertmanager(vars *GetAlertmanagerVariables) (*GetAlert
 
 type GetTenantsResponse struct {
 	Tenant []struct {
-		ID        string `json:"ID"`
-		Name      string `json:"Name"`
-		UrlSlug   string `json:"UrlSlug"`
-		CreatedAt string `json:"CreatedAt"`
-		Type      string `json:"Type"`
-	} `json:"Tenant"`
+		ID        string `json:"id"`
+		Name      string `json:"name"`
+		UrlSlug   string `json:"url_slug"`
+		CreatedAt string `json:"created_at"`
+		Type      string `json:"type"`
+	} `json:"tenant"`
 }
 
 type GetTenantsRequest struct {
@@ -2009,11 +2009,11 @@ type UpdateAlertmanagerVariables struct {
 
 type UpdateAlertmanagerResponse struct {
 	UpdateAlertmanager struct {
-		Success          string `json:"Success"`
-		ErrorType        string `json:"ErrorType"`
-		ErrorMessage     string `json:"ErrorMessage"`
-		ErrorRawResponse string `json:"ErrorRawResponse"`
-	} `json:"UpdateAlertmanager"`
+		Success          string `json:"success"`
+		ErrorType        string `json:"error_type"`
+		ErrorMessage     string `json:"error_message"`
+		ErrorRawResponse string `json:"error_raw_response"`
+	} `json:"updateAlertmanager"`
 }
 
 type UpdateAlertmanagerRequest struct {
@@ -2084,16 +2084,16 @@ type CreateUserVariables struct {
 type CreateUserResponse struct {
 	InsertUserPreferenceOne struct {
 		User struct {
-			ID                 string `json:"ID"`
-			Email              string `json:"Email"`
-			Username           string `json:"Username"`
-			Role               string `json:"Role"`
-			Active             string `json:"Active"`
-			Avatar             string `json:"Avatar"`
-			CreatedAt          string `json:"CreatedAt"`
-			SessionLastUpdated string `json:"SessionLastUpdated"`
-		} `json:"User"`
-	} `json:"InsertUserPreferenceOne"`
+			ID                 string `json:"id"`
+			Email              string `json:"email"`
+			Username           string `json:"username"`
+			Role               string `json:"role"`
+			Active             string `json:"active"`
+			Avatar             string `json:"avatar"`
+			CreatedAt          string `json:"created_at"`
+			SessionLastUpdated string `json:"session_last_updated"`
+		} `json:"user"`
+	} `json:"insert_user_preference_one"`
 }
 
 type CreateUserRequest struct {
@@ -2167,9 +2167,9 @@ type DeactivateUserVariables struct {
 
 type DeactivateUserResponse struct {
 	UpdateUserByPk struct {
-		ID     string `json:"ID"`
-		Active string `json:"Active"`
-	} `json:"UpdateUserByPk"`
+		ID     string `json:"id"`
+		Active string `json:"active"`
+	} `json:"update_user_by_pk"`
 }
 
 type DeactivateUserRequest struct {
@@ -2235,17 +2235,17 @@ type GetActiveUserForAuthVariables struct {
 
 type GetActiveUserForAuthResponse struct {
 	User []struct {
-		ID       string `json:"ID"`
-		Email    string `json:"Email"`
-		Avatar   string `json:"Avatar"`
-		Username string `json:"Username"`
-		Active   string `json:"Active"`
-	} `json:"User"`
+		ID       string `json:"id"`
+		Email    string `json:"email"`
+		Avatar   string `json:"avatar"`
+		Username string `json:"username"`
+		Active   string `json:"active"`
+	} `json:"user"`
 	UserAggregate struct {
 		Aggregate struct {
-			Count string `json:"Count"`
-		} `json:"Aggregate"`
-	} `json:"UserAggregate"`
+			Count string `json:"count"`
+		} `json:"aggregate"`
+	} `json:"user_aggregate"`
 }
 
 type GetActiveUserForAuthRequest struct {
@@ -2315,15 +2315,15 @@ func (client *Client) GetActiveUserForAuth(vars *GetActiveUserForAuthVariables) 
 
 type GetCurrentUserResponse struct {
 	User []struct {
-		ID         string `json:"ID"`
-		Email      string `json:"Email"`
-		Avatar     string `json:"Avatar"`
-		Username   string `json:"Username"`
-		Active     string `json:"Active"`
+		ID         string `json:"id"`
+		Email      string `json:"email"`
+		Avatar     string `json:"avatar"`
+		Username   string `json:"username"`
+		Active     string `json:"active"`
 		Preference struct {
-			DarkMode string `json:"DarkMode"`
-		} `json:"Preference"`
-	} `json:"User"`
+			DarkMode string `json:"dark_mode"`
+		} `json:"preference"`
+	} `json:"user"`
 }
 
 type GetCurrentUserRequest struct {
@@ -2390,15 +2390,15 @@ type GetUserVariables struct {
 
 type GetUserResponse struct {
 	UserByPk struct {
-		ID         string `json:"ID"`
-		Email      string `json:"Email"`
-		Avatar     string `json:"Avatar"`
-		Username   string `json:"Username"`
-		Active     string `json:"Active"`
+		ID         string `json:"id"`
+		Email      string `json:"email"`
+		Avatar     string `json:"avatar"`
+		Username   string `json:"username"`
+		Active     string `json:"active"`
 		Preference struct {
-			DarkMode string `json:"DarkMode"`
-		} `json:"Preference"`
-	} `json:"UserByPk"`
+			DarkMode string `json:"dark_mode"`
+		} `json:"preference"`
+	} `json:"user_by_pk"`
 }
 
 type GetUserRequest struct {
@@ -2470,9 +2470,9 @@ type ReactivateUserVariables struct {
 
 type ReactivateUserResponse struct {
 	UpdateUserByPk struct {
-		ID     string `json:"ID"`
-		Active string `json:"Active"`
-	} `json:"UpdateUserByPk"`
+		ID     string `json:"id"`
+		Active string `json:"active"`
+	} `json:"update_user_by_pk"`
 }
 
 type ReactivateUserRequest struct {
@@ -2540,9 +2540,9 @@ type SetDarkModeVariables struct {
 type SetDarkModeResponse struct {
 	UpdateUserPreference struct {
 		Returning []struct {
-			DarkMode string `json:"DarkMode"`
-		} `json:"Returning"`
-	} `json:"UpdateUserPreference"`
+			DarkMode string `json:"dark_mode"`
+		} `json:"returning"`
+	} `json:"update_user_preference"`
 }
 
 type SetDarkModeRequest struct {
@@ -2612,12 +2612,12 @@ type UpdateUserVariables struct {
 
 type UpdateUserResponse struct {
 	UpdateUserByPk struct {
-		ID                 string `json:"ID"`
-		Email              string `json:"Email"`
-		Username           string `json:"Username"`
-		Avatar             string `json:"Avatar"`
-		SessionLastUpdated string `json:"SessionLastUpdated"`
-	} `json:"UpdateUserByPk"`
+		ID                 string `json:"id"`
+		Email              string `json:"email"`
+		Username           string `json:"username"`
+		Avatar             string `json:"avatar"`
+		SessionLastUpdated string `json:"session_last_updated"`
+	} `json:"update_user_by_pk"`
 }
 
 type UpdateUserRequest struct {
@@ -2687,9 +2687,9 @@ type UpdateUserSessionVariables struct {
 
 type UpdateUserSessionResponse struct {
 	UpdateUserByPk struct {
-		ID                 string `json:"ID"`
-		SessionLastUpdated string `json:"SessionLastUpdated"`
-	} `json:"UpdateUserByPk"`
+		ID                 string `json:"id"`
+		SessionLastUpdated string `json:"session_last_updated"`
+	} `json:"update_user_by_pk"`
 }
 
 type UpdateUserSessionRequest struct {

@@ -59,3 +59,5 @@ packages/app/.env
 packages/app/.env.client.development
 packages/app/.env.server.development
 
+/packages/controller-config/src/docker-images.json
+/lib/aws/src/util.ts

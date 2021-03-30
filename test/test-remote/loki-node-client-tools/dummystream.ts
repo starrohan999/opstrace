@@ -55,11 +55,11 @@ type CustomQueryFuncSigType = (
   arg4: DummyStream
 ) => Promise<LokiQueryResult>;
 
-interface FetchAndValidateOpts {
+export interface DummyStreamFetchAndValidateOpts {
   querierBaseUrl: string;
   chunkSize?: number;
   inspectEveryNthEntry?: number | undefined;
-  customQueryFunc?: CustomQueryFuncSigType;
+  customLokiQueryFunc?: CustomQueryFuncSigType;
   additionalHeaders?: Record<string, string>;
 }
 
@@ -378,11 +378,13 @@ export class DummyStream {
     return queryParams;
   }
 
-  public async fetchAndValidate(opts: FetchAndValidateOpts): Promise<number> {
+  public async fetchAndValidate(
+    opts: DummyStreamFetchAndValidateOpts
+  ): Promise<number> {
     const lokiQuerierBaseURL = opts.querierBaseUrl;
     const chunkSize = opts.chunkSize || 20000;
     const inspectEveryNthEntry = opts.inspectEveryNthEntry || 0;
-    const customQueryFunc = opts.customQueryFunc;
+    const customLokiQueryFunc = opts.customLokiQueryFunc;
     // not yet built in
     // const additionalHeaders = opts.additionalHeaders;
 
@@ -392,7 +394,7 @@ export class DummyStream {
       this.n_entries_per_stream_fragment;
 
     const vt0 = mtime();
-    log.info(
+    log.debug(
       "%s: validate. Sent %s fragments since last validation. Expect %s entries. Previously validated: %s entries",
       this,
       this.nFragmentsSuccessfullySentSinceLastValidate,
@@ -424,11 +426,11 @@ export class DummyStream {
       );
 
       let result: LokiQueryResult;
-      if (customQueryFunc !== undefined) {
+      if (customLokiQueryFunc !== undefined) {
         // why would the compiler not know that in here customQueryFunc is indeed
         // _not_ undefined?
         //@ts-ignore: see comment above
-        result = await customQueryFunc(
+        result = await customLokiQueryFunc(
           lokiQuerierBaseURL,
           queryParams,
           expectedCount,

@@ -21,7 +21,7 @@ import { deleteTenant } from "state/tenant/actions";
 import { usePickerService } from "client/services/Picker";
 import { useCommandService } from "client/services/Command";
 import { useDispatch } from "react-redux";
-import { tenantToPickerOption } from "client/views/cluster/TenantPicker";
+import { tenantToPickerOption } from "client/views/tenant/TenantPicker";
 
 const DeleteTenantPicker = () => {
   const tenants = useTenantList();

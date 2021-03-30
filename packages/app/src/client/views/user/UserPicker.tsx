@@ -15,47 +15,46 @@
  */
 
 import React from "react";
-
-import { usePickerService } from "client/services/Picker";
-import { useCommandService } from "client/services/Command";
 import { useHistory } from "react-router-dom";
-import useTenantList from "state/tenant/hooks/useTenantList";
-import { Tenant } from "state/tenant/types";
 
-export function tenantToPickerOption(tenant: Tenant) {
-  return {
-    text: tenant.name,
-    id: tenant.id,
-    data: tenant
-  };
-}
+import { useCommandService } from "client/services/Command";
 
-const TenantPicker = () => {
+import { User } from "state/user/types";
+
+import useUserList from "state/user/hooks/useUserList";
+import { PickerOption, usePickerService } from "client/services/Picker";
+
+export const userToPickerOption = (user: User): PickerOption => ({
+  text: user.email,
+  id: user.id,
+  data: user
+});
+
+const UserPicker = () => {
   const history = useHistory();
-  const tenants = useTenantList();
+  const users = useUserList();
 
   const { activatePickerWithText } = usePickerService(
     {
-      activationPrefix: "tenant:",
-      options: tenants ? tenants.map(tenantToPickerOption) : [],
+      activationPrefix: "user:",
+      options: users ? users.map(userToPickerOption) : [],
       onSelected: option => {
-        if (option?.data)
-          history.push(`/cluster/tenants/${(option.data as Tenant).url_slug}`);
+        if (option) history.push(`/cluster/users/${(option.data as User).id}`);
       }
     },
-    [tenants, history]
+    [users, history]
   );
 
   useCommandService({
-    id: "select-tenant-picker",
-    description: "Select Tenant",
+    id: "select-user-picker",
+    description: "Select User",
     handler: e => {
       e.keyboardEvent?.preventDefault();
-      activatePickerWithText("tenant: ");
+      activatePickerWithText("user: ");
     }
   });
 
   return null;
 };
 
-export default React.memo(TenantPicker);
+export default React.memo(UserPicker);

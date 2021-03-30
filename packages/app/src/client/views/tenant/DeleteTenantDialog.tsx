@@ -15,12 +15,13 @@
  */
 
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 
 import useTenantList from "state/tenant/hooks/useTenantList";
-import { deleteTenant } from "state/tenant/actions";
-import { usePickerService } from "client/services/Picker";
 import { useCommandService } from "client/services/Command";
-import { useDispatch } from "react-redux";
+import { usePickerService } from "client/services/Picker";
+
+import { deleteTenant } from "state/tenant/actions";
 import { tenantToPickerOption } from "./TenantPicker";
 
 const DeleteTenantPicker = () => {

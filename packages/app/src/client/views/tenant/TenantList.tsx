@@ -15,28 +15,30 @@
  */
 
 import React, { useCallback } from "react";
+
+import { Tenants, Tenant } from "state/tenant/types";
+
 import { ListItemAvatar } from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
 
 import { List, ButtonListItem, ListItemText } from "client/components/List";
-import { Tenants, Tenant } from "state/tenant/types";
 
 export type TenantListProps = {
-  selectedTenantIndex: number;
+  selectedIndex: number;
   tenants: Tenants;
-  onSelect: (selectedOption: Tenant) => void;
+  onSelect: (tenant: Tenant, index: number) => void;
 };
 
 const avatarStyle = { width: 30, height: 30 };
 
 const TenantList = (props: TenantListProps) => {
-  const { selectedTenantIndex, onSelect } = props;
+  const { selectedIndex, onSelect } = props;
 
   const renderItem = useCallback(
     ({ data, index }: { data: Tenant; index: number }) => (
       <ButtonListItem
-        selected={index === selectedTenantIndex}
-        onClick={() => onSelect(data)}
+        selected={index === selectedIndex}
+        onClick={() => onSelect(data, index)}
         key={data.id}
       >
         <ListItemAvatar>
@@ -47,7 +49,7 @@ const TenantList = (props: TenantListProps) => {
         <ListItemText primary={data.name} />
       </ButtonListItem>
     ),
-    [selectedTenantIndex, onSelect]
+    [selectedIndex, onSelect]
   );
 
   return (

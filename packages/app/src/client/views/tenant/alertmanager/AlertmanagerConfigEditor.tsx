@@ -16,22 +16,23 @@
 
 import React, { useState, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { useDispatch } from "state/provider";
+import { useDispatch } from "react-redux";
 import { debounce } from "lodash";
+
+import { useForm, useFormState } from "state/form/hooks";
+import { useAlertmanager } from "state/tenant/hooks";
+import { useTenantByUrlSlug } from "state/tenant/hooks/useTenant";
+
+import { Tenant } from "state/tenant/types";
+
+import { updateAlertmanager } from "state/tenant/actions";
 
 import { editor } from "monaco-editor/esm/vs/editor/editor.api";
 import * as yamlParser from "js-yaml";
 import { YamlEditor } from "client/components/Editor";
 
-import { useForm, useFormState } from "state/form/hooks";
-import { useTenant, useAlertmanager } from "state/tenant/hooks";
-import { updateAlertmanager } from "state/tenant/actions";
-
-import SideBar from "./Sidebar";
-
 import { AlertmanagerUpdateResponse } from "state/graphql-api-types";
 
-import Layout from "client/layout/MainContent";
 import Skeleton from "@material-ui/lab/Skeleton";
 import { Box } from "client/components/Box";
 import { Card, CardContent, CardHeader } from "client/components/Card";
@@ -57,16 +58,20 @@ const defaultData: FormData = {
   }
 };
 
-const AlertmanagerConfigEditor = () => {
-  const { tenantId } = useParams<{ tenantId: string }>();
-  const tenant = useTenant(tenantId);
+type AlertmanagerConfigEditorProps = {
+  tenant: Tenant;
+};
+
+const AlertmanagerConfigEditor = ({
+  tenant
+}: AlertmanagerConfigEditorProps) => {
   const formId = useForm({
     type: "alertmanagerConfig",
-    code: tenantId,
+    code: tenant.id,
     data: defaultData
   });
   const formState = useFormState<FormData>(formId, defaultData);
-  const alertmanager = useAlertmanager(tenantId);
+  const alertmanager = useAlertmanager(tenant.id);
   const configRef = useRef<string>(alertmanager?.config || "");
   const [configValid, setConfigValid] = useState<boolean | null>(null);
   const dispatch = useDispatch();
@@ -118,7 +123,7 @@ const AlertmanagerConfigEditor = () => {
   }, []);
 
   const handleSave = useCallback(() => {
-    if (tenant?.id) {
+    if (tenant.id) {
       dispatch(
         updateAlertmanager({
           tenantId: tenant.id,
@@ -128,55 +133,51 @@ const AlertmanagerConfigEditor = () => {
         })
       );
     }
-  }, [tenant?.id, alertmanager?.header, formId, dispatch]);
+  }, [tenant.id, alertmanager?.header, formId, dispatch]);
 
-  if (!tenant || !formState)
+  if (!formState)
     return (
-      <Layout sidebar={SideBar}>
-        <Skeleton variant="rect" width="100%" height="100%" animation="wave" />
-      </Layout>
+      <Skeleton variant="rect" width="100%" height="100%" animation="wave" />
     );
   else
     return (
-      <Layout sidebar={SideBar}>
-        <Box
-          width="100%"
-          height="100%"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          flexWrap="wrap"
-          p={1}
-        >
-          <Box maxWidth={700}>
-            <Card p={3}>
-              <CardHeader
-                titleTypographyProps={{ variant: "h5" }}
-                title={`${tenant.name} / Alertmanager Configuration`}
-              />
-              <CardContent>
-                <Box display="flex" height="500px" width="700px">
-                  <YamlEditor
-                    filename="alertmanager-config.yaml"
-                    jsonSchema={jsonSchema}
-                    data={alertmanager?.config || ""}
-                    onChange={handleConfigChange}
-                  />
-                </Box>
-              </CardContent>
-              <Button
-                variant="contained"
-                state="primary"
-                disabled={!configValid || formState.status !== "active"}
-                onClick={handleSave}
-              >
-                publish
-              </Button>
-              <ErrorPanel response={formState.data.remoteValidation} />
-            </Card>
-          </Box>
+      <Box
+        width="100%"
+        height="100%"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        flexWrap="wrap"
+        p={1}
+      >
+        <Box maxWidth={700}>
+          <Card p={3}>
+            <CardHeader
+              titleTypographyProps={{ variant: "h5" }}
+              title="Alertmanager Configuration"
+            />
+            <CardContent>
+              <Box display="flex" height="500px" width="700px">
+                <YamlEditor
+                  filename="alertmanager-config.yaml"
+                  jsonSchema={jsonSchema}
+                  data={alertmanager?.config || ""}
+                  onChange={handleConfigChange}
+                />
+              </Box>
+            </CardContent>
+            <Button
+              variant="contained"
+              state="primary"
+              disabled={!configValid || formState.status !== "active"}
+              onClick={handleSave}
+            >
+              publish
+            </Button>
+            <ErrorPanel response={formState.data.remoteValidation} />
+          </Card>
         </Box>
-      </Layout>
+      </Box>
     );
 };
 
@@ -195,4 +196,15 @@ const ErrorPanel = ({ response }: ErrorPanelProps) => (
   </CondRender>
 );
 
-export default AlertmanagerConfigEditor;
+const AlertmanagerConfigEditorLoader = () => {
+  const { tenantSlug } = useParams<{ tenantSlug: string }>();
+  const tenant = useTenantByUrlSlug(tenantSlug);
+
+  if (tenant) return <AlertmanagerConfigEditor tenant={tenant} />;
+  else
+    return (
+      <Skeleton variant="rect" width="100%" height="100%" animation="wave" />
+    );
+};
+
+export default AlertmanagerConfigEditorLoader;

@@ -15,12 +15,12 @@
  */
 
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 
 import useUserList from "state/user/hooks/useUserList";
 import { deleteUser } from "state/user/actions";
 import { usePickerService, PickerOption } from "client/services/Picker";
 import { useCommandService } from "client/services/Command";
-import { useDispatch } from "react-redux";
 import { userToPickerOption } from "./UserPicker";
 
 const DeleteUserPicker = () => {
