@@ -1,5 +1,32 @@
 actions:
+- name: deleteRuleGroup
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
+    headers:
+    - name: X-Action-Secret
+      value_from_env: ACTION_CONFIG_API_SECRET
+  permissions:
+  - role: user_admin
 - name: getAlertmanager
+  definition:
+    kind: ""
+    handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
+    headers:
+    - name: X-Action-Secret
+      value_from_env: ACTION_CONFIG_API_SECRET
+  permissions:
+  - role: user_admin
+- name: getRuleGroup
+  definition:
+    kind: ""
+    handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
+    headers:
+    - name: X-Action-Secret
+      value_from_env: ACTION_CONFIG_API_SECRET
+  permissions:
+  - role: user_admin
+- name: listRules
   definition:
     kind: ""
     handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
@@ -17,34 +44,7 @@ actions:
       value_from_env: ACTION_CONFIG_API_SECRET
   permissions:
   - role: user_admin
-- name: listRules
-  definition:
-    kind: synchronous
-    handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
-    headers:
-    - name: X-Action-Secret
-      value_from_env: ACTION_CONFIG_API_SECRET
-  permissions:
-  - role: user_admin
-- name: getRuleGroup
-  definition:
-    kind: synchronous
-    handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
-    headers:
-    - name: X-Action-Secret
-      value_from_env: ACTION_CONFIG_API_SECRET
-  permissions:
-  - role: user_admin
 - name: updateRuleGroup
-  definition:
-    kind: synchronous
-    handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
-    headers:
-    - name: X-Action-Secret
-      value_from_env: ACTION_CONFIG_API_SECRET
-  permissions:
-  - role: user_admin
-- name: deleteRuleGroup
   definition:
     kind: synchronous
     handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
