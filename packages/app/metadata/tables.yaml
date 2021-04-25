@@ -88,52 +88,18 @@
 - table:
     schema: public
     name: credential
+  object_relationships:
+  - name: tenantByTenantId
+    using:
+      foreign_key_constraint_on: tenant_id
   array_relationships:
   - name: exporters
     using:
-      manual_configuration:
-        remote_table:
+      foreign_key_constraint_on:
+        column: credential_id
+        table:
           schema: public
           name: exporter
-        column_mapping:
-          tenant: tenant
-          name: credential
-  insert_permissions:
-  - role: user_admin
-    permission:
-      check: {}
-      columns:
-      - name
-      - tenant
-      - tenant_id
-      - type
-      - value
-      backend_only: false
-  select_permissions:
-  - role: user_admin
-    permission:
-      columns:
-      - created_at
-      - id
-      - name
-      - tenant
-      - tenant_id
-      - type
-      - updated_at
-      filter: {}
-      allow_aggregations: true
-  update_permissions:
-  - role: user_admin
-    permission:
-      columns:
-      - name
-      - tenant
-      - tenant_id
-      - type
-      - updated_at
-      - value
-      filter: {}
-      check: {}
   delete_permissions:
   - role: user_admin
     permission:
@@ -141,49 +107,13 @@
 - table:
     schema: public
     name: exporter
-  insert_permissions:
-  - role: user_admin
-    permission:
-      check: {}
-      columns:
-      - config
-      - credential
-      - credential_id
-      - name
-      - tenant
-      - tenant_id
-      - type
-      backend_only: false
-  select_permissions:
-  - role: user_admin
-    permission:
-      columns:
-      - config
-      - created_at
-      - credential
-      - credential_id
-      - id
-      - name
-      - tenant
-      - tenant_id
-      - type
-      - updated_at
-      filter: {}
-      allow_aggregations: true
-  update_permissions:
-  - role: user_admin
-    permission:
-      columns:
-      - config
-      - credential
-      - credential_id
-      - name
-      - tenant
-      - tenant_id
-      - type
-      - updated_at
-      filter: {}
-      check: null
+  object_relationships:
+  - name: credentialByCredentialId
+    using:
+      foreign_key_constraint_on: credential_id
+  - name: tenantByTenantId
+    using:
+      foreign_key_constraint_on: tenant_id
   delete_permissions:
   - role: user_admin
     permission:
@@ -377,6 +307,21 @@
 - table:
     schema: public
     name: tenant
+  array_relationships:
+  - name: credentials
+    using:
+      foreign_key_constraint_on:
+        column: tenant_id
+        table:
+          schema: public
+          name: credential
+  - name: exporters
+    using:
+      foreign_key_constraint_on:
+        column: tenant_id
+        table:
+          schema: public
+          name: exporter
   insert_permissions:
   - role: user_admin
     permission:
@@ -394,6 +339,14 @@
       - name
       - type
       filter: {}
+  update_permissions:
+  - role: user_admin
+    permission:
+      columns:
+      - name
+      - type
+      filter: {}
+      check: null
   delete_permissions:
   - role: user_admin
     permission:
