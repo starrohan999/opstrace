@@ -3,3 +3,5 @@ ALTER TABLE "public"."tenant" ADD CONSTRAINT "tenant_url_slug_key" UNIQUE ("url_
 
 -- There are already DNS records using the tenant name, so need to keep those working
 UPDATE "public"."tenant" t SET url_slug = t.name;
+
+ALTER TABLE "public"."tenant" ALTER COLUMN "url_slug" SET NOT NULL;
