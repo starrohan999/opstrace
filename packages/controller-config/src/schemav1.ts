@@ -18,7 +18,7 @@ import * as yup from "yup";
 import { GCPConfig } from "@opstrace/gcp";
 import { AWSConfig } from "@opstrace/aws";
 
-export const controllerConfigSchema = yup
+export const ControllerConfigSchemaV1 = yup
   .object({
     name: yup.string(),
     target: yup
@@ -26,10 +26,10 @@ export const controllerConfigSchema = yup
       .oneOf(["gcp", "aws"])
       .required("must specify a target (gcp | aws)"),
     region: yup.string().required("must specify region"),
-    logRetentionDays: yup
+    logRetention: yup
       .number()
       .required("must specify log retention in number of days"),
-    metricRetentionDays: yup
+    metricRetention: yup
       .number()
       .required("must specify metric retention in number of days"),
     dnsName: yup.string().required(),
@@ -37,11 +37,7 @@ export const controllerConfigSchema = yup
     // https://stackoverflow.com/a/63944333/145400 `data_api_authn_pubkey_pem`
     // is optional, is a legacy controller config option, a noop right now
     // (future: set fallback key for authenticator).
-    data_api_authn_pubkey_pem: yup.string().optional(),
-    tenant_api_authenticator_pubkey_set_json: yup
-      .string()
-      .typeError()
-      .strict(true),
+    data_api_authn_pubkey_pem: yup.string().required(),
     disable_data_api_authentication: yup.bool().required(),
     uiSourceIpFirewallRules: yup.array(yup.string()).ensure(),
     apiSourceIpFirewallRules: yup.array(yup.string()).ensure(),
@@ -65,4 +61,4 @@ export const controllerConfigSchema = yup
   .noUnknown()
   .defined();
 
-export type ControllerConfigType = yup.InferType<typeof controllerConfigSchema>;
+export type ControllerConfigTypeV1 = yup.InferType<typeof ControllerConfigSchemaV1>;

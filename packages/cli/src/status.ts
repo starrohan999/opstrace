@@ -25,9 +25,9 @@ import * as cli from "./index";
 import { Dict, SECOND } from "@opstrace/utils";
 import {
   setClusterConfig,
-  NewRenderedClusterConfigType,
-  InfraConfigTypeAWS,
-  InfraConfigTypeGCP
+  LatestClusterConfigType,
+  LatestAWSInfraConfigType,
+  LatestGCPInfraConfigType
 } from "@opstrace/config";
 import {
   ClusterCreateConfigInterface,
@@ -67,16 +67,16 @@ async function checkClusterStatus() {
   // Definitely technical debt leaking as an interface, needs to be
   // consolidated.
   const [userClusterConfig, infraConfigAWS, infraConfigGCP]: [
-    schemas.ClusterConfigFileSchemaType,
-    InfraConfigTypeAWS | undefined,
-    InfraConfigTypeGCP | undefined
+    schemas.LatestClusterConfigFileSchemaType,
+    LatestAWSInfraConfigType | undefined,
+    LatestGCPInfraConfigType | undefined
   ] = await ucc.uccGetAndValidate(
     cli.CLIARGS.clusterConfigFilePath,
     cli.CLIARGS.cloudProvider
   );
 
   // this is here just to compile, right?
-  const ccfg: NewRenderedClusterConfigType = {
+  const ccfg: LatestClusterConfigType = {
     ...userClusterConfig,
     ...{
       aws: infraConfigAWS,

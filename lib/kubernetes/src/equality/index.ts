@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import equal = require("fast-deep-equal");
 import { isDeepStrictEqual } from "util";
 import * as Service from "./Service";
 import * as ServiceMonitor from "./ServiceMonitor";
@@ -29,6 +30,7 @@ import {
   ServiceType,
   ConfigMapType,
   ClusterRoleType,
+  CustomResourceDefinitionType,
   V1ServicemonitorResourceType,
   V1PrometheusruleResourceType,
   V1PrometheusResourceType,
@@ -37,37 +39,20 @@ import {
 } from "..";
 
 import { logDifference } from "./general";
-import { NetworkingV1beta1IngressTLS } from "@kubernetes/client-node";
 import { V1CertificateResource } from "../custom-resources";
 import { isCertificateEqual } from "./Certificate";
+import { log } from "@opstrace/utils";
 
 export * from "./general";
 export * from "./Pod";
-
-function isNetworkingV1beta1IngressTLSEqual(
-  desired: NetworkingV1beta1IngressTLS,
-  existing: NetworkingV1beta1IngressTLS
-): boolean {
-  return (
-    isDeepStrictEqual(desired?.hosts, existing?.hosts) &&
-    desired?.secretName == existing?.secretName
-  );
-}
 
 export const hasIngressChanged = (
   desired: IngressType,
   existing: IngressType
 ): boolean => {
   if (
-    Array.isArray(desired.spec.spec?.tls) &&
-    Array.isArray(existing.spec.spec?.tls) &&
-    (desired.spec.spec?.tls.length !== existing.spec.spec?.tls.length ||
-      desired.spec.spec?.tls.find(
-        (t, i) =>
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          !isNetworkingV1beta1IngressTLSEqual(t, existing.spec.spec!.tls![i])
-      )) &&
-    !isDeepStrictEqual(
+    !equal(desired.spec.spec, existing.spec.spec) ||
+    !equal(
       desired.spec.metadata?.annotations,
       existing.spec.metadata?.annotations
     )
@@ -90,6 +75,36 @@ export const hasDeploymentChanged = (
     desired.spec.spec?.replicas &&
     existing.spec.spec?.replicas &&
     desired.spec.spec.replicas !== existing.spec.spec.replicas
+  ) {
+    logDifference(
+      `${desired.spec.metadata?.namespace}/${desired.spec.metadata?.name}`,
+      desired.spec,
+      existing.spec
+    );
+    return true;
+  }
+
+  if (
+    desired.spec.spec?.strategy !== undefined &&
+    !isDeepStrictEqual(
+      desired.spec.spec?.strategy,
+      existing.spec.spec?.strategy
+    )
+  ) {
+    logDifference(
+      `${desired.spec.metadata?.namespace}/${desired.spec.metadata?.name}`,
+      desired.spec,
+      existing.spec
+    );
+    return true;
+  }
+
+  if (
+    desired.spec.spec?.selector !== undefined &&
+    !isDeepStrictEqual(
+      desired.spec.spec?.selector,
+      existing.spec.spec?.selector
+    )
   ) {
     logDifference(
       `${desired.spec.metadata?.namespace}/${desired.spec.metadata?.name}`,
@@ -317,13 +332,61 @@ export const hasClusterRoleChanged = (
   desired: ClusterRoleType,
   existing: ClusterRoleType
 ): boolean => {
-  if (!isDeepStrictEqual(desired.spec, existing.spec)) {
+  // The spec in the ClusterRole resource contains the metadata field.
+  // Kubernetes adds some fields to the metadata when a resource is created.
+  // Those defaults make this check fail. Check if any of the fiels we are
+  // interested in have changed.
+  if (
+    !isDeepStrictEqual(
+      desired.spec.aggregationRule,
+      existing.spec.aggregationRule
+    ) ||
+    !isDeepStrictEqual(desired.spec.apiVersion, existing.spec.apiVersion) ||
+    !isDeepStrictEqual(desired.spec.kind, existing.spec.kind) ||
+    !isDeepStrictEqual(desired.spec.rules, existing.spec.rules) ||
+    !isDeepStrictEqual(
+      desired.spec.metadata?.annotations,
+      existing.spec.metadata?.annotations
+    ) ||
+    !isDeepStrictEqual(
+      desired.spec.metadata?.labels,
+      existing.spec.metadata?.labels
+    ) ||
+    !isDeepStrictEqual(
+      desired.spec.metadata?.name,
+      existing.spec.metadata?.name
+    )
+  ) {
     logDifference(
       `${desired.spec.metadata?.namespace}/${desired.spec.metadata?.name}`,
       desired.spec,
       existing.spec
     );
-    return false;
+    return true;
   }
-  return true;
+
+  return false;
+};
+
+// isDeepStrictEquals doesn't handle the CRD schema very well and always reports
+// a mismatch. The workaround is to check if the annotations match. This works
+// since we add an annotation with the controller version to the CRDs.
+export const hasCustomResourceDefinitionChanged = (
+  desired: CustomResourceDefinitionType,
+  existing: CustomResourceDefinitionType
+): boolean => {
+  if (
+    !isDeepStrictEqual(
+      desired.spec.metadata?.annotations,
+      existing.spec.metadata?.annotations
+    )
+  ) {
+    // don't use logDifference because it doesn't handle very large json objects
+    // like the CRD schema and it'll stall for a few seconds for each CRD it
+    // compares
+    log.debug(`CRD ${desired.spec.metadata?.name} requires update`);
+    return true;
+  }
+
+  return false;
 };

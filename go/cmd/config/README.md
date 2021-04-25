@@ -233,44 +233,55 @@ In normal use, the config service extracts the tenant name from the bearer token
 
 Upsert (will fail if types are unsupported or invalid format)
 ```
-echo 'name: foo
+echo '
+name: foo
 type: aws-key
-# aws-key must contain these two fields as nested yaml (stored as json in postgres):
+# aws-key must contain these two fields:
 value:
   AWS_ACCESS_KEY_ID: foo
   AWS_SECRET_ACCESS_KEY: bar
 ---
 name: bar
+type: azure-service-principal
+# azure-service-principal must contain these four fields:
+value:
+  AZURE_SUBSCRIPTION_ID: my-subscription-uuid
+  AZURE_TENANT_ID: my-directory-uuid
+  AZURE_CLIENT_ID: my-application-uuid
+  AZURE_CLIENT_SECRET: my-app-client-secret
+---
+name: baz
 type: gcp-service-account
 # gcp-service-account must contain valid json:
 value: |-
   {"json": "goes-here"}
-' | curl -v -H "X-Scope-OrgID: tenant-foo" -XPOST --data-binary @- http://127.0.0.1:8989/api/v1/credentials/
+' | curl -v -H "Authorization: Bearer $(cat tenant-api-token-dev)" --data-binary @- https://MYCLUSTER.opstrace.io/api/v1/credentials/
 ```
 
 Get all
 ```
-curl -v -H "X-Scope-OrgID: tenant-foo" http://127.0.0.1:8989/api/v1/credentials/
+curl -v -H "Authorization: Bearer $(cat tenant-api-token-dev)" https://MYCLUSTER.opstrace.io/api/v1/credentials/
 ```
 
 Get foo
 ```
-curl -v -H "X-Scope-OrgID: tenant-foo" http://127.0.0.1:8989/api/v1/credentials/foo
+curl -v -H "Authorization: Bearer $(cat tenant-api-token-dev)" https://MYCLUSTER.opstrace.io/api/v1/credentials/foo
 ```
 
 Delete foo
 ```
-curl -v -H "X-Scope-OrgID: tenant-foo" -XDELETE http://127.0.0.1:8989/api/v1/credentials/foo
+curl -v -H "Authorization: Bearer $(cat tenant-api-token-dev)" -XDELETE https://MYCLUSTER.opstrace.io/api/v1/credentials/foo
 ```
 
 #### Exporter HTTP examples
 
 Upsert (will fail if referenced `credential`s aren't present or are incompatible types)
 ```
-echo 'name: foo
+echo '
+name: foo
 type: cloudwatch
 credential: foo
-# nested yaml payload defined by cloudwatch exporter:
+# nested yaml configuration defined by cloudwatch exporter:
 config:
   region: us-west-2
   metrics:
@@ -288,8 +299,26 @@ config:
     aws_statistics: [Sum]
 ---
 name: bar
-type: stackdriver
+type: azure
 credential: bar
+# nested yaml configuration defined by azure exporter:
+config:
+  resource_groups:
+  - resource_group: MYGROUP
+    resource_types: # example obtained via "azure_metrics_exporter --list.namespaces"
+    - "Microsoft.Storage/storageAccounts"
+    metrics: # example obtained via "azure_metrics_exporter --list.definitions"
+    - name: Availability
+    - name: Egress
+    - name: Ingress
+    - name: SuccessE2ELatency
+    - name: SuccessServerLatency
+    - name: Transactions
+    - name: UsedCapacity
+---
+name: baz
+type: stackdriver
+credential: baz
 # nested yaml fields matching stackdriver exporter flags:
 config:
   monitoring.metrics-type-prefixes: # required, comma separated list
@@ -300,20 +329,48 @@ config:
   - proj2
   monitoring.metrics-interval: '5m' # optional
   monitoring.metrics-offset: '0s' # optional
-' | curl -v -H "X-Scope-OrgID: tenant-foo" -XPOST --data-binary @- http://127.0.0.1:8989/api/v1/exporters/
+---
+name: bazz
+type: blackbox
+config:
+  probes: # required, list of probes to collect. args match HTTP params
+  - target: prometheus.io
+    module: http_2xx
+  - target: example.com
+    module: http_2xx
+  - target: 1.1.1.1
+    module: dns_opstrace_mx
+  - target: 8.8.8.8
+    module: dns_opstrace_mx
+  modules: # optional, blackbox module configuration to overwrite exporter defaults
+    http_2xx:
+      prober: http
+      timeout: 5s
+      http:
+        preferred_ip_protocol: "ip4"
+    dns_opstrace_mx:
+      prober: dns
+      timeout: 5s
+      dns:
+        preferred_ip_protocol: "ip4"
+        transport_protocol: tcp
+        dns_over_tls: true
+        query_name: opstrace.com
+        query_type: MX
+' | curl -v -H "Authorization: Bearer $(cat tenant-api-token-dev)" --data-binary @- https://MYCLUSTER.opstrace.io/api/v1/exporters/
 ```
 
 Get all
 ```
-curl -v -H "X-Scope-OrgID: tenant-foo" http://127.0.0.1:8989/api/v1/exporters/
+curl -v -H "Authorization: Bearer $(cat tenant-api-token-dev)" https://MYCLUSTER.opstrace.io/api/v1/exporters/
 ```
 
 Get foo
 ```
-curl -v -H "X-Scope-OrgID: tenant-foo" http://127.0.0.1:8989/api/v1/exporters/foo
+curl -v -H "Authorization: Bearer $(cat tenant-api-token-dev)" https://MYCLUSTER.opstrace.io/api/v1/exporters/foo
 ```
 
 Delete foo
 ```
-curl -v -H "X-Scope-OrgID: tenant-foo" -XDELETE http://127.0.0.1:8989/api/v1/exporters/foo
+curl -v -H "Authorization: Bearer $(cat tenant-api-token-dev)" -XDELETE https://MYCLUSTER.opstrace.io/api/v1/exporters/foo
 ```

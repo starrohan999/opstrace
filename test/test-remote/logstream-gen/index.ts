@@ -150,8 +150,8 @@ const counter_log_entries_pushed = new promclient.Counter({
 const counter_payload_bytes_pushed = new promclient.Counter({
   name: "counter_payload_bytes_pushed",
   help:
-    "byte length of all pushed log messages / metric samples so far " +
-    "(assumes utf-8 encoding for logs and 8 byte per sample for metrics)"
+    "byte length of all pushed log entries / metric samples so far " +
+    "(12 byte per timestamp, assume utf-8 encoding for logs and 8 bytes per sample for metrics)"
 });
 
 const counter_post_responses = new promclient.Counter({
@@ -504,7 +504,7 @@ async function main() {
       // rely on cyclenum to start at 1, 0 % N is 0 so that in the first
       // run some dummystreams are created!
       log.info("cycle %s: create new dummystreams", cyclenum);
-      dummystreams = createNewDummyStreams(guniqueCycleId);
+      dummystreams = await createNewDummyStreams(guniqueCycleId);
     } else {
       log.info(
         "cycle %s: continue to use dummystreams of previous cycle",
@@ -533,9 +533,9 @@ async function main() {
   httpServerTerminator.terminate();
 }
 
-function createNewDummyStreams(
+async function createNewDummyStreams(
   guniqueCycleId: string
-): Array<DummyStream | DummyTimeseries> {
+): Promise<Array<DummyStream | DummyTimeseries>> {
   const streams = [];
 
   for (let i = 1; i < CFG.n_concurrent_streams + 1; i++) {
@@ -565,9 +565,23 @@ function createNewDummyStreams(
         n_samples_per_series_fragment: Number(
           CFG.n_entries_per_stream_fragment
         ),
+
+        // Start earlier than given by starttime so that default ('now') works.
+        // With Cortex' Blocks Storage system, we cannot go into the future
+        // compared to "now" (from Cortex' system time point of view), but we
+        // also cannot fall behind for more than 60 minutes, see
+        // https://github.com/cortexproject/cortex/issues/2366. That means that
+        // the wall time passed after DummyTimeseries initialization matters.
+        // How exactly it matters depends on the synthetically created time
+        // difference between adjacent metric samples and the push rate. Before
+        // building a system that allows for precise control here (and a
+        // potential automatic correction), let the human operator of Looker
+        // use the one hour leeway that we have here in a 'smart' way. Let
+        // each DummyTimeseries start in the _center_ of the timewindow, i.e
+        // 30 minutes in the past compared to now.
         starttime: ZonedDateTime.parse(CFG.log_start_time)
-          .minusMinutes(50)
-          .withNano(0), // dirty hack: start earlier than given by starttime so that default ('now') works (can't go into future)
+          .minusMinutes(30)
+          .withNano(0),
         uniqueName: streamname,
         timediffMilliSeconds: CFG.metrics_time_increment_ms,
         labelset: labelset
@@ -590,11 +604,15 @@ function createNewDummyStreams(
     const msg = `Initialized dummystream: ${stream}. Time of first entry in stream: ${stream.currentTimeRFC3339Nano()}`;
     if (i % 1000 == 0) {
       log.info(msg + " (999 msgs like this hidden)");
+      // Allow for more or less snappy SIGINTing this initialization step.
+      await sleep(0.0001);
     } else {
       log.debug(msg);
     }
     streams.push(stream);
   }
+
+  log.info("stream initialization finished");
   return streams;
 }
 
@@ -619,7 +637,10 @@ async function performWriteReadCycle(
     );
   }
 
+  log.info("cycle %s: entering write phase", cyclenum);
   const writestats = await writePhase(dummystreams);
+
+  log.info("cycle %s: entering read phase", cyclenum);
   const readstats = await readPhase(dummystreams);
 
   const report = {
@@ -689,7 +710,7 @@ async function writePhase(streams: Array<DummyStream | DummyTimeseries>) {
     megaPayloadBytesSent.toFixed(2)
   );
   log.info(
-    "Payload write net throughput (mean): %s million bytes per second (assumes utf8 for logs and 8 byte per sample for metrics)",
+    "Payload write net throughput (mean): %s million bytes per second (assumes utf8 for logs and 12+8 Bytes per sample for metrics)",
     megaPayloadBytesSentPerSec.toFixed(2)
   );
 
@@ -773,6 +794,7 @@ async function readPhase(dummystreams: Array<DummyStream | DummyTimeseries>) {
   let nEntriesReadArr;
   try {
     // each validator returns the number of entries read (and validated)
+    // TODO: a little it of progress report here would be nice.
     nEntriesReadArr = await Promise.all(validators);
   } catch (err) {
     log.crit("error during validation: %s", err);
@@ -830,11 +852,14 @@ export async function postFragments(
   // actors, but throttle their main activity (fragment generation and
   // serialization) to N_concurrent_writes (think: upper bound between 10**2
   // and 10**3).
+  log.info(
+    "create %s pushrequestProducerAndPOSTer()",
+    CFG.n_concurrent_streams
+  );
   for (const stream of streams) {
     actors.push(pushrequestProducerAndPOSTer(stream, writeConcurSemaphore));
   }
 
-  // Wait for producers and consumers to return.
   await Promise.all(actors);
 }
 
@@ -879,6 +904,13 @@ async function _produceAndPOSTpushrequest(
     const fragment = stream.generateAndGetNextFragment();
     stream.lastFragmentConsumed = fragment;
 
+    // NOTE(JP): here we can calculate the lag between the first or last sample
+    // in the fragment and the actual wall time. Matters a lot for metrics
+    // mode! Can be used to log it for starters, to let a human decide to
+    // change parameters. Can also be used to auto-correct things (in a way
+    // that allows for read validation, i.e. allowing for calculation of sample
+    // timestamps w/o keeping all data that was written).
+
     const t0 = mtime();
     const pushrequest = fragment.serialize(); //toPushrequest();
     const genduration = mtimeDiffSeconds(t0);
@@ -919,6 +951,11 @@ async function _produceAndPOSTpushrequest(
     COUNTER_STREAM_FRAGMENTS_PUSHED++;
     counter_fragments_pushed.inc();
     counter_log_entries_pushed.inc(CFG.n_entries_per_stream_fragment);
+
+    // NOTE: payloadByteCount() includes timestamps. For logs, the timestamp
+    // payload data (12 bytes per entry) might be small compared to the log
+    // entry data. For metrics, the timestamp data is _larger than_ the
+    // numerical sample data (8 bytes per sample).
 
     // Convert BigInt to Number and assume that the numbers are small enough
     counter_payload_bytes_pushed.inc(Number(pr.fragment.payloadByteCount()));

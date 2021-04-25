@@ -3,6 +3,8 @@
 set -eou pipefail
 
 make rebuild-ci-container-image
+# testrunner run tsc which requires buildinfo package to be set
+make set-build-info-constants
 make rebuild-testrunner-container-images
 make rebuild-looker-container-images
 
@@ -27,9 +29,8 @@ trap "teardown" EXIT
 
 make ci-testupgrade-create-cluster
 
-make test-remote
-make test-remote-looker
-make test-remote-ui
+# TODO(sreis): Add a new sanity check on the base cluster here before running
+# the upgrade. https://github.com/opstrace/opstrace/issues/591
 
 make ci-testupgrade-upgrade-cluster
 

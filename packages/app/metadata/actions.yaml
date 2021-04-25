@@ -17,6 +17,42 @@ actions:
       value_from_env: ACTION_CONFIG_API_SECRET
   permissions:
   - role: user_admin
+- name: listRules
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
+    headers:
+    - name: X-Action-Secret
+      value_from_env: ACTION_CONFIG_API_SECRET
+  permissions:
+  - role: user_admin
+- name: getRuleGroup
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
+    headers:
+    - name: X-Action-Secret
+      value_from_env: ACTION_CONFIG_API_SECRET
+  permissions:
+  - role: user_admin
+- name: updateRuleGroup
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
+    headers:
+    - name: X-Action-Secret
+      value_from_env: ACTION_CONFIG_API_SECRET
+  permissions:
+  - role: user_admin
+- name: deleteRuleGroup
+  definition:
+    kind: synchronous
+    handler: '{{ACTION_CONFIG_API_ENDPOINT}}'
+    headers:
+    - name: X-Action-Secret
+      value_from_env: ACTION_CONFIG_API_SECRET
+  permissions:
+  - role: user_admin
 - name: validateCredential
   definition:
     kind: ""
@@ -50,8 +86,10 @@ custom_types:
       value: VALIDATION_FAILED
   input_objects:
   - name: AlertmanagerInput
+  - name: RuleGroupInput
   objects:
+  - name: StatusResponse
   - name: Alertmanager
-  - name: AlertmanagerUpdateResponse
-  - name: ValidateOutput
+  - name: Rules
+  - name: RuleGroup
   scalars: []

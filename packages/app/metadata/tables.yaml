@@ -98,6 +98,41 @@
         column_mapping:
           tenant_id: tenant_id
           name: credential
+  insert_permissions:
+  - role: user_admin
+    permission:
+      check: {}
+      columns:
+      - tenant
+      - name
+      - type
+      - value
+      - created_at
+      - updated_at
+      backend_only: false
+  select_permissions:
+  - role: user_admin
+    permission:
+      columns:
+      - created_at
+      - name
+      - tenant
+      - type
+      - updated_at
+      filter: {}
+      allow_aggregations: true
+  update_permissions:
+  - role: user_admin
+    permission:
+      columns:
+      - value
+      - name
+      - tenant
+      - type
+      - created_at
+      - updated_at
+      filter: {}
+      check: {}
   delete_permissions:
   - role: user_admin
     permission:
@@ -114,7 +149,49 @@
           name: credential
         column_mapping:
           credential: name
-          tenant_id: tenant_id
+          tenant: tenant
+  - name: tenantByTenant
+    using:
+      foreign_key_constraint_on: tenant
+  insert_permissions:
+  - role: user_admin
+    permission:
+      check: {}
+      columns:
+      - tenant
+      - name
+      - type
+      - credential
+      - config
+      - created_at
+      - updated_at
+      backend_only: false
+  select_permissions:
+  - role: user_admin
+    permission:
+      columns:
+      - config
+      - credential
+      - name
+      - tenant
+      - type
+      - created_at
+      - updated_at
+      filter: {}
+      allow_aggregations: true
+  update_permissions:
+  - role: user_admin
+    permission:
+      columns:
+      - config
+      - credential
+      - name
+      - tenant
+      - type
+      - created_at
+      - updated_at
+      filter: {}
+      check: null
   delete_permissions:
   - role: user_admin
     permission:

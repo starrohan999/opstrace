@@ -91,10 +91,10 @@ Learn more about tenant isolation in our [key concepts references](./references/
 ```bash
 cat <<EOF > opstrace-config.yaml
 tenants:
+  - dev
   - staging
   - prod
 env_label: quickstart
-node_count: 3
 cert_issuer: letsencrypt-prod
 EOF
 ```
@@ -333,5 +333,12 @@ Share the resulting file with us at [hello@opstrace.com](mailto:hello@opstrace.c
 
 That's it! 👏
 
-Congratulations, you're now an Opstrace user!
+<!-- markdownlint-disable MD044 -->
+Join our [community Slack](https://go.opstrace.com/community) and follow us on [Twitter @opstrace](https://twitter.com/opstrace).
+Let us know what you thought of the quick start—we like any and all feedback.
+<!-- markdownlint-enable MD044 -->
 
+To learn more about how to use Opstrace, check out our Administrator and User Guides.
+If you'd like to hack on Opstrace, feel free to [fork our repository](https://github.com/opstrace/opstrace/network/members) and set up your [dev environment](https://opstrace.com/docs/guides/contributor/setting-up-your-dev-env).
+
+Thank you. 🙏

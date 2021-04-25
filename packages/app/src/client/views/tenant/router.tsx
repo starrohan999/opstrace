@@ -21,7 +21,8 @@ import SideBar from "client/views/sidebar";
 import Layout from "client/layout/MainContent";
 
 import TenantDetail from "client/views/tenant/TenantDetail";
-import AlertmanagerConfigEditor from "client/views/tenant/alertmanager/AlertmanagerConfigEditor";
+import AlertmanagerConfigEditor from "client/views/tenant/alertmanagerConfig/editor";
+import { CloudMetrics } from "client/viewsBasic/cloudMetrics";
 
 import NotFound from "client/views/404/404";
 
@@ -34,6 +35,12 @@ const TenantRouter = () => {
           key="/cluster/tenants/:tenantSlug/alertmanager-config"
           path="/cluster/tenants/:tenantSlug/alertmanager-config"
           component={AlertmanagerConfigEditor}
+        />
+        <Route
+          exact
+          key="/cluster/tenants/:tenantSlug/cloud-metrics"
+          path="/cluster/tenants/:tenantSlug/cloud-metrics"
+          component={CloudMetrics}
         />
         <Route
           exact

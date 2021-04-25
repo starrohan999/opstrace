@@ -71,15 +71,20 @@ func (c *credentialAPI) listCredentials(tenant string, w http.ResponseWriter, r 
 
 	log.Debugf("Listing %d credentials", len(resp.Credential))
 
-	encoder := yaml.NewEncoder(w)
-	for _, credential := range resp.Credential {
-		encoder.Encode(CredentialInfo{
+	// Create list payload to respond with.
+	// Avoid passing entries individually to encoder since that won't consistently produce a list.
+	entries := make([]CredentialInfo, len(resp.Credential))
+	for i, credential := range resp.Credential {
+		entries[i] = CredentialInfo{
 			Name:      credential.Name,
 			Type:      credential.Type,
 			CreatedAt: credential.CreatedAt,
 			UpdatedAt: credential.UpdatedAt,
-		})
+		}
 	}
+
+	encoder := yaml.NewEncoder(w)
+	encoder.Encode(entries)
 }
 
 func (c *credentialAPI) writeCredentials(tenant string, w http.ResponseWriter, r *http.Request) {
@@ -250,9 +255,13 @@ func (c *credentialAPI) listCredentialTypes(tenant string) (map[string]string, e
 // Accepts the tenant name, the name->type mapping of any existin credentials, and the new credential payload.
 // Returns whether the credential already exists, and any validation error.
 func (c *credentialAPI) validateCredential(existingTypes map[string]string, credential Credential) (bool, error) {
+	// Check that the credential name is suitable for use in K8s object names
+	if err := config.ValidateName(credential.Name); err != nil {
+		return false, err
+	}
+
 	// Check that the credential value is valid JSON
-	err := validateCredentialValue(credential.Name, credential.Type, credential.ValueJSON)
-	if err != nil {
+	if err := validateCredentialValue(credential.Name, credential.Type, credential.ValueJSON); err != nil {
 		return false, err
 	}
 

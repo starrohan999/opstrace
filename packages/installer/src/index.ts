@@ -26,9 +26,9 @@ import {
   log,
   sleep,
   SECOND,
-  die,
   retryUponAnyError,
-  Dict
+  Dict,
+  checkIfDockerImageExistsOrErrorOut
 } from "@opstrace/utils";
 
 import {
@@ -36,7 +36,7 @@ import {
   getFirewallConfig,
   getClusterConfig,
   getDnsConfig,
-  NewRenderedClusterConfigType
+  LatestClusterConfigType
 } from "@opstrace/config";
 
 import { getKubeConfig, k8sListNamespacesOrError } from "@opstrace/kubernetes";
@@ -52,10 +52,10 @@ import {
 import { set as updateTenantsConfig } from "@opstrace/tenants";
 import {
   set as updateControllerConfig,
-  ControllerConfigType,
-  controllerConfigSchema,
   ControllerResourcesDeploymentStrategy,
-  deployControllerResources
+  deployControllerResources,
+  LatestControllerConfigType,
+  LatestControllerConfigSchema
 } from "@opstrace/controller-config";
 
 import { rootReducer } from "./reducer";
@@ -72,6 +72,10 @@ import {
 } from "./readiness";
 import { storeSystemTenantApiAuthTokenAsSecret } from "./secrets";
 import { EnsureInfraExistsResponse } from "./types";
+
+// typescript barrel export: https://basarat.gitbook.io/typescript/main-1/barrel
+export { EnsureInfraExistsResponse } from "./types";
+export { ensureAWSInfraExists } from "./aws";
 
 // GCP-specific cluster creation code can rely on this being set. First I tried
 // to wrap this into the non-user-given cluster config schema but then realized
@@ -108,7 +112,7 @@ const CREATE_ATTEMPTS = 3;
 const CREATE_ATTEMPT_TIMEOUT_SECONDS = 60 * 40;
 
 function* createClusterCore() {
-  const ccfg: NewRenderedClusterConfigType = getClusterConfig();
+  const ccfg: LatestClusterConfigType = getClusterConfig();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const gcpCredFilePath: string = process.env[
     "GOOGLE_APPLICATION_CREDENTIALS"
@@ -149,9 +153,7 @@ function* createClusterCore() {
 
   const dnsConf = getDnsConfig(ccfg.cloud_provider);
 
-  // Fail fast if specified controller docker image cannot be found on docker
-  // hub, see https://github.com/opstrace/opstrace/issues/1298.
-  let controllerConfig: ControllerConfigType = {
+  let controllerConfig: LatestControllerConfigType = {
     name: ccfg.cluster_name,
     target: ccfg.cloud_provider,
     region: region, // not sure why that's needed
@@ -172,15 +174,8 @@ function* createClusterCore() {
     disable_data_api_authentication: ccfg.data_api_authentication_disabled
   };
 
-  log.debug("validate controller config");
-
-  // "Strict schemas skip coercion and transformation attempts, validating the value "as is"."
-  // This is mainly to error out upon unexpected parameters: to 'enforce' yup's
-  // noUnknown, see
-  // https://github.com/jquense/yup/issues/829#issuecomment-606030995
-  // https://github.com/jquense/yup/issues/697
-  controllerConfigSchema.validateSync(controllerConfig, { strict: true });
-
+  // Fail fast if specified controller docker image cannot be found on docker
+  // hub, see https://github.com/opstrace/opstrace/issues/1298.
   if (!clusterCreateConfig.holdController) {
     yield call(checkIfDockerImageExistsOrErrorOut, ccfg.controller_image);
   }
@@ -223,13 +218,14 @@ function* createClusterCore() {
     };
   }
 
-  // Update our controllerConfig with the Postgress Endpoint and revalidate for good measure
+  // Update our controllerConfig with the Postgress Endpoint and revalidate for
+  // good measure
   controllerConfig = {
     ...controllerConfig,
     postgreSQLEndpoint,
     opstraceDBName
   };
-  controllerConfigSchema.validateSync(controllerConfig, { strict: true });
+  LatestControllerConfigSchema.validateSync(controllerConfig, { strict: true });
 
   if (!kubeconfigString) {
     throw Error("couldn't compute a kubeconfig");
@@ -584,73 +580,4 @@ export async function createCluster(
 
   // this is helpful when the runtime is supposed to crash but doesn't
   log.debug("end of createCluster()");
-}
-
-/**
- * Check if docker image exists on docker hub. `imageName` is expected to
- * define both the repository and the image tag, separated with a colon.
- *
- * Exit process when image name does not satisfy that requirement or when image
- * does not exist.
- *
- * Note: this is just a pragmatic check trying to help with a workflow trap,
- * may want to allow for overriding this check. Also, upon umbiguous signal
- * (not one of 200 or 404 reponse) do not error out.
- */
-async function checkIfDockerImageExistsOrErrorOut(imageName: string) {
-  log.info("check if docker image exists on docker hub: %s", imageName);
-  const splits = imageName.split(":");
-  if (splits.length != 2) {
-    die("unexpected controller image name");
-  }
-  const repo = splits[0];
-  const imageTag = splits[1];
-
-  const probeUrl = `https://hub.docker.com/v2/repositories/${repo}/tags/${imageTag}/`;
-  const requestSettings = {
-    throwHttpErrors: false,
-    retry: 3,
-    timeout: {
-      connect: 3000,
-      request: 10000
-    }
-  };
-
-  let resp: GotResponse<string> | GotResponse<Buffer> | undefined;
-
-  try {
-    resp = await got(probeUrl, requestSettings);
-  } catch (e) {
-    if (e instanceof got.RequestError) {
-      log.info(
-        `could not detect presence of docker image: ${e.message} -- ignored, proceed`
-      );
-      return;
-    } else {
-      throw e;
-    }
-  }
-
-  if (resp && resp.statusCode == 404) {
-    die(
-      "docker image not present on docker hub: you might want to push that first"
-    );
-  }
-
-  if (resp && resp.statusCode == 200) {
-    log.info("docker image present on docker hub, continue");
-    return;
-  }
-
-  log.info("unexpected response, ignore");
-  log.debug("respo status code: %s", resp.statusCode);
-
-  if (resp.body) {
-    // `slice()` works regardless of Buffer or string.
-    let bodyPrefix = resp.body.slice(0, 500);
-    // If buffer: best-effort decode the buffer into text (this method does _not_
-    // not blow up upon unexpected byte sequences).
-    if (Buffer.isBuffer(bodyPrefix)) bodyPrefix = bodyPrefix.toString("utf-8");
-    log.debug(`response body, first 500 bytes: ${bodyPrefix}`);
-  }
 }

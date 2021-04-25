@@ -25,6 +25,7 @@ opstrace
 ./go.mod
 
 tsconfig.tsbuildinfo
+_tscbuild/
 
 **/secrets/**
 **/out
@@ -42,6 +43,7 @@ pkg/datadog/datadog
 pkg/fluent-http/fluent-http
 pkg/loki/loki
 
+go/config-api
 go/cortex-api
 go/ddapi
 go/loki-api
@@ -57,7 +59,6 @@ packages/buildinfo/src/buildinfo.ts
 
 packages/app/.env
 packages/app/.env.client.development
-packages/app/.env.server.development
 
 /packages/controller-config/src/docker-images.json
 /lib/aws/src/util.ts
