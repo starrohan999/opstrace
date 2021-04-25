@@ -329,6 +329,7 @@
       columns:
       - name
       - type
+      - url_slug
       backend_only: false
   select_permissions:
   - role: user_admin
@@ -338,6 +339,7 @@
       - id
       - name
       - type
+      - url_slug
       filter: {}
   update_permissions:
   - role: user_admin
