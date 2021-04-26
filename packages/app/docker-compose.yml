@@ -7,6 +7,8 @@ services:
   postgres:
     image: postgres:12
     restart: always
+    ports:
+      - 8432:5432
     volumes:
       - /var/lib/postgresql/data
     environment:
