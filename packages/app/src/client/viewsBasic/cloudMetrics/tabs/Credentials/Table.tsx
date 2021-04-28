@@ -35,6 +35,7 @@ const useStyles = makeStyles({
 });
 
 type Row = {
+  id: string;
   name: string;
   type: string;
   created_at: string;

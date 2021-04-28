@@ -77,7 +77,7 @@ const Schema = yup.object().shape({
 const defaultValues: Values = {
   type: "cloudwatch",
   name: "",
-  credential: "",
+  credential_id: "",
   config: ""
 };
 
@@ -109,7 +109,7 @@ export function ExporterForm(props: { tenantId: string; onCreate: Function }) {
           tenant_id: tenantId,
           type: data.type,
           name: data.name,
-          credential_id: data.type !== "blackbox" ? data.credential : null,
+          credential_id: data.type !== "blackbox" ? data.credential_id : null,
           config: config
         }
       })

@@ -41,11 +41,13 @@ const Exporters = () => {
   const { data, mutate: changeCallback } = useHasura(
     `query exporters($tenant_id: String!) {
        exporter(where: {tenant_id: {_eq: $tenant_id}}) {
-         tenant
+         id
+         tenant_id
          name
          type
          config
-         credentialByCredentialTenant {
+         credential {
+           id
            name
          }
          created_at
@@ -70,10 +72,12 @@ const Exporters = () => {
 const formatRows = (data: any[] | undefined) => {
   if (data)
     return map((d: any) => ({
+      id: d.id,
+      tenant_id: d.tenant_id,
       name: d.name,
       type: d.type,
       config: d.config,
-      credential: d.credentialByCredentialTenant?.name,
+      credential: d.credential,
       created_at: d.created_at
     }))(data);
   else return [];

@@ -73,6 +73,7 @@ function Credentials() {
 const formatRows = (data: any[] | undefined) => {
   if (data)
     return map((d: any) => ({
+      id: d.id,
       name: d.name,
       type: d.type,
       exporter_count: d.exporters_aggregate.aggregate.count,
