@@ -3759,11 +3759,11 @@ export type DeleteTenantMutationVariables = Exact<{
 }>;
 
 export type DeleteTenantMutation = {
-  delete_tenant_by_pk?: Maybe<Pick<Tenant, "id" | "name">>;
+  delete_tenant_by_pk?: Maybe<Pick<Tenant, "id">>;
 };
 
 export type GetAlertmanagerQueryVariables = Exact<{
-  tenant_id: Scalars["String"];
+  tenant_name: Scalars["String"];
 }>;
 
 export type GetAlertmanagerQuery = {
@@ -3789,7 +3789,7 @@ export type SubscribeToTenantListSubscription = {
 };
 
 export type UpdateAlertmanagerMutationVariables = Exact<{
-  tenant_id: Scalars["String"];
+  tenant_name: Scalars["String"];
   input: AlertmanagerInput;
 }>;
 
@@ -4389,13 +4389,12 @@ export const DeleteTenantDocument = gql`
   mutation DeleteTenant($id: uuid!) {
     delete_tenant_by_pk(id: $id) {
       id
-      name
     }
   }
 `;
 export const GetAlertmanagerDocument = gql`
-  query GetAlertmanager($tenant_id: String!) {
-    getAlertmanager(tenant_id: $tenant_id) {
+  query GetAlertmanager($tenant_name: String!) {
+    getAlertmanager(tenant_id: $tenant_name) {
       config
       online
     }
@@ -4424,8 +4423,11 @@ export const SubscribeToTenantListDocument = gql`
   }
 `;
 export const UpdateAlertmanagerDocument = gql`
-  mutation UpdateAlertmanager($tenant_id: String!, $input: AlertmanagerInput!) {
-    updateAlertmanager(tenant_id: $tenant_id, input: $input) {
+  mutation UpdateAlertmanager(
+    $tenant_name: String!
+    $input: AlertmanagerInput!
+  ) {
+    updateAlertmanager(tenant_id: $tenant_name, input: $input) {
       success
       error_type
       error_message

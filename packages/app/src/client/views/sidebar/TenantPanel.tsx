@@ -70,7 +70,7 @@ export const TenantPanel = (props: TenantPanelProps) => {
       {
         id: "alertmanager",
         text: "Alertmanager",
-        data: { path: "alertmanager" }
+        data: { path: "alertmanager-config" }
       },
       {
         id: "cloud-metrics",

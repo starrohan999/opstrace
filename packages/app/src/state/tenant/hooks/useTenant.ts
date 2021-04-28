@@ -38,6 +38,16 @@ export const selectTenantByUrlSlug = createSelector(
   }
 );
 
+export const selectTenantByName = createSelector(
+  (state: State) => state.tenants.loading,
+  (state: State) => state.tenants.tenants,
+  (_: State, name: string) => name,
+  (loading, tenants, name): Tenant | null => {
+    // @ts-ignore
+    return loading ? null : find(propEq("name", name))(values(tenants));
+  }
+);
+
 export default function useTenant(id: string) {
   return useSelector((state: State) => selectTenant(state, id));
 }

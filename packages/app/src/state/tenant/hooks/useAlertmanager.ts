@@ -17,22 +17,22 @@
 import { createSelector } from "reselect";
 import { useSelector, useDispatch, State } from "state/provider";
 
-import { selectTenant } from "./useTenant";
+import { selectTenantByName } from "./useTenant";
 import { getAlertmanager } from "state/tenant/actions";
 
 export const selectAlertmanager = createSelector(
-  selectTenant,
+  selectTenantByName,
   tenant => tenant?.alertmanager
 );
 
-export default function useAlertmanager(tenantId: string) {
+export default function useAlertmanager(tenantName: string) {
   const data = useSelector((state: State) =>
-    selectAlertmanager(state, tenantId)
+    selectAlertmanager(state, tenantName)
   );
 
   const dispatch = useDispatch();
 
-  if (!data) dispatch(getAlertmanager(tenantId));
+  if (!data) dispatch(getAlertmanager(tenant));
 
   return data;
 }

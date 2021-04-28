@@ -19,13 +19,12 @@ import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 import { usePickerService } from "client/services/Picker";
-import { useTenantByUrlSlug } from "state/tenant/hooks/useTenant";
 
 import { Tenant } from "state/tenant/types";
+import { withTenant } from "client/views/tenant/utils";
 
 import { deleteTenant } from "state/tenant/actions";
 
-import Skeleton from "@material-ui/lab/Skeleton";
 import { Box } from "client/components/Box";
 import Attribute from "client/components/Attribute";
 import { Card, CardContent, CardHeader } from "client/components/Card";
@@ -124,15 +123,10 @@ const TenantDetail = ({ tenant }: TenantDetailProps) => {
   );
 };
 
-const TenantDetailParamLoader = () => {
+const TenantDetailParamLoader = (props: {}) => {
   const { tenantSlug } = useParams<{ tenantSlug: string }>();
-  const tenant = useTenantByUrlSlug(tenantSlug);
-
-  if (tenant) return <TenantDetail tenant={tenant} />;
-  else
-    return (
-      <Skeleton variant="rect" width="100%" height="100%" animation="wave" />
-    );
+  const Component = withTenant(TenantDetail, tenantSlug);
+  return <Component {...props} />;
 };
 
 export default TenantDetailParamLoader;

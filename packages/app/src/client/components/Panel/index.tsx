@@ -130,6 +130,7 @@ const PanelIcon = ({ item, allowNone }: PanelIconProps) => {
       </ListItemAvatar>
     );
   } else if (allowNone !== true) {
+    console.log(item);
     return (
       <ListItemAvatar>
         <Avatar alt={item.altText || item.text} className={classes.avatar}>

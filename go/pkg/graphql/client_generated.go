@@ -1819,8 +1819,7 @@ type DeleteTenantVariables struct {
 
 type DeleteTenantResponse struct {
 	DeleteTenantByPk struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
+		ID string `json:"id"`
 	} `json:"delete_tenant_by_pk"`
 }
 
@@ -1838,7 +1837,6 @@ func NewDeleteTenantRequest(url string, vars *DeleteTenantVariables) (*DeleteTen
 		Query: `mutation DeleteTenant($id: uuid!) {
   delete_tenant_by_pk(id: $id) {
     id
-    name
   }
 }`,
 	})
@@ -1878,11 +1876,11 @@ func (client *Client) DeleteTenant(vars *DeleteTenantVariables) (*DeleteTenantRe
 }
 
 //
-// query GetAlertmanager($tenant_id: String!)
+// query GetAlertmanager($tenant_name: String!)
 //
 
 type GetAlertmanagerVariables struct {
-	TenantId String `json:"tenant_id"`
+	TenantName String `json:"tenant_name"`
 }
 
 type GetAlertmanagerResponse struct {
@@ -1903,8 +1901,8 @@ func NewGetAlertmanagerRequest(url string, vars *GetAlertmanagerVariables) (*Get
 	}
 	b, err := json.Marshal(&GraphQLOperation{
 		Variables: variables,
-		Query: `query GetAlertmanager($tenant_id: String!) {
-  getAlertmanager(tenant_id: $tenant_id) {
+		Query: `query GetAlertmanager($tenant_name: String!) {
+  getAlertmanager(tenant_id: $tenant_name) {
     config
     online
   }
@@ -2011,12 +2009,12 @@ func (client *Client) GetTenants() (*GetTenantsResponse, error) {
 }
 
 //
-// mutation UpdateAlertmanager($tenant_id: String!, $input: AlertmanagerInput!)
+// mutation UpdateAlertmanager($tenant_name: String!, $input: AlertmanagerInput!)
 //
 
 type UpdateAlertmanagerVariables struct {
-	TenantId String            `json:"tenant_id"`
-	Input    AlertmanagerInput `json:"input"`
+	TenantName String            `json:"tenant_name"`
+	Input      AlertmanagerInput `json:"input"`
 }
 
 type UpdateAlertmanagerResponse struct {
@@ -2039,8 +2037,8 @@ func NewUpdateAlertmanagerRequest(url string, vars *UpdateAlertmanagerVariables)
 	}
 	b, err := json.Marshal(&GraphQLOperation{
 		Variables: variables,
-		Query: `mutation UpdateAlertmanager($tenant_id: String!, $input: AlertmanagerInput!) {
-  updateAlertmanager(tenant_id: $tenant_id, input: $input) {
+		Query: `mutation UpdateAlertmanager($tenant_name: String!, $input: AlertmanagerInput!) {
+  updateAlertmanager(tenant_id: $tenant_name, input: $input) {
     success
     error_type
     error_message

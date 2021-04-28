@@ -1,5 +1,5 @@
-mutation UpdateAlertmanager($tenant_id: String!, $input: AlertmanagerInput!) {
-  updateAlertmanager(tenant_id: $tenant_id, input: $input) {
+mutation UpdateAlertmanager($tenant_name: String!, $input: AlertmanagerInput!) {
+  updateAlertmanager(tenant_id: $tenant_name, input: $input) {
     success
     error_type
     error_message

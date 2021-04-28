@@ -1,6 +1,5 @@
 mutation DeleteTenant($id: uuid!) {
   delete_tenant_by_pk(id: $id) {
     id
-    name
   }
 }

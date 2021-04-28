@@ -36,6 +36,7 @@ export const alertmanagerLoaded = createAction("ALERTMANAGER_LOADED")<{
 }>();
 export const updateAlertmanager = createAction("UPDATE_ALERTMANAGER")<{
   tenantId: string;
+  tenantName: string;
   templates: string;
   config: string;
   formId?: string;
