@@ -18,7 +18,10 @@ import * as yup from "yup";
 import { GCPConfig } from "@opstrace/gcp";
 import { AWSConfig } from "@opstrace/aws";
 
-export const ControllerConfigSchemaV1 = yup
+// Between V1 and V2 there was a cluster launched that had the
+// tenant_api_authenticator_pubkey_set_json field but before logRetention and
+// metricRetention were renamed.
+export const ControllerConfigSchemaV1alpha = yup
   .object({
     name: yup.string(),
     target: yup
@@ -34,7 +37,10 @@ export const ControllerConfigSchemaV1 = yup
       .required("must specify metric retention in number of days"),
     dnsName: yup.string().required(),
     terminate: yup.bool().default(false),
-    data_api_authn_pubkey_pem: yup.string().required(), // assume: non-empty string
+    tenant_api_authenticator_pubkey_set_json: yup
+      .string()
+      .typeError()
+      .strict(true),
     disable_data_api_authentication: yup.bool().required(),
     uiSourceIpFirewallRules: yup.array(yup.string()).ensure(),
     apiSourceIpFirewallRules: yup.array(yup.string()).ensure(),
@@ -58,6 +64,6 @@ export const ControllerConfigSchemaV1 = yup
   .noUnknown()
   .defined();
 
-export type ControllerConfigTypeV1 = yup.InferType<
-  typeof ControllerConfigSchemaV1
+export type ControllerConfigTypeV1alpha = yup.InferType<
+  typeof ControllerConfigSchemaV1alpha
 >;

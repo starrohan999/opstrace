@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-import { call, CallEffect } from "redux-saga/effects";
-import { V1ConfigMap } from "@kubernetes/client-node";
-
 import { serialize, configmap, deserialize } from "../utils";
 
 import { LatestControllerConfigType } from "../schema";
@@ -34,30 +31,35 @@ import { log } from "@opstrace/utils";
  * Return deserialized configmap or `undefined` if the config map cannot
  * be found.
  */
-export function* fetch(
+export async function fetch(
   kubeConfig: KubeConfiguration
-): Generator<
-  CallEffect,
-  LatestControllerConfigType | undefined,
-  { body: V1ConfigMap }
-> {
+): Promise<LatestControllerConfigType | undefined> {
+  log.info("fetch controller config map");
   const cm = configmap(kubeConfig);
   try {
-    const v1ConfigMap = yield call([cm, cm.read]);
+    const v1ConfigMap = await cm.read();
+    log.debug("got config map body from k8s cluster: %s", v1ConfigMap.body);
     return deserialize(new ConfigMap(v1ConfigMap.body, kubeConfig));
   } catch (e) {
-    if (e.response && e.response.body.code == 404) {
-      log.info("cannot get controller config: %s", e.response.body.message);
-      return undefined;
+    if (e.response) {
+      if (e.response.body.code.toString().startsWith("4")) {
+        log.info(
+          "cannot get controller config: code %s, message: %s",
+          e.response.body.code,
+          e.response.body.message
+        );
+        return undefined;
+      }
     }
+
     throw e;
   }
 }
 
-export function* set(
+export async function set(
   controllerconfig: LatestControllerConfigType,
   kubeConfig: KubeConfiguration
-): Generator<CallEffect, void, unknown> {
+): Promise<void> {
   const cm = serialize(controllerconfig, kubeConfig);
 
   // Expect this error structure:
@@ -78,5 +80,5 @@ export function* set(
   //   },
   //...
 
-  yield call(createOrUpdateCM, cm);
+  await createOrUpdateCM(cm);
 }

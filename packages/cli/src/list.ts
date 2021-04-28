@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+import { strict as assert } from "assert";
+
 import { EKS } from "aws-sdk";
 
-import { log, die } from "@opstrace/utils";
+import { log } from "@opstrace/utils";
 
 import { getAllGKEClusters, getGcpProjectId } from "@opstrace/gcp";
 
@@ -33,8 +35,7 @@ export async function list(): Promise<void> {
   }
 
   if (cli.CLIARGS.cloudProvider == "aws") {
-    //const opstraceClusterNames = await listOpstraceClustersOnEKS();
-    const clusters = await listOpstraceClustersOnEKS();
+    const clusters = await EKSgetOpstraceClustersAcrossManyRegions();
     if (clusters.length > 0) {
       for (const c of clusters)
         process.stdout.write(`${c.opstraceClusterName}\n`);
@@ -42,32 +43,35 @@ export async function list(): Promise<void> {
   }
 }
 
-class ListEksInRegionError extends Error {
+export class ListEksInRegionError extends Error {
   public region: string;
   public message: string;
-  public awserror: AWSApiError;
-  constructor(message: string, region: string, awserror: AWSApiError) {
+  public error: Error;
+  constructor(message: string, region: string, error: Error) {
     super(message);
     this.region = region;
-    this.awserror = awserror;
+    this.error = error;
     this.message = message;
     Error.captureStackTrace(this, ListEksInRegionError);
   }
 }
 
-interface ClusterRegionRelation {
+export interface EKSOpstraceClusterRegionRelation {
   awsRegion: string;
   opstraceClusterName: string;
+  eksCluster: EKS.Cluster;
 }
 
 /**
- * List Opstrace clusters in EKS (AWS), those that the currently configured
- * credentials can see.
- * Goal: list for all possible regions/locations, also see
- * opstrace-prelaunch/issues/1033
+ * List Opstrace clusters in AWS EKS across many AWS regions. Note: this can
+ * only discover those clusters that the currently configured AWS credentials
+ * can see.
+ *
+ * This is expected to throw `ListEksInRegionError` when the lookup in a
+ * specific region fails.
  */
-export async function listOpstraceClustersOnEKS(): Promise<
-  ClusterRegionRelation[]
+export async function EKSgetOpstraceClustersAcrossManyRegions(): Promise<
+  EKSOpstraceClusterRegionRelation[]
 > {
   // Make it so that the AWS / EKS region is not a required input parameter for
   // the `opstrace list` operation. Parallelize/batch http requests. Is a bit
@@ -101,21 +105,16 @@ export async function listOpstraceClustersOnEKS(): Promise<
   // Fetch, for all regions concurrently.
   const actors = [];
   for (const region of regions) {
-    actors.push(listOpstraceClustersInRegion(region));
+    actors.push(EKSgetOpstraceClustersInRegion(region));
   }
 
   // Promise.all resolves once all promises in the array resolve, or rejects as
   // soon as one of them rejects. It either resolves with an array of all
   // resolved values, or rejects with a single error.
-  let ocnLists: ClusterRegionRelation[][];
-  try {
-    ocnLists = await Promise.all(actors);
-  } catch (e) {
-    if (e instanceof ListEksInRegionError) {
-      die(`AWS API call error: ${e.message} ${JSON.stringify(e, null, 2)}`);
-    }
-    throw e;
-  }
+  // This may throw ListEksInRegionError, handle in caller.
+  const ocnLists: EKSOpstraceClusterRegionRelation[][] = await Promise.all(
+    actors
+  );
 
   log.debug("listOpstraceClustersOnEKS(): done");
 
@@ -133,9 +132,9 @@ export async function listOpstraceClustersOnEKS(): Promise<
  * This function is expected to throw a `ListEksInRegionError` for AWS
  * API call failures.
  */
-async function listOpstraceClustersInRegion(
+async function EKSgetOpstraceClustersInRegion(
   region: string
-): Promise<ClusterRegionRelation[]> {
+): Promise<EKSOpstraceClusterRegionRelation[]> {
   const ekscl = eksClient(region);
 
   // TODO: don't worry about pagination yet, this may miss opstrace clusters
@@ -152,19 +151,28 @@ async function listOpstraceClustersInRegion(
       if (e.statusCode === 403) {
         // UnrecognizedClientException: The security token included in the
         // request is invalid. (HTTP status code: 403)
-        log.debug(
-          "eks.listClusters() for region %s failed with a 403 error (not authorized)",
+        log.info(
+          "listing EKS clusters for region %s failed with a 403 error (not authorized), skip region",
           region
         );
         return [];
       }
-      throw new ListEksInRegionError(
-        `AWS API error during listClusters() for region ${region}: ${e.message}`,
-        region,
-        e
-      );
     }
-    throw e;
+
+    // After N retries, this is expected to be hit for example for
+    // TimeoutError: Socket timed out without establishing a connection
+
+    log.error(
+      "eks.listClusters() for region %s failed unexpectedly with error: %s",
+      region,
+      e
+    );
+
+    throw new ListEksInRegionError(
+      `error during listClusters() for region ${region}: ${e.code}: ${e.message}`,
+      region,
+      e
+    );
   }
 
   log.debug(
@@ -173,6 +181,7 @@ async function listOpstraceClustersInRegion(
     result.clusters?.length
   );
 
+  const opstraceClusters: EKSOpstraceClusterRegionRelation[] = [];
   const opstraceClusterNames: string[] = [];
   for (const EKSclusterName of result.clusters as string[]) {
     let dcresp;
@@ -191,12 +200,19 @@ async function listOpstraceClustersInRegion(
       throw e;
     }
     const ocn = dcresp.cluster?.tags?.opstrace_cluster_name;
+    assert(ocn);
+    assert(dcresp.cluster);
     if (ocn !== undefined) {
+      opstraceClusters.push({
+        awsRegion: region,
+        opstraceClusterName: ocn,
+        eksCluster: dcresp.cluster
+      });
       opstraceClusterNames.push(ocn);
     }
   }
 
-  if (opstraceClusterNames.length > 0) {
+  if (opstraceClusters.length > 0) {
     log.info(
       `Found Opstrace clusters in AWS ${region}: ${opstraceClusterNames.join(
         ", "
@@ -204,14 +220,7 @@ async function listOpstraceClustersInRegion(
     );
   }
 
-  const rv: ClusterRegionRelation[] = opstraceClusterNames.map(ocn => {
-    return {
-      awsRegion: region,
-      opstraceClusterName: ocn
-    };
-  });
-
-  return rv;
+  return opstraceClusters;
 }
 
 /**

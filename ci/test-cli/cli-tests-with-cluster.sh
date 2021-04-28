@@ -40,7 +40,24 @@ test_list() {
     set -e
 }
 
+test_tenant_authenticator_custom_keypair_flow() {
+  set -o xtrace
+  ./build/bin/opstrace ta-create-keypair ta-custom-keypair.pem
+  ./build/bin/opstrace ta-create-token ${OPSTRACE_CLUSTER_NAME} \
+    default ta-custom-keypair.pem > tenant-default-auth-token-from-custom-keypair
+  ./build/bin/opstrace ta-add-pubkey \
+    ${OPSTRACE_CLOUD_PROVIDER} ${OPSTRACE_CLUSTER_NAME} ta-custom-keypair.pem
+
+  # pragmatic, non-robust wait
+  sleep 80
+  # Require success status code
+  curl -vk --fail -H "Authorization: Bearer $(cat tenant-default-auth-token-from-custom-keypair)" \
+    https://cortex.default.${OPSTRACE_CLUSTER_NAME}.opstrace.io/api/v1/labels
+  set +o xtrace
+}
+
 test_list
+test_tenant_authenticator_custom_keypair_flow
 
 # Confirm status command returns exit code 0
 ./build/bin/opstrace status ${OPSTRACE_CLOUD_PROVIDER} ${OPSTRACE_CLUSTER_NAME} --cluster-config ./ci/cluster-config.yaml

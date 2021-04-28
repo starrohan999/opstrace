@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
+import { EKS } from "aws-sdk";
+
 import { ZonedDateTime, DateTimeFormatter } from "@js-joda/core";
 import yesno from "yesno";
 
+import { KubeConfig } from "@kubernetes/client-node";
+
+import { generateKubeconfigStringForEksCluster } from "@opstrace/aws";
+import { getGcpProjectId, getGKEKubeconfig } from "@opstrace/gcp";
 import { log, hasUpperCase, die, sleep, ExitError } from "@opstrace/utils";
+
 import {
   getValidatedGCPAuthOptionsFromFile,
   GCPAuthOptions
@@ -193,7 +200,7 @@ export function timestampForFilenames(ts: ZonedDateTime): string {
  * - use what was provided via --region on cmdline
  * - error out if --region was not provided
  */
-export async function awsGetClusterRegion(): Promise<string> {
+export async function awsGetClusterRegionWithCmdlineFallback(): Promise<string> {
   if (cli.CLIARGS.region !== "") {
     log.debug("region to destroy in from cli args: %s", cli.CLIARGS.region);
 
@@ -208,24 +215,28 @@ export async function awsGetClusterRegion(): Promise<string> {
     return cli.CLIARGS.region;
   }
 
-  log.info("starting look up of EKS cluster accross AWS regions");
-  const ocnRegionMap: Record<string, string> = {};
-  for (const c of await list.listOpstraceClustersOnEKS()) {
-    ocnRegionMap[c.opstraceClusterName] = c.awsRegion;
+  let c: list.EKSOpstraceClusterRegionRelation | undefined;
+
+  try {
+    c = await awsGetClusterRegionDynamic(cli.CLIARGS.clusterName);
+  } catch (e) {
+    if (e instanceof list.ListEksInRegionError) {
+      // Assume (rely on) that error details were already logged, in a useful
+      // way for the admin/user to understand what went wrong.
+      die(
+        "Could not reliably look up the AWS region corresponding to the " +
+          "specified Opstrace cluster. Abort operation. " +
+          "If you know what you are doing, you can retry " +
+          "with skipping this region lookup by setting the --region <region> " +
+          "command line parameter."
+      );
+    }
   }
 
-  if (cli.CLIARGS.clusterName in ocnRegionMap) {
-    const r = ocnRegionMap[cli.CLIARGS.clusterName];
-    log.info(
-      "identified AWS region (found EKS cluster %s): %s",
-      cli.CLIARGS.clusterName,
-      r
-    );
-    return r;
+  if (c !== undefined) {
+    return c.awsRegion;
   }
 
-  // Empty string: convention for not set via cmdline.
-  //
   // Note(JP): or instead of erroring out here fall back to some 'default'
   // region? Might feel nicer in some cases. But: I'd rather make this
   // explicit. For example, when the goal is to tear down the remainders of
@@ -240,10 +251,93 @@ export async function awsGetClusterRegion(): Promise<string> {
   //    `... destroy foo --region=eu-central-1` -> remainders are
   //    discovered and cleaned up after.
   die(
-    `No EKS cluster found for cluster name '${cli.CLIARGS.clusterName}. ` +
-      "Cannot determine cluster region. " +
-      "Please specify the region with the --region command line argument."
+    `No EKS cluster found for Opstrace cluster name '${cli.CLIARGS.clusterName}. ` +
+      "Assume that the Opstrace cluster does not exist (anymore). " +
+      "You can force running the requested operation in a specific AWS region " +
+      "by setting the --region <region> command line parameter."
   );
+}
+
+/**
+ * This is expected to throw `ListEksInRegionError` when the lookup in a
+ * specific region fails.
+ *
+ */
+export async function awsGetClusterRegionDynamic(
+  lookForOpstraceClusterName: string
+): Promise<list.EKSOpstraceClusterRegionRelation | undefined> {
+  log.info("starting lookup of EKS cluster accross AWS regions");
+  const ocnRegionMap: Record<
+    string,
+    list.EKSOpstraceClusterRegionRelation
+  > = {};
+  for (const c of await list.EKSgetOpstraceClustersAcrossManyRegions()) {
+    ocnRegionMap[c.opstraceClusterName] = c;
+  }
+
+  if (lookForOpstraceClusterName in ocnRegionMap) {
+    const c = ocnRegionMap[lookForOpstraceClusterName];
+    log.info(
+      "identified AWS region (found EKS cluster %s): %s",
+      lookForOpstraceClusterName,
+      c.awsRegion
+    );
+    return c;
+  }
+
+  return undefined;
+}
+
+export async function getKubeConfigForOpstraceClusterOrDie(
+  cloudProvider: "aws" | "gcp",
+  opstraceClusterName: string
+): Promise<KubeConfig> {
+  let kubeconfig: KubeConfig;
+
+  if (cloudProvider == "gcp") {
+    gcpValidateCredFileAndGetDetailOrError();
+    const pid: string = await getGcpProjectId();
+    log.debug("GCP project ID: %s", pid);
+
+    const kc = await getGKEKubeconfig(opstraceClusterName);
+    if (kc === undefined) {
+      die(
+        `error while trying to generate the kubeconfig for cluster ${opstraceClusterName}`
+      );
+    }
+    kubeconfig = kc;
+  } else {
+    // case: cloudProvider == "aws"
+    const c = await awsGetClusterRegionDynamic(opstraceClusterName);
+
+    if (c === undefined) {
+      die(
+        `Opstrace cluster not found across all inspected AWS regions: ${opstraceClusterName}`
+      );
+    }
+
+    log.info(
+      "cluster `%s` found in AWS region %s",
+      c.opstraceClusterName,
+      c.awsRegion
+    );
+
+    kubeconfig = genKubConfigObjForEKScluster(c.awsRegion, c.eksCluster);
+  }
+
+  return kubeconfig;
+}
+
+function genKubConfigObjForEKScluster(
+  awsregion: string,
+  eksCluster: EKS.Cluster
+) {
+  log.info("generate kubeconfig string for EKS cluster");
+  const kstring = generateKubeconfigStringForEksCluster(awsregion, eksCluster);
+  const kubeConfig = new KubeConfig();
+  log.info("parse kubeconfig string for EKS cluster");
+  kubeConfig.loadFromString(kstring);
+  return kubeConfig;
 }
 
 export function gcpGetClusterRegion() {

@@ -39,6 +39,7 @@ import {
   ExitSuccess
 } from "@opstrace/utils";
 
+import * as aks from "./aks";
 import * as create from "./create";
 import * as destroy from "./destroy";
 import * as list from "./list";
@@ -63,7 +64,7 @@ interface CliOptsInterface {
   region: string;
   assumeYes: boolean;
   kubeconfigFilePath: string; // emtpy means: not set
-  tenantApiAuthenticatorPrivkeyFilepath: string; // emtpy means: not set
+  tenantApiAuthenticatorKeyFilePath: string; // emtpy means: not set
   tenantName: string; // empty means: not set
 }
 
@@ -105,8 +106,18 @@ async function main() {
     throw new ExitSuccess();
   }
 
-  if (CLIARGS.command == "create-tenant-token") {
+  if (CLIARGS.command == "ta-create-token") {
     await ctoken.create();
+    throw new ExitSuccess();
+  }
+
+  if (CLIARGS.command == "ta-add-pubkey") {
+    await aks.addToAuthenticatorConfig();
+    throw new ExitSuccess();
+  }
+
+  if (CLIARGS.command == "ta-create-keypair") {
+    await aks.createKeypair();
     throw new ExitSuccess();
   }
 
@@ -169,17 +180,29 @@ function parseCmdlineArgs() {
     help: "Upgrade an existing Opstrace cluster."
   });
 
-  const parserCreateTAAuthtoken = subparsers.add_parser("create-tenant-token", {
+  const parserTACreateKeypair = subparsers.add_parser("ta-create-keypair", {
+    help: "Tenant authentication: create a new RSA key pair."
+  });
+
+  const parserTACreateToken = subparsers.add_parser("ta-create-token", {
     help:
-      "Create a signed tenant API authentication token using a custom private " +
-      "key. Write token to stdout. (wip, experimental)."
+      "Tenant authentication: create a tenant API authentication token " +
+      "signed with a custom private key. Write token to stdout."
+  });
+
+  const parserTAAddPubKey = subparsers.add_parser("ta-add-pubkey", {
+    help:
+      "Tenant authentication: add public key to a running Opstrace cluster " +
+      "so that it accepts tokens signed with the corresponding private key."
   });
 
   // The --log-level switch must work when not using a sub command, but also
   // for each sub command.
   for (const p of [
     parserCreate,
-    parserCreateTAAuthtoken,
+    parserTACreateKeypair,
+    parserTACreateToken,
+    parserTAAddPubKey,
     parserDestroy,
     parserList,
     parserStatus,
@@ -211,7 +234,6 @@ function parseCmdlineArgs() {
     });
   }
 
-  // add cluster name arg
   for (const p of [parserCreate, parserDestroy, parserStatus, parserUpgrade]) {
     p.add_argument("clusterName", {
       help:
@@ -265,7 +287,9 @@ function parseCmdlineArgs() {
     default: ""
   });
 
-  configureParserCreateTAAuthtoken(parserCreateTAAuthtoken);
+  configureParserTACreateToken(parserTACreateToken);
+  configureParserTAAddPubKey(parserTAAddPubKey);
+  configureParserTACreateKeypair(parserTACreateKeypair);
 
   // About those next two args: that's just brainstorm, maybe do not build
   // that... Maybe _always_ drop that private key. maybe only provide one
@@ -348,7 +372,7 @@ function parseCmdlineArgs() {
 }
 
 // Mutate parser in place.
-function configureParserCreateTAAuthtoken(parser: argparse.ArgumentParser) {
+function configureParserTACreateToken(parser: argparse.ArgumentParser) {
   parser.add_argument("clusterName", {
     help:
       "The name of the cluster to generate the token for. " +
@@ -365,13 +389,53 @@ function configureParserCreateTAAuthtoken(parser: argparse.ArgumentParser) {
     metavar: "TENANT_NAME"
   });
 
-  parser.add_argument("tenantApiAuthenticatorPrivkeyFilepath", {
+  parser.add_argument("tenantApiAuthenticatorKeyFilePath", {
     help:
-      "Use this private key to sign tenant API authentication token. " +
-      "The path must point to a PEM RSA private key file using the " +
-      "PKCS#8 (RFC 3447) serialization format.",
+      "Use the private key encoded in this file to sign the token. " +
+      "The path must point to a PEM RSA private key file using the PKCS#1 or " +
+      "PKCS#8 serialization format.",
     type: "str",
-    metavar: "PRIV_KEY_FILE_PATH",
+    metavar: "KEYPAIR_FILE_PATH",
+    default: ""
+  });
+}
+
+// Mutate parser in place.
+function configureParserTAAddPubKey(parser: argparse.ArgumentParser) {
+  parser.add_argument("cloudProvider", {
+    help: "The cloud provider to act on (aws, gcp).", // potentially make this a little more specific depending on `create`, `list`, ...
+    type: "str",
+    choices: ["aws", "gcp"],
+    metavar: "PROVIDER"
+  });
+
+  parser.add_argument("clusterName", {
+    help:
+      "The name of the cluster to change the authenticator configuration in.",
+    type: "str",
+    metavar: "CLUSTER_NAME"
+  });
+
+  parser.add_argument("tenantApiAuthenticatorKeyFilePath", {
+    help:
+      "Use the RSA public key encoded in this file. The path must point to " +
+      "a PEM-encoded private or public key file (a private key file encodes " +
+      "the complete key pair, and a public key file encodes just the " +
+      "public key.",
+    type: "str",
+    metavar: "KEY_FILE_PATH",
+    default: ""
+  });
+}
+
+// Mutate parser in place.
+function configureParserTACreateKeypair(parser: argparse.ArgumentParser) {
+  parser.add_argument("tenantApiAuthenticatorKeyFilePath", {
+    help:
+      "Write the RSA private key (also containing the public key) in the " +
+      "PKCS#8 format to this file.",
+    type: "str",
+    metavar: "KEYPAIR_FILE_PATH",
     default: ""
   });
 }
