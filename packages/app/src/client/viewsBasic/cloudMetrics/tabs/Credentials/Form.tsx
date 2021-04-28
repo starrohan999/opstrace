@@ -127,7 +127,7 @@ function AwsForm(props: { tenantId: string; onCreate: Function }) {
     graphqlClient
       .CreateCredentials({
         credentials: {
-          tenant: tenantId,
+          tenant_id: tenantId,
           name: data.name,
           type: "aws-key",
           value: JSON.stringify({
@@ -203,7 +203,7 @@ function GcpForm(props: { tenantId: string; onCreate: Function }) {
     graphqlClient
       .CreateCredentials({
         credentials: {
-          tenant: tenantId,
+          tenant_id: tenantId,
           name: data.name,
           type: "gcp-service-account",
           value: data.accessDoc

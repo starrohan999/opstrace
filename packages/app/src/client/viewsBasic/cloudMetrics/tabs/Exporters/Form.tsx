@@ -57,7 +57,7 @@ const useStyles = makeStyles(theme => ({
 type Values = {
   type: "cloudwatch" | "stackdriver" | "blackbox";
   name: string;
-  credential: string | null;
+  credential_id: string | null;
   config: string;
 };
 
@@ -106,10 +106,10 @@ export function ExporterForm(props: { tenantId: string; onCreate: Function }) {
     graphqlClient
       .CreateExporters({
         exporters: {
-          tenant: tenantId,
+          tenant_id: tenantId,
           type: data.type,
           name: data.name,
-          credential: data.type !== "blackbox" ? data.credential : null,
+          credential_id: data.type !== "blackbox" ? data.credential : null,
           config: config
         }
       })
@@ -161,7 +161,8 @@ const CloudWatchForm = (props: { tenantId: string; control: any }) => {
 
   const { data: credentials } = useHasura(
     `query credentials($tenant_id: String!, $type: String!) {
-       credential(where: { tenant: { _eq: $tenant_id }, type: {_eq: $type} }) {
+       credential(where: { tenant_id: { _eq: $tenant_id }, type: {_eq: $type} }) {
+         id
          name
        }
      }`,
@@ -193,13 +194,13 @@ const CloudWatchForm = (props: { tenantId: string; control: any }) => {
           <Controller
             render={({ field }) => (
               <Select {...field}>
-                {map(({ name }) => <MenuItem value={name}>{name}</MenuItem>)(
+                {map(({ id, name }) => <MenuItem value={id}>{name}</MenuItem>)(
                   credentials?.credential
                 )}
               </Select>
             )}
             control={control}
-            name="credential"
+            name="credential_id"
           />
         </div>
         <ControlledInput
@@ -241,7 +242,8 @@ const StackdriverForm = (props: { tenantId: string; control: any }) => {
 
   const { data: credentials } = useHasura(
     `query credentials($tenant_id: String!, $type: String!) {
-       credential(where: { tenant: { _eq: $tenant_id }, type: {_eq: $type} }) {
+       credential(where: { tenant_id: { _eq: $tenant_id }, type: {_eq: $type} }) {
+         id
          name
        }
      }`,
@@ -273,13 +275,13 @@ const StackdriverForm = (props: { tenantId: string; control: any }) => {
           <Controller
             render={({ field }) => (
               <Select {...field}>
-                {map(({ name }) => <MenuItem value={name}>{name}</MenuItem>)(
+                {map(({ id, name }) => <MenuItem value={id}>{name}</MenuItem>)(
                   credentials?.credential
                 )}
               </Select>
             )}
             control={control}
-            name="credential"
+            name="credential_id"
           />
         </div>
         <ControlledInput

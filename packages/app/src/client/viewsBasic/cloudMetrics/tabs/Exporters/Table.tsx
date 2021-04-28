@@ -67,11 +67,10 @@ export const ExportersTable = (props: ExportersTableProps) => {
       <Skeleton variant="rect" width="100%" height="100%" animation="wave" />
     );
 
-  const deleteExporter = (name: string) => {
+  const deleteExporter = (id: string) => {
     graphqlClient
       .DeleteExporter({
-        tenant: tenantId,
-        name: name
+        id: id
       })
       .then(response => {
         onChange();
@@ -95,7 +94,7 @@ export const ExportersTable = (props: ExportersTableProps) => {
         <TableBody>
           {rows.map(row => (
             <ExportersRow
-              key={row.name}
+              key={row.id}
               tenantId={tenantId}
               row={row}
               onDelete={deleteExporter}
@@ -112,7 +111,7 @@ const getUnixNanoSecTime = (date: Date) => getUnixTime(date) * 1000000000;
 const ExportersRow = (props: {
   tenantId: string;
   row: Row;
-  onDelete: (name: string) => void;
+  onDelete: (id: string) => void;
 }) => {
   const { tenantId, row, onDelete } = props;
   const [open, setOpen] = React.useState(false);
@@ -189,7 +188,7 @@ const ExportersRow = (props: {
           <button type="button" onClick={() => window.open(logsUrl)}>
             View Logs
           </button>
-          <button type="button" onClick={() => onDelete(row.name)}>
+          <button type="button" onClick={() => onDelete(row.id)}>
             Delete
           </button>
         </TableCell>

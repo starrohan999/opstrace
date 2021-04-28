@@ -1,10 +1,14 @@
 # Returns exporter configurations for a single tenant.
 query GetExporters($tenant_id: uuid!) {
   exporter(where: { tenant_id: { _eq: $tenant_id } }) {
+    id
     tenant_id
     name
     type
-    credential
+    credential {
+      id
+      name
+    }
     config
     created_at
     updated_at

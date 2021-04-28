@@ -1,10 +1,14 @@
 # Returns exporter configuration for a single entry.
-query GetExporter($tenant_id: uuid!, $name: String!) {
-  exporter_by_pk(tenant_id: $tenant_id, name: $name) {
+query GetExporter($id: uuid!) {
+  exporter_by_pk(id: $id) {
+    id
     tenant_id
     name
     type
-    credential
+    credential {
+      id
+      name
+    }
     config
     created_at
     updated_at

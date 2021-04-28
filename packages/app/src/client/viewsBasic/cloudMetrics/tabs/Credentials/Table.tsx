@@ -48,7 +48,7 @@ type CredentialsTableProps = {
 };
 
 export const CredentialsTable = (props: CredentialsTableProps) => {
-  const { tenantId, rows, onChange } = props;
+  const { rows, onChange } = props;
   const classes = useStyles();
 
   if (!rows || rows.length === 0)
@@ -56,11 +56,10 @@ export const CredentialsTable = (props: CredentialsTableProps) => {
       <Skeleton variant="rect" width="100%" height="100%" animation="wave" />
     );
 
-  const deleteCredential = (name: string) => {
+  const deleteCredential = (id: string) => {
     graphqlClient
       .DeleteCredential({
-        tenant: tenantId,
-        name: name
+        id: id
       })
       .then(response => {
         onChange();
@@ -81,7 +80,7 @@ export const CredentialsTable = (props: CredentialsTableProps) => {
         </TableHead>
         <TableBody>
           {rows.map(row => (
-            <TableRow key={row.name}>
+            <TableRow key={row.id}>
               <TableCell component="th" scope="row">
                 {row.name}
               </TableCell>
@@ -92,7 +91,7 @@ export const CredentialsTable = (props: CredentialsTableProps) => {
                 <button
                   type="button"
                   disabled={row.exporter_count > 0}
-                  onClick={() => deleteCredential(row.name)}
+                  onClick={() => deleteCredential(row.id)}
                 >
                   Delete
                 </button>

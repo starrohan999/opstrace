@@ -40,7 +40,7 @@ const Exporters = () => {
 
   const { data, mutate: changeCallback } = useHasura(
     `query exporters($tenant_id: String!) {
-       exporter(where: {tenant: {_eq: $tenant_id}}) {
+       exporter(where: {tenant_id: {_eq: $tenant_id}}) {
          tenant
          name
          type

@@ -89,7 +89,7 @@
     schema: public
     name: credential
   object_relationships:
-  - name: tenantByTenantId
+  - name: tenant
     using:
       foreign_key_constraint_on: tenant_id
   array_relationships:
@@ -108,10 +108,10 @@
     schema: public
     name: exporter
   object_relationships:
-  - name: credentialByCredentialId
+  - name: credential
     using:
       foreign_key_constraint_on: credential_id
-  - name: tenantByTenantId
+  - name: tenant
     using:
       foreign_key_constraint_on: tenant_id
   delete_permissions:

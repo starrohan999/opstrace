@@ -44,7 +44,7 @@ export type Scalars = {
 export type Alertmanager = {
   config?: Maybe<Scalars["String"]>;
   online: Scalars["Boolean"];
-  tenant_id: Scalars["uuid"];
+  tenant_id: Scalars["String"];
 };
 
 export type AlertmanagerInput = {
@@ -353,7 +353,10 @@ export type Credential = {
   exporters: Array<Exporter>;
   /** An aggregated array relationship */
   exporters_aggregate: Exporter_Aggregate;
+  id: Scalars["uuid"];
   name: Scalars["String"];
+  /** An object relationship */
+  tenant: Tenant;
   tenant_id: Scalars["uuid"];
   type: Scalars["String"];
   updated_at: Scalars["timestamptz"];
@@ -422,7 +425,9 @@ export type Credential_Bool_Exp = {
   _or?: Maybe<Array<Maybe<Credential_Bool_Exp>>>;
   created_at?: Maybe<Timestamptz_Comparison_Exp>;
   exporters?: Maybe<Exporter_Bool_Exp>;
+  id?: Maybe<Uuid_Comparison_Exp>;
   name?: Maybe<String_Comparison_Exp>;
+  tenant?: Maybe<Tenant_Bool_Exp>;
   tenant_id?: Maybe<Uuid_Comparison_Exp>;
   type?: Maybe<String_Comparison_Exp>;
   updated_at?: Maybe<Timestamptz_Comparison_Exp>;
@@ -432,6 +437,8 @@ export type Credential_Bool_Exp = {
 /** unique or primary key constraints on table "credential" */
 export enum Credential_Constraint {
   /** unique or primary key constraint */
+  CredentialIdKey = "credential_id_key",
+  /** unique or primary key constraint */
   CredentialPkey = "credential_pkey"
 }
 
@@ -439,7 +446,9 @@ export enum Credential_Constraint {
 export type Credential_Insert_Input = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   exporters?: Maybe<Exporter_Arr_Rel_Insert_Input>;
+  id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
+  tenant?: Maybe<Tenant_Obj_Rel_Insert_Input>;
   tenant_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -449,6 +458,7 @@ export type Credential_Insert_Input = {
 /** aggregate max on columns */
 export type Credential_Max_Fields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
   tenant_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -458,6 +468,7 @@ export type Credential_Max_Fields = {
 /** order by max() on columns of table "credential" */
 export type Credential_Max_Order_By = {
   created_at?: Maybe<Order_By>;
+  id?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
   tenant_id?: Maybe<Order_By>;
   type?: Maybe<Order_By>;
@@ -467,6 +478,7 @@ export type Credential_Max_Order_By = {
 /** aggregate min on columns */
 export type Credential_Min_Fields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
   tenant_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -476,6 +488,7 @@ export type Credential_Min_Fields = {
 /** order by min() on columns of table "credential" */
 export type Credential_Min_Order_By = {
   created_at?: Maybe<Order_By>;
+  id?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
   tenant_id?: Maybe<Order_By>;
   type?: Maybe<Order_By>;
@@ -507,7 +520,9 @@ export type Credential_On_Conflict = {
 export type Credential_Order_By = {
   created_at?: Maybe<Order_By>;
   exporters_aggregate?: Maybe<Exporter_Aggregate_Order_By>;
+  id?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
+  tenant?: Maybe<Tenant_Order_By>;
   tenant_id?: Maybe<Order_By>;
   type?: Maybe<Order_By>;
   updated_at?: Maybe<Order_By>;
@@ -516,14 +531,15 @@ export type Credential_Order_By = {
 
 /** primary key columns input for table: "credential" */
 export type Credential_Pk_Columns_Input = {
-  name: Scalars["String"];
-  tenant_id: Scalars["uuid"];
+  id: Scalars["uuid"];
 };
 
 /** select columns of table "credential" */
 export enum Credential_Select_Column {
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  Id = "id",
   /** column name */
   Name = "name",
   /** column name */
@@ -539,6 +555,7 @@ export enum Credential_Select_Column {
 /** input type for updating data in table "credential" */
 export type Credential_Set_Input = {
   created_at?: Maybe<Scalars["timestamptz"]>;
+  id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
   tenant_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -550,6 +567,8 @@ export type Credential_Set_Input = {
 export enum Credential_Update_Column {
   /** column name */
   CreatedAt = "created_at",
+  /** column name */
+  Id = "id",
   /** column name */
   Name = "name",
   /** column name */
@@ -566,10 +585,13 @@ export enum Credential_Update_Column {
 export type Exporter = {
   config: Scalars["json"];
   created_at: Scalars["timestamptz"];
-  credential?: Maybe<Scalars["String"]>;
   /** An object relationship */
-  credentialByCredentialTenantId?: Maybe<Credential>;
+  credential?: Maybe<Credential>;
+  credential_id?: Maybe<Scalars["uuid"]>;
+  id: Scalars["uuid"];
   name: Scalars["String"];
+  /** An object relationship */
+  tenant: Tenant;
   tenant_id: Scalars["uuid"];
   type: Scalars["String"];
   updated_at: Scalars["timestamptz"];
@@ -619,9 +641,11 @@ export type Exporter_Bool_Exp = {
   _or?: Maybe<Array<Maybe<Exporter_Bool_Exp>>>;
   config?: Maybe<Json_Comparison_Exp>;
   created_at?: Maybe<Timestamptz_Comparison_Exp>;
-  credential?: Maybe<String_Comparison_Exp>;
-  credentialByCredentialTenantId?: Maybe<Credential_Bool_Exp>;
+  credential?: Maybe<Credential_Bool_Exp>;
+  credential_id?: Maybe<Uuid_Comparison_Exp>;
+  id?: Maybe<Uuid_Comparison_Exp>;
   name?: Maybe<String_Comparison_Exp>;
+  tenant?: Maybe<Tenant_Bool_Exp>;
   tenant_id?: Maybe<Uuid_Comparison_Exp>;
   type?: Maybe<String_Comparison_Exp>;
   updated_at?: Maybe<Timestamptz_Comparison_Exp>;
@@ -630,6 +654,8 @@ export type Exporter_Bool_Exp = {
 /** unique or primary key constraints on table "exporter" */
 export enum Exporter_Constraint {
   /** unique or primary key constraint */
+  ExporterIdKey = "exporter_id_key",
+  /** unique or primary key constraint */
   ExporterPkey = "exporter_pkey"
 }
 
@@ -637,9 +663,11 @@ export enum Exporter_Constraint {
 export type Exporter_Insert_Input = {
   config?: Maybe<Scalars["json"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  credential?: Maybe<Scalars["String"]>;
-  credentialByCredentialTenantId?: Maybe<Credential_Obj_Rel_Insert_Input>;
+  credential?: Maybe<Credential_Obj_Rel_Insert_Input>;
+  credential_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
+  tenant?: Maybe<Tenant_Obj_Rel_Insert_Input>;
   tenant_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
   updated_at?: Maybe<Scalars["timestamptz"]>;
@@ -648,7 +676,8 @@ export type Exporter_Insert_Input = {
 /** aggregate max on columns */
 export type Exporter_Max_Fields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
-  credential?: Maybe<Scalars["String"]>;
+  credential_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
   tenant_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -658,7 +687,8 @@ export type Exporter_Max_Fields = {
 /** order by max() on columns of table "exporter" */
 export type Exporter_Max_Order_By = {
   created_at?: Maybe<Order_By>;
-  credential?: Maybe<Order_By>;
+  credential_id?: Maybe<Order_By>;
+  id?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
   tenant_id?: Maybe<Order_By>;
   type?: Maybe<Order_By>;
@@ -668,7 +698,8 @@ export type Exporter_Max_Order_By = {
 /** aggregate min on columns */
 export type Exporter_Min_Fields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
-  credential?: Maybe<Scalars["String"]>;
+  credential_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
   tenant_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -678,7 +709,8 @@ export type Exporter_Min_Fields = {
 /** order by min() on columns of table "exporter" */
 export type Exporter_Min_Order_By = {
   created_at?: Maybe<Order_By>;
-  credential?: Maybe<Order_By>;
+  credential_id?: Maybe<Order_By>;
+  id?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
   tenant_id?: Maybe<Order_By>;
   type?: Maybe<Order_By>;
@@ -710,9 +742,11 @@ export type Exporter_On_Conflict = {
 export type Exporter_Order_By = {
   config?: Maybe<Order_By>;
   created_at?: Maybe<Order_By>;
-  credential?: Maybe<Order_By>;
-  credentialByCredentialTenantId?: Maybe<Credential_Order_By>;
+  credential?: Maybe<Credential_Order_By>;
+  credential_id?: Maybe<Order_By>;
+  id?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
+  tenant?: Maybe<Tenant_Order_By>;
   tenant_id?: Maybe<Order_By>;
   type?: Maybe<Order_By>;
   updated_at?: Maybe<Order_By>;
@@ -720,8 +754,7 @@ export type Exporter_Order_By = {
 
 /** primary key columns input for table: "exporter" */
 export type Exporter_Pk_Columns_Input = {
-  name: Scalars["String"];
-  tenant_id: Scalars["uuid"];
+  id: Scalars["uuid"];
 };
 
 /** select columns of table "exporter" */
@@ -731,7 +764,9 @@ export enum Exporter_Select_Column {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
-  Credential = "credential",
+  CredentialId = "credential_id",
+  /** column name */
+  Id = "id",
   /** column name */
   Name = "name",
   /** column name */
@@ -746,7 +781,8 @@ export enum Exporter_Select_Column {
 export type Exporter_Set_Input = {
   config?: Maybe<Scalars["json"]>;
   created_at?: Maybe<Scalars["timestamptz"]>;
-  credential?: Maybe<Scalars["String"]>;
+  credential_id?: Maybe<Scalars["uuid"]>;
+  id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
   tenant_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -760,7 +796,9 @@ export enum Exporter_Update_Column {
   /** column name */
   CreatedAt = "created_at",
   /** column name */
-  Credential = "credential",
+  CredentialId = "credential_id",
+  /** column name */
+  Id = "id",
   /** column name */
   Name = "name",
   /** column name */
@@ -1728,8 +1766,7 @@ export type Mutation_RootDelete_CredentialArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Credential_By_PkArgs = {
-  name: Scalars["String"];
-  tenant_id: Scalars["uuid"];
+  id: Scalars["uuid"];
 };
 
 /** mutation root */
@@ -1739,8 +1776,7 @@ export type Mutation_RootDelete_ExporterArgs = {
 
 /** mutation root */
 export type Mutation_RootDelete_Exporter_By_PkArgs = {
-  name: Scalars["String"];
-  tenant_id: Scalars["uuid"];
+  id: Scalars["uuid"];
 };
 
 /** mutation root */
@@ -1919,7 +1955,7 @@ export type Mutation_RootInsert_User_Preference_OneArgs = {
 /** mutation root */
 export type Mutation_RootUpdateAlertmanagerArgs = {
   input?: Maybe<AlertmanagerInput>;
-  tenant_id: Scalars["uuid"];
+  tenant_id: Scalars["String"];
 };
 
 /** mutation root */
@@ -2174,8 +2210,7 @@ export type Query_RootCredential_AggregateArgs = {
 
 /** query root */
 export type Query_RootCredential_By_PkArgs = {
-  name: Scalars["String"];
-  tenant_id: Scalars["uuid"];
+  id: Scalars["uuid"];
 };
 
 /** query root */
@@ -2198,8 +2233,7 @@ export type Query_RootExporter_AggregateArgs = {
 
 /** query root */
 export type Query_RootExporter_By_PkArgs = {
-  name: Scalars["String"];
-  tenant_id: Scalars["uuid"];
+  id: Scalars["uuid"];
 };
 
 /** query root */
@@ -2227,7 +2261,7 @@ export type Query_RootFile_By_PkArgs = {
 
 /** query root */
 export type Query_RootGetAlertmanagerArgs = {
-  tenant_id: Scalars["uuid"];
+  tenant_id: Scalars["String"];
 };
 
 /** query root */
@@ -2365,7 +2399,7 @@ export type Query_RootUser_Preference_By_PkArgs = {
 /** query root */
 export type Query_RootValidateCredentialArgs = {
   name: Scalars["String"];
-  tenant_id: Scalars["uuid"];
+  tenant_id: Scalars["String"];
   type: Scalars["String"];
   value: Scalars["json"];
 };
@@ -2375,7 +2409,7 @@ export type Query_RootValidateExporterArgs = {
   config: Scalars["json"];
   credential?: Maybe<Scalars["String"]>;
   name: Scalars["String"];
-  tenant_id: Scalars["uuid"];
+  tenant_id: Scalars["String"];
   type: Scalars["String"];
 };
 
@@ -2490,8 +2524,7 @@ export type Subscription_RootCredential_AggregateArgs = {
 
 /** subscription root */
 export type Subscription_RootCredential_By_PkArgs = {
-  name: Scalars["String"];
-  tenant_id: Scalars["uuid"];
+  id: Scalars["uuid"];
 };
 
 /** subscription root */
@@ -2514,8 +2547,7 @@ export type Subscription_RootExporter_AggregateArgs = {
 
 /** subscription root */
 export type Subscription_RootExporter_By_PkArgs = {
-  name: Scalars["String"];
-  tenant_id: Scalars["uuid"];
+  id: Scalars["uuid"];
 };
 
 /** subscription root */
@@ -2543,7 +2575,7 @@ export type Subscription_RootFile_By_PkArgs = {
 
 /** subscription root */
 export type Subscription_RootGetAlertmanagerArgs = {
-  tenant_id: Scalars["uuid"];
+  tenant_id: Scalars["String"];
 };
 
 /** subscription root */
@@ -2681,7 +2713,7 @@ export type Subscription_RootUser_Preference_By_PkArgs = {
 /** subscription root */
 export type Subscription_RootValidateCredentialArgs = {
   name: Scalars["String"];
-  tenant_id: Scalars["uuid"];
+  tenant_id: Scalars["String"];
   type: Scalars["String"];
   value: Scalars["json"];
 };
@@ -2691,17 +2723,61 @@ export type Subscription_RootValidateExporterArgs = {
   config: Scalars["json"];
   credential?: Maybe<Scalars["String"]>;
   name: Scalars["String"];
-  tenant_id: Scalars["uuid"];
+  tenant_id: Scalars["String"];
   type: Scalars["String"];
 };
 
 /** columns and relationships of "tenant" */
 export type Tenant = {
   created_at: Scalars["timestamp"];
+  /** An array relationship */
+  credentials: Array<Credential>;
+  /** An aggregated array relationship */
+  credentials_aggregate: Credential_Aggregate;
+  /** An array relationship */
+  exporters: Array<Exporter>;
+  /** An aggregated array relationship */
+  exporters_aggregate: Exporter_Aggregate;
   id: Scalars["uuid"];
   name: Scalars["String"];
   type: Scalars["String"];
-  url_slug?: Maybe<Scalars["String"]>;
+  url_slug: Scalars["String"];
+};
+
+/** columns and relationships of "tenant" */
+export type TenantCredentialsArgs = {
+  distinct_on?: Maybe<Array<Credential_Select_Column>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<Credential_Order_By>>;
+  where?: Maybe<Credential_Bool_Exp>;
+};
+
+/** columns and relationships of "tenant" */
+export type TenantCredentials_AggregateArgs = {
+  distinct_on?: Maybe<Array<Credential_Select_Column>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<Credential_Order_By>>;
+  where?: Maybe<Credential_Bool_Exp>;
+};
+
+/** columns and relationships of "tenant" */
+export type TenantExportersArgs = {
+  distinct_on?: Maybe<Array<Exporter_Select_Column>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<Exporter_Order_By>>;
+  where?: Maybe<Exporter_Bool_Exp>;
+};
+
+/** columns and relationships of "tenant" */
+export type TenantExporters_AggregateArgs = {
+  distinct_on?: Maybe<Array<Exporter_Select_Column>>;
+  limit?: Maybe<Scalars["Int"]>;
+  offset?: Maybe<Scalars["Int"]>;
+  order_by?: Maybe<Array<Exporter_Order_By>>;
+  where?: Maybe<Exporter_Bool_Exp>;
 };
 
 /** aggregated selection of "tenant" */
@@ -2742,6 +2818,8 @@ export type Tenant_Bool_Exp = {
   _not?: Maybe<Tenant_Bool_Exp>;
   _or?: Maybe<Array<Maybe<Tenant_Bool_Exp>>>;
   created_at?: Maybe<Timestamp_Comparison_Exp>;
+  credentials?: Maybe<Credential_Bool_Exp>;
+  exporters?: Maybe<Exporter_Bool_Exp>;
   id?: Maybe<Uuid_Comparison_Exp>;
   name?: Maybe<String_Comparison_Exp>;
   type?: Maybe<String_Comparison_Exp>;
@@ -2763,6 +2841,8 @@ export enum Tenant_Constraint {
 /** input type for inserting data into table "tenant" */
 export type Tenant_Insert_Input = {
   created_at?: Maybe<Scalars["timestamp"]>;
+  credentials?: Maybe<Credential_Arr_Rel_Insert_Input>;
+  exporters?: Maybe<Exporter_Arr_Rel_Insert_Input>;
   id?: Maybe<Scalars["uuid"]>;
   name?: Maybe<Scalars["String"]>;
   type?: Maybe<Scalars["String"]>;
@@ -2829,6 +2909,8 @@ export type Tenant_On_Conflict = {
 /** ordering options when selecting data from "tenant" */
 export type Tenant_Order_By = {
   created_at?: Maybe<Order_By>;
+  credentials_aggregate?: Maybe<Credential_Aggregate_Order_By>;
+  exporters_aggregate?: Maybe<Exporter_Aggregate_Order_By>;
   id?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
   type?: Maybe<Order_By>;
@@ -3320,30 +3402,26 @@ export type CreateCredentialsMutationVariables = Exact<{
 }>;
 
 export type CreateCredentialsMutation = {
-  insert_credential?: Maybe<{
-    returning: Array<Pick<Credential, "tenant_id" | "name">>;
-  }>;
+  insert_credential?: Maybe<{ returning: Array<Pick<Credential, "id">> }>;
 };
 
 export type DeleteCredentialMutationVariables = Exact<{
-  tenant_id: Scalars["uuid"];
-  name: Scalars["String"];
+  id: Scalars["uuid"];
 }>;
 
 export type DeleteCredentialMutation = {
-  delete_credential_by_pk?: Maybe<Pick<Credential, "tenant_id" | "name">>;
+  delete_credential_by_pk?: Maybe<Pick<Credential, "id">>;
 };
 
 export type GetCredentialQueryVariables = Exact<{
-  tenant_id: Scalars["uuid"];
-  name: Scalars["String"];
+  id: Scalars["uuid"];
 }>;
 
 export type GetCredentialQuery = {
   credential_by_pk?: Maybe<
     Pick<
       Credential,
-      "tenant_id" | "name" | "type" | "created_at" | "updated_at"
+      "id" | "tenant_id" | "name" | "type" | "created_at" | "updated_at"
     >
   >;
 };
@@ -3356,7 +3434,7 @@ export type GetCredentialsQuery = {
   credential: Array<
     Pick<
       Credential,
-      "tenant_id" | "name" | "type" | "created_at" | "updated_at"
+      "id" | "tenant_id" | "name" | "type" | "created_at" | "updated_at"
     >
   >;
 };
@@ -3367,7 +3445,13 @@ export type GetCredentialsDumpQuery = {
   credential: Array<
     Pick<
       Credential,
-      "tenant_id" | "name" | "type" | "value" | "created_at" | "updated_at"
+      | "id"
+      | "tenant_id"
+      | "name"
+      | "type"
+      | "value"
+      | "created_at"
+      | "updated_at"
     >
   >;
 };
@@ -3380,20 +3464,25 @@ export type SubscribeToCredentialListSubscription = {
   credential: Array<
     Pick<
       Credential,
-      "tenant_id" | "name" | "type" | "value" | "created_at" | "updated_at"
+      | "id"
+      | "tenant_id"
+      | "name"
+      | "type"
+      | "value"
+      | "created_at"
+      | "updated_at"
     >
   >;
 };
 
 export type UpdateCredentialMutationVariables = Exact<{
-  tenant_id: Scalars["uuid"];
-  name: Scalars["String"];
+  id: Scalars["uuid"];
   value: Scalars["json"];
   updated_at: Scalars["timestamptz"];
 }>;
 
 export type UpdateCredentialMutation = {
-  update_credential_by_pk?: Maybe<Pick<Credential, "tenant_id" | "name">>;
+  update_credential_by_pk?: Maybe<Pick<Credential, "id">>;
 };
 
 export type CreateExportersMutationVariables = Exact<{
@@ -3401,37 +3490,33 @@ export type CreateExportersMutationVariables = Exact<{
 }>;
 
 export type CreateExportersMutation = {
-  insert_exporter?: Maybe<{
-    returning: Array<Pick<Exporter, "tenant_id" | "name">>;
-  }>;
+  insert_exporter?: Maybe<{ returning: Array<Pick<Exporter, "id">> }>;
 };
 
 export type DeleteExporterMutationVariables = Exact<{
-  tenant_id: Scalars["uuid"];
-  name: Scalars["String"];
+  id: Scalars["uuid"];
 }>;
 
 export type DeleteExporterMutation = {
-  delete_exporter_by_pk?: Maybe<Pick<Exporter, "tenant_id" | "name">>;
+  delete_exporter_by_pk?: Maybe<Pick<Exporter, "id">>;
 };
 
 export type GetExporterQueryVariables = Exact<{
-  tenant_id: Scalars["uuid"];
-  name: Scalars["String"];
+  id: Scalars["uuid"];
 }>;
 
 export type GetExporterQuery = {
   exporter_by_pk?: Maybe<
     Pick<
       Exporter,
+      | "id"
       | "tenant_id"
       | "name"
       | "type"
-      | "credential"
       | "config"
       | "created_at"
       | "updated_at"
-    >
+    > & { credential?: Maybe<Pick<Credential, "id" | "name">> }
   >;
 };
 
@@ -3443,14 +3528,14 @@ export type GetExportersQuery = {
   exporter: Array<
     Pick<
       Exporter,
+      | "id"
       | "tenant_id"
       | "name"
       | "type"
-      | "credential"
       | "config"
       | "created_at"
       | "updated_at"
-    >
+    > & { credential?: Maybe<Pick<Credential, "id" | "name">> }
   >;
 };
 
@@ -3460,14 +3545,14 @@ export type GetExportersDumpQuery = {
   exporter: Array<
     Pick<
       Exporter,
+      | "id"
       | "tenant_id"
       | "name"
       | "type"
-      | "credential"
       | "config"
       | "created_at"
       | "updated_at"
-    >
+    > & { credential?: Maybe<Pick<Credential, "id" | "name">> }
   >;
 };
 
@@ -3477,20 +3562,21 @@ export type SubscribeToExporterListSubscriptionVariables = Exact<{
 
 export type SubscribeToExporterListSubscription = {
   exporter: Array<
-    Pick<Exporter, "tenant_id" | "name" | "type" | "credential" | "config">
+    Pick<Exporter, "id" | "tenant_id" | "name" | "type" | "config"> & {
+      credential?: Maybe<Pick<Credential, "id" | "name">>;
+    }
   >;
 };
 
 export type UpdateExporterMutationVariables = Exact<{
-  tenant_id: Scalars["uuid"];
-  name: Scalars["String"];
+  id: Scalars["uuid"];
   config: Scalars["json"];
-  credential?: Maybe<Scalars["String"]>;
+  credential_id?: Maybe<Scalars["uuid"]>;
   updated_at: Scalars["timestamptz"];
 }>;
 
 export type UpdateExporterMutation = {
-  update_exporter_by_pk?: Maybe<Pick<Exporter, "tenant_id" | "name">>;
+  update_exporter_by_pk?: Maybe<Pick<Exporter, "id">>;
 };
 
 export type GetCompiledOutputQueryVariables = Exact<{
@@ -3677,7 +3763,7 @@ export type DeleteTenantMutation = {
 };
 
 export type GetAlertmanagerQueryVariables = Exact<{
-  tenant_id: Scalars["uuid"];
+  tenant_id: Scalars["String"];
 }>;
 
 export type GetAlertmanagerQuery = {
@@ -3703,7 +3789,7 @@ export type SubscribeToTenantListSubscription = {
 };
 
 export type UpdateAlertmanagerMutationVariables = Exact<{
-  tenant_id: Scalars["uuid"];
+  tenant_id: Scalars["String"];
   input: AlertmanagerInput;
 }>;
 
@@ -3869,23 +3955,22 @@ export const CreateCredentialsDocument = gql`
   mutation CreateCredentials($credentials: [credential_insert_input!]!) {
     insert_credential(objects: $credentials) {
       returning {
-        tenant_id
-        name
+        id
       }
     }
   }
 `;
 export const DeleteCredentialDocument = gql`
-  mutation DeleteCredential($tenant_id: uuid!, $name: String!) {
-    delete_credential_by_pk(tenant_id: $tenant_id, name: $name) {
-      tenant_id
-      name
+  mutation DeleteCredential($id: uuid!) {
+    delete_credential_by_pk(id: $id) {
+      id
     }
   }
 `;
 export const GetCredentialDocument = gql`
-  query GetCredential($tenant_id: uuid!, $name: String!) {
-    credential_by_pk(tenant_id: $tenant_id, name: $name) {
+  query GetCredential($id: uuid!) {
+    credential_by_pk(id: $id) {
+      id
       tenant_id
       name
       type
@@ -3897,6 +3982,7 @@ export const GetCredentialDocument = gql`
 export const GetCredentialsDocument = gql`
   query GetCredentials($tenant_id: uuid!) {
     credential(where: { tenant_id: { _eq: $tenant_id } }) {
+      id
       tenant_id
       name
       type
@@ -3908,6 +3994,7 @@ export const GetCredentialsDocument = gql`
 export const GetCredentialsDumpDocument = gql`
   query GetCredentialsDump {
     credential {
+      id
       tenant_id
       name
       type
@@ -3920,6 +4007,7 @@ export const GetCredentialsDumpDocument = gql`
 export const SubscribeToCredentialListDocument = gql`
   subscription SubscribeToCredentialList {
     credential {
+      id
       tenant_id
       name
       type
@@ -3931,17 +4019,15 @@ export const SubscribeToCredentialListDocument = gql`
 `;
 export const UpdateCredentialDocument = gql`
   mutation UpdateCredential(
-    $tenant_id: uuid!
-    $name: String!
+    $id: uuid!
     $value: json!
     $updated_at: timestamptz!
   ) {
     update_credential_by_pk(
       _set: { value: $value, updated_at: $updated_at }
-      pk_columns: { tenant_id: $tenant_id, name: $name }
+      pk_columns: { id: $id }
     ) {
-      tenant_id
-      name
+      id
     }
   }
 `;
@@ -3949,27 +4035,29 @@ export const CreateExportersDocument = gql`
   mutation CreateExporters($exporters: [exporter_insert_input!]!) {
     insert_exporter(objects: $exporters) {
       returning {
-        tenant_id
-        name
+        id
       }
     }
   }
 `;
 export const DeleteExporterDocument = gql`
-  mutation DeleteExporter($tenant_id: uuid!, $name: String!) {
-    delete_exporter_by_pk(tenant_id: $tenant_id, name: $name) {
-      tenant_id
-      name
+  mutation DeleteExporter($id: uuid!) {
+    delete_exporter_by_pk(id: $id) {
+      id
     }
   }
 `;
 export const GetExporterDocument = gql`
-  query GetExporter($tenant_id: uuid!, $name: String!) {
-    exporter_by_pk(tenant_id: $tenant_id, name: $name) {
+  query GetExporter($id: uuid!) {
+    exporter_by_pk(id: $id) {
+      id
       tenant_id
       name
       type
-      credential
+      credential {
+        id
+        name
+      }
       config
       created_at
       updated_at
@@ -3979,10 +4067,14 @@ export const GetExporterDocument = gql`
 export const GetExportersDocument = gql`
   query GetExporters($tenant_id: uuid!) {
     exporter(where: { tenant_id: { _eq: $tenant_id } }) {
+      id
       tenant_id
       name
       type
-      credential
+      credential {
+        id
+        name
+      }
       config
       created_at
       updated_at
@@ -3992,10 +4084,14 @@ export const GetExportersDocument = gql`
 export const GetExportersDumpDocument = gql`
   query GetExportersDump {
     exporter {
+      id
       tenant_id
       name
       type
-      credential
+      credential {
+        id
+        name
+      }
       config
       created_at
       updated_at
@@ -4005,32 +4101,34 @@ export const GetExportersDumpDocument = gql`
 export const SubscribeToExporterListDocument = gql`
   subscription SubscribeToExporterList {
     exporter {
+      id
       tenant_id
       name
       type
-      credential
+      credential {
+        id
+        name
+      }
       config
     }
   }
 `;
 export const UpdateExporterDocument = gql`
   mutation UpdateExporter(
-    $tenant_id: uuid!
-    $name: String!
+    $id: uuid!
     $config: json!
-    $credential: String
+    $credential_id: uuid
     $updated_at: timestamptz!
   ) {
     update_exporter_by_pk(
       _set: {
         config: $config
-        credential: $credential
+        credential_id: $credential_id
         updated_at: $updated_at
       }
-      pk_columns: { tenant_id: $tenant_id, name: $name }
+      pk_columns: { id: $id }
     ) {
-      tenant_id
-      name
+      id
     }
   }
 `;
@@ -4296,7 +4394,7 @@ export const DeleteTenantDocument = gql`
   }
 `;
 export const GetAlertmanagerDocument = gql`
-  query GetAlertmanager($tenant_id: uuid!) {
+  query GetAlertmanager($tenant_id: String!) {
     getAlertmanager(tenant_id: $tenant_id) {
       config
       online
@@ -4326,7 +4424,7 @@ export const SubscribeToTenantListDocument = gql`
   }
 `;
 export const UpdateAlertmanagerDocument = gql`
-  mutation UpdateAlertmanager($tenant_id: uuid!, $input: AlertmanagerInput!) {
+  mutation UpdateAlertmanager($tenant_id: String!, $input: AlertmanagerInput!) {
     updateAlertmanager(tenant_id: $tenant_id, input: $input) {
       success
       error_type

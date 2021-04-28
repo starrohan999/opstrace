@@ -1,15 +1,17 @@
 mutation UpdateExporter(
-  $tenant_id: uuid!
-  $name: String!
+  $id: uuid!
   $config: json!
-  $credential: String
+  $credential_id: uuid
   $updated_at: timestamptz!
 ) {
   update_exporter_by_pk(
-    _set: { config: $config, credential: $credential, updated_at: $updated_at }
-    pk_columns: { tenant_id: $tenant_id, name: $name }
+    _set: {
+      config: $config
+      credential_id: $credential_id
+      updated_at: $updated_at
+    }
+    pk_columns: { id: $id }
   ) {
-    tenant_id
-    name
+    id
   }
 }

@@ -2,10 +2,14 @@
 # Used for initial sync of exporter deployments to Kubernetes.
 query GetExportersDump {
   exporter {
+    id
     tenant_id
     name
     type
-    credential
+    credential {
+      id
+      name
+    }
     config
     created_at
     updated_at

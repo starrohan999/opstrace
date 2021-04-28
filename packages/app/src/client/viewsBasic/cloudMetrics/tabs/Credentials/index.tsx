@@ -41,7 +41,9 @@ function Credentials() {
   const { data, mutate: changeCallback } = useHasura(
     `
       query credentials($tenant_id: String!) {
-        credential(where: {tenant: {_eq: $tenant_id}}) {
+        credential(where: {tenant_id: {_eq: $tenant_id}}) {
+          id
+          tenant_id
           name
           type
           created_at
