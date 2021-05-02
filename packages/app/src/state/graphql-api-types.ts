@@ -2739,9 +2739,9 @@ export type Tenant = {
   /** An aggregated array relationship */
   exporters_aggregate: Exporter_Aggregate;
   id: Scalars["uuid"];
+  key: Scalars["String"];
   name: Scalars["String"];
   type: Scalars["String"];
-  url_slug: Scalars["String"];
 };
 
 /** columns and relationships of "tenant" */
@@ -2821,9 +2821,9 @@ export type Tenant_Bool_Exp = {
   credentials?: Maybe<Credential_Bool_Exp>;
   exporters?: Maybe<Exporter_Bool_Exp>;
   id?: Maybe<Uuid_Comparison_Exp>;
+  key?: Maybe<String_Comparison_Exp>;
   name?: Maybe<String_Comparison_Exp>;
   type?: Maybe<String_Comparison_Exp>;
-  url_slug?: Maybe<String_Comparison_Exp>;
 };
 
 /** unique or primary key constraints on table "tenant" */
@@ -2831,11 +2831,11 @@ export enum Tenant_Constraint {
   /** unique or primary key constraint */
   TenantIdKey = "tenant_id_key",
   /** unique or primary key constraint */
+  TenantKeyKey = "tenant_key_key",
+  /** unique or primary key constraint */
   TenantNameKey = "tenant_name_key",
   /** unique or primary key constraint */
-  TenantPkey = "tenant_pkey",
-  /** unique or primary key constraint */
-  TenantUrlSlugKey = "tenant_url_slug_key"
+  TenantPkey = "tenant_pkey"
 }
 
 /** input type for inserting data into table "tenant" */
@@ -2844,45 +2844,45 @@ export type Tenant_Insert_Input = {
   credentials?: Maybe<Credential_Arr_Rel_Insert_Input>;
   exporters?: Maybe<Exporter_Arr_Rel_Insert_Input>;
   id?: Maybe<Scalars["uuid"]>;
+  key?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
   type?: Maybe<Scalars["String"]>;
-  url_slug?: Maybe<Scalars["String"]>;
 };
 
 /** aggregate max on columns */
 export type Tenant_Max_Fields = {
   created_at?: Maybe<Scalars["timestamp"]>;
   id?: Maybe<Scalars["uuid"]>;
+  key?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
   type?: Maybe<Scalars["String"]>;
-  url_slug?: Maybe<Scalars["String"]>;
 };
 
 /** order by max() on columns of table "tenant" */
 export type Tenant_Max_Order_By = {
   created_at?: Maybe<Order_By>;
   id?: Maybe<Order_By>;
+  key?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
   type?: Maybe<Order_By>;
-  url_slug?: Maybe<Order_By>;
 };
 
 /** aggregate min on columns */
 export type Tenant_Min_Fields = {
   created_at?: Maybe<Scalars["timestamp"]>;
   id?: Maybe<Scalars["uuid"]>;
+  key?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
   type?: Maybe<Scalars["String"]>;
-  url_slug?: Maybe<Scalars["String"]>;
 };
 
 /** order by min() on columns of table "tenant" */
 export type Tenant_Min_Order_By = {
   created_at?: Maybe<Order_By>;
   id?: Maybe<Order_By>;
+  key?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
   type?: Maybe<Order_By>;
-  url_slug?: Maybe<Order_By>;
 };
 
 /** response of any mutation on the table "tenant" */
@@ -2912,9 +2912,9 @@ export type Tenant_Order_By = {
   credentials_aggregate?: Maybe<Credential_Aggregate_Order_By>;
   exporters_aggregate?: Maybe<Exporter_Aggregate_Order_By>;
   id?: Maybe<Order_By>;
+  key?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
   type?: Maybe<Order_By>;
-  url_slug?: Maybe<Order_By>;
 };
 
 /** primary key columns input for table: "tenant" */
@@ -2929,20 +2929,20 @@ export enum Tenant_Select_Column {
   /** column name */
   Id = "id",
   /** column name */
+  Key = "key",
+  /** column name */
   Name = "name",
   /** column name */
-  Type = "type",
-  /** column name */
-  UrlSlug = "url_slug"
+  Type = "type"
 }
 
 /** input type for updating data in table "tenant" */
 export type Tenant_Set_Input = {
   created_at?: Maybe<Scalars["timestamp"]>;
   id?: Maybe<Scalars["uuid"]>;
+  key?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
   type?: Maybe<Scalars["String"]>;
-  url_slug?: Maybe<Scalars["String"]>;
 };
 
 /** update columns of table "tenant" */
@@ -2952,11 +2952,11 @@ export enum Tenant_Update_Column {
   /** column name */
   Id = "id",
   /** column name */
+  Key = "key",
+  /** column name */
   Name = "name",
   /** column name */
-  Type = "type",
-  /** column name */
-  UrlSlug = "url_slug"
+  Type = "type"
 }
 
 /** expression to compare columns of type timestamp. All fields are combined with logical 'AND'. */
@@ -3750,7 +3750,7 @@ export type CreateTenantsMutationVariables = Exact<{
 
 export type CreateTenantsMutation = {
   insert_tenant?: Maybe<{
-    returning: Array<Pick<Tenant, "id" | "name" | "url_slug">>;
+    returning: Array<Pick<Tenant, "id" | "name" | "key">>;
   }>;
 };
 
@@ -3773,9 +3773,7 @@ export type GetAlertmanagerQuery = {
 export type GetTenantsQueryVariables = Exact<{ [key: string]: never }>;
 
 export type GetTenantsQuery = {
-  tenant: Array<
-    Pick<Tenant, "id" | "name" | "url_slug" | "created_at" | "type">
-  >;
+  tenant: Array<Pick<Tenant, "id" | "name" | "key" | "created_at" | "type">>;
 };
 
 export type SubscribeToTenantListSubscriptionVariables = Exact<{
@@ -3783,9 +3781,7 @@ export type SubscribeToTenantListSubscriptionVariables = Exact<{
 }>;
 
 export type SubscribeToTenantListSubscription = {
-  tenant: Array<
-    Pick<Tenant, "id" | "name" | "url_slug" | "created_at" | "type">
-  >;
+  tenant: Array<Pick<Tenant, "id" | "name" | "key" | "created_at" | "type">>;
 };
 
 export type UpdateAlertmanagerMutationVariables = Exact<{
@@ -4380,7 +4376,7 @@ export const CreateTenantsDocument = gql`
       returning {
         id
         name
-        url_slug
+        key
       }
     }
   }
@@ -4405,7 +4401,7 @@ export const GetTenantsDocument = gql`
     tenant {
       id
       name
-      url_slug
+      key
       created_at
       type
     }
@@ -4416,7 +4412,7 @@ export const SubscribeToTenantListDocument = gql`
     tenant {
       id
       name
-      url_slug
+      key
       created_at
       type
     }

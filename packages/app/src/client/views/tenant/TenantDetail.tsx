@@ -124,8 +124,8 @@ const TenantDetail = ({ tenant }: TenantDetailProps) => {
 };
 
 const TenantDetailParamLoader = (props: {}) => {
-  const { tenantSlug } = useParams<{ tenantSlug: string }>();
-  const Component = withTenant(TenantDetail, tenantSlug);
+  const { tenantKey } = useParams<{ tenantKey: string }>();
+  const Component = withTenant(TenantDetail, tenantKey);
   return <Component {...props} />;
 };
 

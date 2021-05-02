@@ -2,7 +2,7 @@ subscription SubscribeToTenantList {
   tenant {
     id
     name
-    url_slug
+    key
     created_at
     type
   }

@@ -23,7 +23,7 @@ import { isFalse } from "ramda-adjunct";
 import { useForm, useFormState } from "state/form/hooks";
 import { withAlertmanager } from "client/views/tenant/utils";
 // import useAlertmanager from "state/tenant/hooks/useAlertmanager";
-// import { useTenantByUrlSlug } from "state/tenant/hooks/useTenant";
+// import { useTenantByKey } from "state/tenant/hooks/useTenant";
 import { updateAlertmanager } from "state/tenant/actions";
 
 import { Tenant, Alertmanager } from "state/tenant/types";
@@ -51,21 +51,21 @@ const defaultData: FormData = {
 };
 
 const AlertmanagerConfigEditorLoader = (props: {}) => {
-  const { tenantSlug } = useParams<{ tenantSlug: string }>();
+  const { tenantKey } = useParams<{ tenantKey: string }>();
   // return (
   //   <WithTenant
   //     Component={<WithAlertmanager Component={AlertmanagerConfigEditor} />}
-  //     urlSlug={tenantSlug}
+  //     key={tenantKey}
   //   />
   // );
-  const Component = withAlertmanager(AlertmanagerConfigEditor, tenantSlug);
+  const Component = withAlertmanager(AlertmanagerConfigEditor, tenantKey);
   return <Component {...props} />;
 };
 
 // const AlertmanagerConfigEditorLoader = () => {
-//   const { tenantSlug } = useParams<{ tenantSlug: string }>();
-//   const tenant = useTenantByUrlSlug(tenantSlug);
-//   console.log("AlertmanagerConfigEditorLoader", tenant, tenantSlug);
+//   const { tenantKey } = useParams<{ tenantKey: string }>();
+//   const tenant = useTenantByKey(tenantKey);
+//   console.log("AlertmanagerConfigEditorLoader", tenant, tenantKey);
 //   const alertmanager = useAlertmanager(tenant.name);
 
 //   if (!tenant || !alertmanager)

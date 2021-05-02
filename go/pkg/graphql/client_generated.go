@@ -1746,9 +1746,9 @@ type CreateTenantsVariables struct {
 type CreateTenantsResponse struct {
 	InsertTenant struct {
 		Returning []struct {
-			ID      string `json:"id"`
-			Name    string `json:"name"`
-			UrlSlug string `json:"url_slug"`
+			ID   string `json:"id"`
+			Name string `json:"name"`
+			Key  string `json:"key"`
 		} `json:"returning"`
 	} `json:"insert_tenant"`
 }
@@ -1769,7 +1769,7 @@ func NewCreateTenantsRequest(url string, vars *CreateTenantsVariables) (*CreateT
     returning {
       id
       name
-      url_slug
+      key
     }
   }
 }`,
@@ -1951,7 +1951,7 @@ type GetTenantsResponse struct {
 	Tenant []struct {
 		ID        string `json:"id"`
 		Name      string `json:"name"`
-		UrlSlug   string `json:"url_slug"`
+		Key       string `json:"key"`
 		CreatedAt string `json:"created_at"`
 		Type      string `json:"type"`
 	} `json:"tenant"`
@@ -1967,7 +1967,7 @@ func NewGetTenantsRequest(url string) (*GetTenantsRequest, error) {
   tenant {
     id
     name
-    url_slug
+    key
     created_at
     type
   }
@@ -2982,10 +2982,10 @@ const (
 type TenantConstraint string
 
 const (
-	TenantConstraintTenantIdKey      TenantConstraint = "tenant_id_key"
-	TenantConstraintTenantNameKey    TenantConstraint = "tenant_name_key"
-	TenantConstraintTenantPkey       TenantConstraint = "tenant_pkey"
-	TenantConstraintTenantUrlSlugKey TenantConstraint = "tenant_url_slug_key"
+	TenantConstraintTenantIdKey   TenantConstraint = "tenant_id_key"
+	TenantConstraintTenantKeyKey  TenantConstraint = "tenant_key_key"
+	TenantConstraintTenantNameKey TenantConstraint = "tenant_name_key"
+	TenantConstraintTenantPkey    TenantConstraint = "tenant_pkey"
 )
 
 type TenantSelectColumn string
@@ -2993,9 +2993,9 @@ type TenantSelectColumn string
 const (
 	TenantSelectColumnCreatedAt TenantSelectColumn = "created_at"
 	TenantSelectColumnID        TenantSelectColumn = "id"
+	TenantSelectColumnKey       TenantSelectColumn = "key"
 	TenantSelectColumnName      TenantSelectColumn = "name"
 	TenantSelectColumnType      TenantSelectColumn = "type"
-	TenantSelectColumnUrlSlug   TenantSelectColumn = "url_slug"
 )
 
 type TenantUpdateColumn string
@@ -3003,9 +3003,9 @@ type TenantUpdateColumn string
 const (
 	TenantUpdateColumnCreatedAt TenantUpdateColumn = "created_at"
 	TenantUpdateColumnID        TenantUpdateColumn = "id"
+	TenantUpdateColumnKey       TenantUpdateColumn = "key"
 	TenantUpdateColumnName      TenantUpdateColumn = "name"
 	TenantUpdateColumnType      TenantUpdateColumn = "type"
-	TenantUpdateColumnUrlSlug   TenantUpdateColumn = "url_slug"
 )
 
 type UserConstraint string
@@ -3757,9 +3757,9 @@ type TenantBoolExp struct {
 	Credentials *CredentialBoolExp      `json:"credentials,omitempty"`
 	Exporters   *ExporterBoolExp        `json:"exporters,omitempty"`
 	ID          *UuidComparisonExp      `json:"id,omitempty"`
+	Key         *StringComparisonExp    `json:"key,omitempty"`
 	Name        *StringComparisonExp    `json:"name,omitempty"`
 	Type        *StringComparisonExp    `json:"type,omitempty"`
-	UrlSlug     *StringComparisonExp    `json:"url_slug,omitempty"`
 }
 
 type TenantInsertInput struct {
@@ -3767,25 +3767,25 @@ type TenantInsertInput struct {
 	Credentials *CredentialArrRelInsertInput `json:"credentials,omitempty"`
 	Exporters   *ExporterArrRelInsertInput   `json:"exporters,omitempty"`
 	ID          *UUID                        `json:"id,omitempty"`
+	Key         *String                      `json:"key,omitempty"`
 	Name        *String                      `json:"name,omitempty"`
 	Type        *String                      `json:"type,omitempty"`
-	UrlSlug     *String                      `json:"url_slug,omitempty"`
 }
 
 type TenantMaxOrderBy struct {
 	CreatedAt *OrderBy `json:"created_at,omitempty"`
 	ID        *OrderBy `json:"id,omitempty"`
+	Key       *OrderBy `json:"key,omitempty"`
 	Name      *OrderBy `json:"name,omitempty"`
 	Type      *OrderBy `json:"type,omitempty"`
-	UrlSlug   *OrderBy `json:"url_slug,omitempty"`
 }
 
 type TenantMinOrderBy struct {
 	CreatedAt *OrderBy `json:"created_at,omitempty"`
 	ID        *OrderBy `json:"id,omitempty"`
+	Key       *OrderBy `json:"key,omitempty"`
 	Name      *OrderBy `json:"name,omitempty"`
 	Type      *OrderBy `json:"type,omitempty"`
-	UrlSlug   *OrderBy `json:"url_slug,omitempty"`
 }
 
 type TenantObjRelInsertInput struct {
@@ -3804,9 +3804,9 @@ type TenantOrderBy struct {
 	CredentialsAggregate *CredentialAggregateOrderBy `json:"credentials_aggregate,omitempty"`
 	ExportersAggregate   *ExporterAggregateOrderBy   `json:"exporters_aggregate,omitempty"`
 	ID                   *OrderBy                    `json:"id,omitempty"`
+	Key                  *OrderBy                    `json:"key,omitempty"`
 	Name                 *OrderBy                    `json:"name,omitempty"`
 	Type                 *OrderBy                    `json:"type,omitempty"`
-	UrlSlug              *OrderBy                    `json:"url_slug,omitempty"`
 }
 
 type TenantPkColumnsInput struct {
@@ -3816,9 +3816,9 @@ type TenantPkColumnsInput struct {
 type TenantSetInput struct {
 	CreatedAt *Timestamp `json:"created_at,omitempty"`
 	ID        *UUID      `json:"id,omitempty"`
+	Key       *String    `json:"key,omitempty"`
 	Name      *String    `json:"name,omitempty"`
 	Type      *String    `json:"type,omitempty"`
-	UrlSlug   *String    `json:"url_slug,omitempty"`
 }
 
 type TimestampComparisonExp struct {
@@ -4477,9 +4477,9 @@ type Tenant struct {
 	Exporters            *[]Exporter         `json:"exporters,omitempty"`
 	ExportersAggregate   ExporterAggregate   `json:"exporters_aggregate"`
 	ID                   UUID                `json:"id"`
+	Key                  String              `json:"key"`
 	Name                 String              `json:"name"`
 	Type                 String              `json:"type"`
-	UrlSlug              String              `json:"url_slug"`
 }
 
 type TenantAggregate struct {
@@ -4496,17 +4496,17 @@ type TenantAggregateFields struct {
 type TenantMaxFields struct {
 	CreatedAt *Timestamp `json:"created_at,omitempty"`
 	ID        *UUID      `json:"id,omitempty"`
+	Key       *String    `json:"key,omitempty"`
 	Name      *String    `json:"name,omitempty"`
 	Type      *String    `json:"type,omitempty"`
-	UrlSlug   *String    `json:"url_slug,omitempty"`
 }
 
 type TenantMinFields struct {
 	CreatedAt *Timestamp `json:"created_at,omitempty"`
 	ID        *UUID      `json:"id,omitempty"`
+	Key       *String    `json:"key,omitempty"`
 	Name      *String    `json:"name,omitempty"`
 	Type      *String    `json:"type,omitempty"`
-	UrlSlug   *String    `json:"url_slug,omitempty"`
 }
 
 type TenantMutationResponse struct {

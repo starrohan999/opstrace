@@ -28,13 +28,13 @@ export const selectTenant = createSelector(
   (loading, tenants, id: string) => (loading ? null : tenants[id])
 );
 
-export const selectTenantByUrlSlug = createSelector(
+export const selectTenantByKey = createSelector(
   (state: State) => state.tenants.loading,
   (state: State) => state.tenants.tenants,
-  (_: State, urlSlug: string) => urlSlug,
-  (loading, tenants, urlSlug): Tenant | null => {
+  (_: State, key: string) => key,
+  (loading, tenants, key): Tenant | null => {
     // @ts-ignore
-    return loading ? null : find(propEq("url_slug", urlSlug))(values(tenants));
+    return loading ? null : find(propEq("key", key))(values(tenants));
   }
 );
 
@@ -52,6 +52,6 @@ export default function useTenant(id: string) {
   return useSelector((state: State) => selectTenant(state, id));
 }
 
-export function useTenantByUrlSlug(urlSlug: string) {
-  return useSelector((state: State) => selectTenantByUrlSlug(state, urlSlug));
+export function useTenantByKey(key: string) {
+  return useSelector((state: State) => selectTenantByKey(state, key));
 }

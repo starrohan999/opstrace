@@ -41,7 +41,7 @@ const TenantPicker = () => {
       options: tenants ? tenants.map(tenantToPickerOption) : [],
       onSelected: option => {
         if (option?.data)
-          history.push(`/cluster/tenants/${(option.data as Tenant).url_slug}`);
+          history.push(`/cluster/tenants/${(option.data as Tenant).key}`);
       }
     },
     [tenants, history]

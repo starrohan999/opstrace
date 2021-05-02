@@ -17,7 +17,7 @@
 import React from "react";
 import { map } from "ramda";
 
-import { useTenantByUrlSlug } from "state/tenant/hooks/useTenant";
+import { useTenantByKey } from "state/tenant/hooks/useTenant";
 import useAlertmanager from "state/tenant/hooks/useAlertmanager";
 
 import { Tenant, Tenants } from "state/tenant/types";
@@ -35,15 +35,15 @@ export const tenantsToItems: (tenants: Tenants) => PanelItem[] = map(
 
 // type WithTenantProps = {
 //   Component: JSX.Element | React.ReactType;
-//   urlSlug: string;
+//   key: string;
 // };
 
 // export const WithTenant = ({
 //   Component,
-//   urlSlug,
+//   key,
 //   ...props
 // }: WithTenantProps) => {
-//   const tenant = useTenantByUrlSlug(urlSlug);
+//   const tenant = useTenantByKey(key);
 
 //   if (tenant) return <Component {...props} tenant={tenant} />;
 //   else
@@ -52,12 +52,9 @@ export const tenantsToItems: (tenants: Tenants) => PanelItem[] = map(
 //     );
 // };
 
-export const withTenant = (
-  Component: React.ReactType,
-  tenantUrlSlug: string
-) => {
+export const withTenant = (Component: React.ReactType, tenantKey: string) => {
   return (props: {}) => {
-    const tenant = useTenantByUrlSlug(tenantUrlSlug);
+    const tenant = useTenantByKey(tenantKey);
 
     return tenant ? (
       <Component {...props} tenant={tenant} />
@@ -89,7 +86,7 @@ export const withTenant = (
 
 export const withAlertmanager = (
   Component: React.ReactType,
-  tenantUrlSlug: string
+  tenantKey: string
 ) => {
   const ComponentWithAlertmanager = ({
     tenant,
@@ -106,5 +103,5 @@ export const withAlertmanager = (
     );
   };
 
-  return withTenant(ComponentWithAlertmanager, tenantUrlSlug);
+  return withTenant(ComponentWithAlertmanager, tenantKey);
 };

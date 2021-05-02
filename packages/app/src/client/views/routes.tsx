@@ -109,8 +109,8 @@ const AuthenticatedRoutes = () => {
           component={UserDetail}
         />
         <Route
-          key="/cluster/tenants/:tenantSlug/:page?"
-          path="/cluster/tenants/:tenantSlug/:page?"
+          key="/cluster/tenants/:tenantKey/:page?"
+          path="/cluster/tenants/:tenantKey/:page?"
           component={TenantRouter}
         />
 

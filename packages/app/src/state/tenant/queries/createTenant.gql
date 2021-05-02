@@ -3,7 +3,7 @@ mutation CreateTenants($tenants: [tenant_insert_input!]!) {
     returning {
       id
       name
-      url_slug
+      key
     }
   }
 }

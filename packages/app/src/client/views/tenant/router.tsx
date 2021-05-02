@@ -32,20 +32,20 @@ const TenantRouter = () => {
       <Switch>
         <Route
           exact
-          key="/cluster/tenants/:tenantSlug/alertmanager-config"
-          path="/cluster/tenants/:tenantSlug/alertmanager-config"
+          key="/cluster/tenants/:tenantKey/alertmanager-config"
+          path="/cluster/tenants/:tenantKey/alertmanager-config"
           component={AlertmanagerConfigEditor}
         />
         <Route
           exact
-          key="/cluster/tenants/:tenantSlug/cloud-metrics"
-          path="/cluster/tenants/:tenantSlug/cloud-metrics"
+          key="/cluster/tenants/:tenantKey/cloud-metrics"
+          path="/cluster/tenants/:tenantKey/cloud-metrics"
           component={CloudMetrics}
         />
         <Route
           exact
-          key="/cluster/tenants/:tenantSlug"
-          path="/cluster/tenants/:tenantSlug"
+          key="/cluster/tenants/:tenantKey"
+          path="/cluster/tenants/:tenantKey"
           component={TenantDetail}
         />
         <Route key="*" path="*" component={NotFound} />

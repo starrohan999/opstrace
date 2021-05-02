@@ -2,7 +2,7 @@
 
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 
-CREATE OR REPLACE FUNCTION create_url_slug("value" TEXT)
+CREATE OR REPLACE FUNCTION create_key("value" TEXT)
 RETURNS TEXT AS $$
   -- removes accents (diacritic signs) from a given string --
   WITH "unaccented" AS (
@@ -31,11 +31,11 @@ RETURNS TEXT AS $$
   SELECT "value" FROM "trimmed";
 $$ LANGUAGE SQL STRICT IMMUTABLE;
 
-CREATE FUNCTION public.set_url_slug_from_name() RETURNS trigger
+CREATE FUNCTION public.set_key_from_name() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-  NEW.url_slug := create_url_slug(NEW.name);
+  NEW.key := create_key(NEW.name);
   RETURN NEW;
 END
 $$;
