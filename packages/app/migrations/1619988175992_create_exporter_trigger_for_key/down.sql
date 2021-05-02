@@ -1,0 +1,1 @@
+DROP TRIGGER t_exporter_insert ON exporter;
