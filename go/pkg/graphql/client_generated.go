@@ -4151,7 +4151,7 @@ type Exporter struct {
 	Credential   *Credential `json:"credential,omitempty"`
 	CredentialId *UUID       `json:"credential_id,omitempty"`
 	ID           UUID        `json:"id"`
-	Key          String      `json:"key"`
+	Key          *String     `json:"key,omitempty"`
 	Name         String      `json:"name"`
 	Tenant       Tenant      `json:"tenant"`
 	TenantId     UUID        `json:"tenant_id"`
@@ -4489,7 +4489,7 @@ type Tenant struct {
 	Exporters            *[]Exporter         `json:"exporters,omitempty"`
 	ExportersAggregate   ExporterAggregate   `json:"exporters_aggregate"`
 	ID                   UUID                `json:"id"`
-	Key                  String              `json:"key"`
+	Key                  *String             `json:"key,omitempty"`
 	Name                 String              `json:"name"`
 	Type                 String              `json:"type"`
 }

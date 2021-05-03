@@ -589,7 +589,7 @@ export type Exporter = {
   credential?: Maybe<Credential>;
   credential_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
-  key: Scalars["String"];
+  key?: Maybe<Scalars["String"]>;
   name: Scalars["String"];
   /** An object relationship */
   tenant: Tenant;
@@ -2754,7 +2754,7 @@ export type Tenant = {
   /** An aggregated array relationship */
   exporters_aggregate: Exporter_Aggregate;
   id: Scalars["uuid"];
-  key: Scalars["String"];
+  key?: Maybe<Scalars["String"]>;
   name: Scalars["String"];
   type: Scalars["String"];
 };
