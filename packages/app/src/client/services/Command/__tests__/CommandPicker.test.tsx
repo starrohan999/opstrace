@@ -91,8 +91,6 @@ describe("render CommandPicker", () => {
 
     const provider = mockedUsePickerService.mock.calls[0][0];
 
-    console.log(provider.options);
-
     expect(provider.options).toEqual([
       {
         id: "command-id-1",

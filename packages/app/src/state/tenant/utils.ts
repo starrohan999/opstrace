@@ -14,25 +14,14 @@
  * limitations under the License.
  */
 
-import { createSelector } from "reselect";
-import { useSelector, useDispatch, State } from "state/provider";
+import { find, propEq, values } from "ramda";
 
-import { selectTenantByKey } from "./useTenant";
-import { getAlertmanager } from "state/tenant/actions";
+import { TenantRecords, Tenant } from "./types";
 
-export const selectAlertmanager = createSelector(
-  selectTenantByKey,
-  tenant => tenant?.alertmanager
-);
-
-export default function useAlertmanager(tenantKey: string) {
-  const data = useSelector((state: State) =>
-    selectAlertmanager(state, tenantKey)
-  );
-
-  const dispatch = useDispatch();
-
-  if (!data) dispatch(getAlertmanager({ tenantKey }));
-
-  return data;
-}
+export const findTenantFromKey = (
+  tenants: TenantRecords,
+  key: string
+): Tenant | null => {
+  // @ts-ignore
+  return find(propEq("key", key))(values(tenants));
+};

@@ -589,6 +589,7 @@ export type Exporter = {
   credential?: Maybe<Credential>;
   credential_id?: Maybe<Scalars["uuid"]>;
   id: Scalars["uuid"];
+  key: Scalars["String"];
   name: Scalars["String"];
   /** An object relationship */
   tenant: Tenant;
@@ -644,6 +645,7 @@ export type Exporter_Bool_Exp = {
   credential?: Maybe<Credential_Bool_Exp>;
   credential_id?: Maybe<Uuid_Comparison_Exp>;
   id?: Maybe<Uuid_Comparison_Exp>;
+  key?: Maybe<String_Comparison_Exp>;
   name?: Maybe<String_Comparison_Exp>;
   tenant?: Maybe<Tenant_Bool_Exp>;
   tenant_id?: Maybe<Uuid_Comparison_Exp>;
@@ -656,6 +658,8 @@ export enum Exporter_Constraint {
   /** unique or primary key constraint */
   ExporterIdKey = "exporter_id_key",
   /** unique or primary key constraint */
+  ExporterKeyKey = "exporter_key_key",
+  /** unique or primary key constraint */
   ExporterPkey = "exporter_pkey"
 }
 
@@ -666,6 +670,7 @@ export type Exporter_Insert_Input = {
   credential?: Maybe<Credential_Obj_Rel_Insert_Input>;
   credential_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  key?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
   tenant?: Maybe<Tenant_Obj_Rel_Insert_Input>;
   tenant_id?: Maybe<Scalars["uuid"]>;
@@ -678,6 +683,7 @@ export type Exporter_Max_Fields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   credential_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  key?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
   tenant_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -689,6 +695,7 @@ export type Exporter_Max_Order_By = {
   created_at?: Maybe<Order_By>;
   credential_id?: Maybe<Order_By>;
   id?: Maybe<Order_By>;
+  key?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
   tenant_id?: Maybe<Order_By>;
   type?: Maybe<Order_By>;
@@ -700,6 +707,7 @@ export type Exporter_Min_Fields = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   credential_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  key?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
   tenant_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -711,6 +719,7 @@ export type Exporter_Min_Order_By = {
   created_at?: Maybe<Order_By>;
   credential_id?: Maybe<Order_By>;
   id?: Maybe<Order_By>;
+  key?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
   tenant_id?: Maybe<Order_By>;
   type?: Maybe<Order_By>;
@@ -745,6 +754,7 @@ export type Exporter_Order_By = {
   credential?: Maybe<Credential_Order_By>;
   credential_id?: Maybe<Order_By>;
   id?: Maybe<Order_By>;
+  key?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
   tenant?: Maybe<Tenant_Order_By>;
   tenant_id?: Maybe<Order_By>;
@@ -768,6 +778,8 @@ export enum Exporter_Select_Column {
   /** column name */
   Id = "id",
   /** column name */
+  Key = "key",
+  /** column name */
   Name = "name",
   /** column name */
   TenantId = "tenant_id",
@@ -783,6 +795,7 @@ export type Exporter_Set_Input = {
   created_at?: Maybe<Scalars["timestamptz"]>;
   credential_id?: Maybe<Scalars["uuid"]>;
   id?: Maybe<Scalars["uuid"]>;
+  key?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
   tenant_id?: Maybe<Scalars["uuid"]>;
   type?: Maybe<Scalars["String"]>;
@@ -799,6 +812,8 @@ export enum Exporter_Update_Column {
   CredentialId = "credential_id",
   /** column name */
   Id = "id",
+  /** column name */
+  Key = "key",
   /** column name */
   Name = "name",
   /** column name */
@@ -3763,7 +3778,7 @@ export type DeleteTenantMutation = {
 };
 
 export type GetAlertmanagerQueryVariables = Exact<{
-  tenant_name: Scalars["String"];
+  tenant_key: Scalars["String"];
 }>;
 
 export type GetAlertmanagerQuery = {
@@ -3785,7 +3800,7 @@ export type SubscribeToTenantListSubscription = {
 };
 
 export type UpdateAlertmanagerMutationVariables = Exact<{
-  tenant_name: Scalars["String"];
+  tenant_key: Scalars["String"];
   input: AlertmanagerInput;
 }>;
 
@@ -4389,8 +4404,8 @@ export const DeleteTenantDocument = gql`
   }
 `;
 export const GetAlertmanagerDocument = gql`
-  query GetAlertmanager($tenant_name: String!) {
-    getAlertmanager(tenant_id: $tenant_name) {
+  query GetAlertmanager($tenant_key: String!) {
+    getAlertmanager(tenant_id: $tenant_key) {
       config
       online
     }
@@ -4420,10 +4435,10 @@ export const SubscribeToTenantListDocument = gql`
 `;
 export const UpdateAlertmanagerDocument = gql`
   mutation UpdateAlertmanager(
-    $tenant_name: String!
+    $tenant_key: String!
     $input: AlertmanagerInput!
   ) {
-    updateAlertmanager(tenant_id: $tenant_name, input: $input) {
+    updateAlertmanager(tenant_id: $tenant_key, input: $input) {
       success
       error_type
       error_message

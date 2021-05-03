@@ -88,7 +88,7 @@ function* getAlertmanagerListener() {
 function* getAlertmanager(action: ReturnType<typeof actions.getAlertmanager>) {
   try {
     const response = yield graphqlClient.GetAlertmanager({
-      tenant_name: action.payload.name
+      tenant_key: action.payload.tenantKey
     });
 
     if (response.data?.getAlertmanager?.config) {
@@ -107,7 +107,7 @@ function* getAlertmanager(action: ReturnType<typeof actions.getAlertmanager>) {
       yield put({
         type: "ALERTMANAGER_LOADED",
         payload: {
-          tenantId: action.payload.id,
+          tenantKey: action.payload.tenantKey,
           templates: templates,
           config: cortexConfig.alertmanager_config,
           online: true
@@ -119,7 +119,7 @@ function* getAlertmanager(action: ReturnType<typeof actions.getAlertmanager>) {
       yield put({
         type: "ALERTMANAGER_LOADED",
         payload: {
-          tenantId: action.payload.id,
+          tenantKey: action.payload.tenantKey,
           templates: defaultTemplate,
           config: "",
           online: true
@@ -162,7 +162,7 @@ function* updateAlertmanager(
     );
 
     const response = yield graphqlClient.UpdateAlertmanager({
-      tenant_name: action.payload.tenantName,
+      tenant_key: action.payload.tenantKey,
       input: { config }
     });
 

@@ -33,25 +33,6 @@ export const tenantsToItems: (tenants: Tenants) => PanelItem[] = map(
   tenantToItem
 );
 
-// type WithTenantProps = {
-//   Component: JSX.Element | React.ReactType;
-//   key: string;
-// };
-
-// export const WithTenant = ({
-//   Component,
-//   key,
-//   ...props
-// }: WithTenantProps) => {
-//   const tenant = useTenantByKey(key);
-
-//   if (tenant) return <Component {...props} tenant={tenant} />;
-//   else
-//     return (
-//       <Skeleton variant="rect" width="100%" height="100%" animation="wave" />
-//     );
-// };
-
 export const withTenant = (Component: React.ReactType, tenantKey: string) => {
   return (props: {}) => {
     const tenant = useTenantByKey(tenantKey);
@@ -63,26 +44,6 @@ export const withTenant = (Component: React.ReactType, tenantKey: string) => {
     );
   };
 };
-
-// type WithAlertmanagerProps = {
-//   Component: JSX.Element | JSX.Element[] | React.ReactType;
-//   tenant?: Tenant;
-// };
-
-// export const WithAlertmanager = ({
-//   Component,
-//   tenant,
-//   ...props
-// }: WithAlertmanagerProps) => {
-//   const alertmanager = useAlertmanager(tenant.name);
-
-//   if (alertmanager)
-//     return <Component {...props} tenant={tenant} alertmanager={alertmanager} />;
-//   else
-//     return (
-//       <Skeleton variant="rect" width="100%" height="100%" animation="wave" />
-//     );
-// };
 
 export const withAlertmanager = (
   Component: React.ReactType,

@@ -19,6 +19,8 @@ import { createSelector } from "reselect";
 
 import { useSelector, State } from "state/provider";
 
+import { findTenantFromKey } from "state/tenant/utils";
+
 import { Tenant } from "state/tenant/types";
 
 export const selectTenant = createSelector(
@@ -33,8 +35,7 @@ export const selectTenantByKey = createSelector(
   (state: State) => state.tenants.tenants,
   (_: State, key: string) => key,
   (loading, tenants, key): Tenant | null => {
-    // @ts-ignore
-    return loading ? null : find(propEq("key", key))(values(tenants));
+    return loading ? null : findTenantFromKey(tenants, key);
   }
 );
 

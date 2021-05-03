@@ -1,1 +1,1 @@
-ALTER TABLE "public"."exporter" ADD COLUMN "key" Text NULL UNIQUE;
+ALTER TABLE "public"."exporter" ADD COLUMN "key" Text UNIQUE;

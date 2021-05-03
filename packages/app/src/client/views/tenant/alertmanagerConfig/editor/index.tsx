@@ -22,8 +22,6 @@ import { isFalse } from "ramda-adjunct";
 
 import { useForm, useFormState } from "state/form/hooks";
 import { withAlertmanager } from "client/views/tenant/utils";
-// import useAlertmanager from "state/tenant/hooks/useAlertmanager";
-// import { useTenantByKey } from "state/tenant/hooks/useTenant";
 import { updateAlertmanager } from "state/tenant/actions";
 
 import { Tenant, Alertmanager } from "state/tenant/types";
@@ -31,7 +29,6 @@ import { StatusResponse } from "state/graphql-api-types";
 
 import { State } from "./types";
 
-// import Skeleton from "@material-ui/lab/Skeleton";
 import { Box } from "client/components/Box";
 import { Card, CardContent, CardHeader } from "client/components/Card";
 import { Button } from "client/components/Button";
@@ -52,31 +49,9 @@ const defaultData: FormData = {
 
 const AlertmanagerConfigEditorLoader = (props: {}) => {
   const { tenantKey } = useParams<{ tenantKey: string }>();
-  // return (
-  //   <WithTenant
-  //     Component={<WithAlertmanager Component={AlertmanagerConfigEditor} />}
-  //     key={tenantKey}
-  //   />
-  // );
   const Component = withAlertmanager(AlertmanagerConfigEditor, tenantKey);
   return <Component {...props} />;
 };
-
-// const AlertmanagerConfigEditorLoader = () => {
-//   const { tenantKey } = useParams<{ tenantKey: string }>();
-//   const tenant = useTenantByKey(tenantKey);
-//   console.log("AlertmanagerConfigEditorLoader", tenant, tenantKey);
-//   const alertmanager = useAlertmanager(tenant.name);
-
-//   if (!tenant || !alertmanager)
-//     return (
-//       <Skeleton variant="rect" width="100%" height="100%" animation="wave" />
-//     );
-//   else
-//     return (
-//       <AlertmanagerConfigEditor tenant={tenant} alertmanager={alertmanager} />
-//     );
-// };
 
 type AlertmanagerConfigEditorProps = {
   tenant: Tenant;
@@ -118,18 +93,17 @@ const AlertmanagerConfigEditor = (props: AlertmanagerConfigEditorProps) => {
   ]);
 
   const handleSave = useCallback(() => {
-    if (tenant?.id && tenant?.name && isValid()) {
+    if (tenant?.key && tenant?.name && isValid()) {
       dispatch(
         updateAlertmanager({
-          tenantId: tenant.id,
-          tenantName: tenant.name,
+          tenantKey: tenant.key,
           templates: dataRef.current.templates,
           config: dataRef.current.config,
           formId: formId
         })
       );
     }
-  }, [tenant?.id, tenant?.name, formId, isValid, dispatch]);
+  }, [tenant?.key, tenant?.name, formId, isValid, dispatch]);
 
   return (
     <Box

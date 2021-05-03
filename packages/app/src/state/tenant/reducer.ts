@@ -16,6 +16,8 @@
 
 import { pluck, zipObj, pick, mergeDeepRight } from "ramda";
 
+import { findTenantFromKey } from "state/tenant/utils";
+
 import { createReducer, ActionType } from "typesafe-actions";
 import { TenantRecords } from "./types";
 
@@ -47,26 +49,36 @@ export const reducer = createReducer<TenantState, TenantActions>(
   .handleAction(
     actions.alertmanagerLoaded,
     (state, action): TenantState => {
-      return mergeDeepRight(state, {
-        tenants: {
-          [action.payload.tenantId]: {
-            alertmanager: pick(["templates", "config", "online"])(
-              action.payload
-            )
+      const tenant = findTenantFromKey(state.tenants, action.payload.tenantKey);
+      if (tenant) {
+        return mergeDeepRight(state, {
+          tenants: {
+            [tenant.id]: {
+              alertmanager: pick(["templates", "config", "online"])(
+                action.payload
+              )
+            }
           }
-        }
-      });
+        });
+      } else {
+        return state;
+      }
     }
   )
   .handleAction(
     actions.updateAlertmanager,
     (state, action): TenantState => {
-      return mergeDeepRight(state, {
-        tenants: {
-          [action.payload.tenantId]: {
-            alertmanager: pick(["templates", "config"])(action.payload)
+      const tenant = findTenantFromKey(state.tenants, action.payload.tenantKey);
+      if (tenant) {
+        return mergeDeepRight(state, {
+          tenants: {
+            [tenant.id]: {
+              alertmanager: pick(["templates", "config"])(action.payload)
+            }
           }
-        }
-      });
+        });
+      } else {
+        return state;
+      }
     }
   );
