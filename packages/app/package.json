@@ -265,7 +265,7 @@
     "migrate:down": "yarn hasura migrate apply --down 1",
     "migrate:up": "yarn hasura migrate apply --down 1",
     "seeds:dev:tenants": "yarn hasura seeds apply --file dev/default_tenants.sql",
-    "remote": "GRAPHQL_ENDPOINT=http://127.0.0.1:8090/v1/graphql GRAPHQL_ENDPOINT_PORT=8090 HASURA_GRAPHQL_ADMIN_SECRET=$(kubectl get secrets -n kube-system -o json hasura-admin-secret | jq -r .data.HASURA_ADMIN_SECRET | base64 -d)",
+    "remote": "GRAPHQL_ENDPOINT=http://127.0.0.1:8090/v1/graphql GRAPHQL_ENDPOINT_PORT=8090 HASURA_GRAPHQL_ENDPOINT=http://127.0.0.1:8090 HASURA_GRAPHQL_ADMIN_SECRET=$(kubectl get secrets -n kube-system -o json hasura-admin-secret | jq -r .data.HASURA_ADMIN_SECRET | base64 -d)",
     "remote:seeds:dev:tenants": "yarn remote yarn seeds:dev:tenants",
     "remote:services:start:graphql": "kubectl port-forward -n application deployment/graphql 8090:8080",
     "remote:server:start": "yarn remote yarn server:start",
