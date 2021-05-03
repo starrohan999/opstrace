@@ -69,17 +69,17 @@ Make sure you are correctly setup to access the cluster, for example using
 Then run all of the following commands:
 
 - `yarn services:start`
-- `yarn services:start:graphql:remote`
-- `yarn server:start:remote`
+- `yarn remote:services:start:graphql`
+- `yarn remote:server:start`
 - `yarn client:start`
 
 For accessing the remote Hasura console run the this script:
 
-- `console:remote`
+- `remote:console`
 
 ### What this does
 
-The `services:start:graphql:remote` starts a port forward into your cluster making the Hasura server available locally on port `8090`. For the `server` and `console` scripts to then connect to this the Hasure admin secret is extracted from the appropriate k8s secret and set as an envar.
+The `remote:services:start:graphql` starts a port forward into your cluster making the Hasura server available locally on port `8090`. For the `server` and `console` scripts to then connect to this the Hasure admin secret is extracted from the appropriate k8s secret and set as an envar.
 
 ### Todo
 
