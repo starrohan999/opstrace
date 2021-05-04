@@ -283,17 +283,20 @@ func (client *Client) CreateCredentials(vars *CreateCredentialsVariables) (*Crea
 }
 
 //
-// mutation DeleteCredential($id: uuid!)
+// mutation DeleteCredential($tenant_id: uuid!, $id: uuid!)
 //
 
 type DeleteCredentialVariables struct {
-	ID UUID `json:"id"`
+	TenantId UUID `json:"tenant_id"`
+	ID       UUID `json:"id"`
 }
 
 type DeleteCredentialResponse struct {
-	DeleteCredentialByPk struct {
-		ID string `json:"id"`
-	} `json:"delete_credential_by_pk"`
+	DeleteCredential struct {
+		Returning []struct {
+			ID string `json:"id"`
+		} `json:"returning"`
+	} `json:"delete_credential"`
 }
 
 type DeleteCredentialRequest struct {
@@ -307,9 +310,11 @@ func NewDeleteCredentialRequest(url string, vars *DeleteCredentialVariables) (*D
 	}
 	b, err := json.Marshal(&GraphQLOperation{
 		Variables: variables,
-		Query: `mutation DeleteCredential($id: uuid!) {
-  delete_credential_by_pk(id: $id) {
-    id
+		Query: `mutation DeleteCredential($tenant_id: uuid!, $id: uuid!) {
+  delete_credential(where: {tenant_id: {_eq: $tenant_id}, id: {_eq: $id}}) {
+    returning {
+      id
+    }
   }
 }`,
 	})
@@ -349,22 +354,24 @@ func (client *Client) DeleteCredential(vars *DeleteCredentialVariables) (*Delete
 }
 
 //
-// query GetCredential($id: uuid!)
+// query GetCredential($tenant_id: uuid!, $id: uuid!)
 //
 
 type GetCredentialVariables struct {
-	ID UUID `json:"id"`
+	TenantId UUID `json:"tenant_id"`
+	ID       UUID `json:"id"`
 }
 
 type GetCredentialResponse struct {
-	CredentialByPk struct {
+	Credential []struct {
 		ID        string `json:"id"`
 		TenantId  string `json:"tenant_id"`
 		Name      string `json:"name"`
+		Key       string `json:"key"`
 		Type      string `json:"type"`
 		CreatedAt string `json:"created_at"`
 		UpdatedAt string `json:"updated_at"`
-	} `json:"credential_by_pk"`
+	} `json:"credential"`
 }
 
 type GetCredentialRequest struct {
@@ -378,11 +385,12 @@ func NewGetCredentialRequest(url string, vars *GetCredentialVariables) (*GetCred
 	}
 	b, err := json.Marshal(&GraphQLOperation{
 		Variables: variables,
-		Query: `query GetCredential($id: uuid!) {
-  credential_by_pk(id: $id) {
+		Query: `query GetCredential($tenant_id: uuid!, $id: uuid!) {
+  credential(where: {tenant_id: {_eq: $tenant_id}, id: {_eq: $id}}) {
     id
     tenant_id
     name
+    key
     type
     created_at
     updated_at
@@ -437,6 +445,7 @@ type GetCredentialsResponse struct {
 		ID        string `json:"id"`
 		TenantId  string `json:"tenant_id"`
 		Name      string `json:"name"`
+		Key       string `json:"key"`
 		Type      string `json:"type"`
 		CreatedAt string `json:"created_at"`
 		UpdatedAt string `json:"updated_at"`
@@ -459,6 +468,7 @@ func NewGetCredentialsRequest(url string, vars *GetCredentialsVariables) (*GetCr
     id
     tenant_id
     name
+    key
     type
     created_at
     updated_at
@@ -570,19 +580,23 @@ func (client *Client) GetCredentialsDump() (*GetCredentialsDumpResponse, error) 
 }
 
 //
-// mutation UpdateCredential($id: uuid!, $value: json!, $updated_at: timestamptz!)
+// mutation UpdateCredential($tenant_id: uuid!, $id: uuid!, $name: String!, $value: json!, $updated_at: timestamptz!)
 //
 
 type UpdateCredentialVariables struct {
+	TenantId  UUID        `json:"tenant_id"`
 	ID        UUID        `json:"id"`
+	Name      String      `json:"name"`
 	Value     Json        `json:"value"`
 	UpdatedAt Timestamptz `json:"updated_at"`
 }
 
 type UpdateCredentialResponse struct {
-	UpdateCredentialByPk struct {
-		ID string `json:"id"`
-	} `json:"update_credential_by_pk"`
+	UpdateCredential struct {
+		Returning []struct {
+			ID string `json:"id"`
+		} `json:"returning"`
+	} `json:"update_credential"`
 }
 
 type UpdateCredentialRequest struct {
@@ -596,9 +610,11 @@ func NewUpdateCredentialRequest(url string, vars *UpdateCredentialVariables) (*U
 	}
 	b, err := json.Marshal(&GraphQLOperation{
 		Variables: variables,
-		Query: `mutation UpdateCredential($id: uuid!, $value: json!, $updated_at: timestamptz!) {
-  update_credential_by_pk(_set: {value: $value, updated_at: $updated_at}, pk_columns: {id: $id}) {
-    id
+		Query: `mutation UpdateCredential($tenant_id: uuid!, $id: uuid!, $name: String!, $value: json!, $updated_at: timestamptz!) {
+  update_credential(where: {tenant_id: {_eq: $tenant_id}, id: {_eq: $id}}, _set: {name: $name, value: $value, updated_at: $updated_at}) {
+    returning {
+      id
+    }
   }
 }`,
 	})
@@ -708,17 +724,20 @@ func (client *Client) CreateExporters(vars *CreateExportersVariables) (*CreateEx
 }
 
 //
-// mutation DeleteExporter($id: uuid!)
+// mutation DeleteExporter($tenant_id: uuid!, $id: uuid!)
 //
 
 type DeleteExporterVariables struct {
-	ID UUID `json:"id"`
+	TenantId UUID `json:"tenant_id"`
+	ID       UUID `json:"id"`
 }
 
 type DeleteExporterResponse struct {
-	DeleteExporterByPk struct {
-		ID string `json:"id"`
-	} `json:"delete_exporter_by_pk"`
+	DeleteExporter struct {
+		Returning []struct {
+			ID string `json:"id"`
+		} `json:"returning"`
+	} `json:"delete_exporter"`
 }
 
 type DeleteExporterRequest struct {
@@ -732,9 +751,11 @@ func NewDeleteExporterRequest(url string, vars *DeleteExporterVariables) (*Delet
 	}
 	b, err := json.Marshal(&GraphQLOperation{
 		Variables: variables,
-		Query: `mutation DeleteExporter($id: uuid!) {
-  delete_exporter_by_pk(id: $id) {
-    id
+		Query: `mutation DeleteExporter($tenant_id: uuid!, $id: uuid!) {
+  delete_exporter(where: {tenant_id: {_eq: $tenant_id}, id: {_eq: $id}}) {
+    returning {
+      id
+    }
   }
 }`,
 	})
@@ -774,18 +795,20 @@ func (client *Client) DeleteExporter(vars *DeleteExporterVariables) (*DeleteExpo
 }
 
 //
-// query GetExporter($id: uuid!)
+// query GetExporter($tenant_id: uuid!, $id: uuid!)
 //
 
 type GetExporterVariables struct {
-	ID UUID `json:"id"`
+	TenantId UUID `json:"tenant_id"`
+	ID       UUID `json:"id"`
 }
 
 type GetExporterResponse struct {
-	ExporterByPk struct {
+	Exporter []struct {
 		ID         string `json:"id"`
 		TenantId   string `json:"tenant_id"`
 		Name       string `json:"name"`
+		Key        string `json:"key"`
 		Type       string `json:"type"`
 		Credential struct {
 			ID   string `json:"id"`
@@ -794,7 +817,7 @@ type GetExporterResponse struct {
 		Config    string `json:"config"`
 		CreatedAt string `json:"created_at"`
 		UpdatedAt string `json:"updated_at"`
-	} `json:"exporter_by_pk"`
+	} `json:"exporter"`
 }
 
 type GetExporterRequest struct {
@@ -808,11 +831,12 @@ func NewGetExporterRequest(url string, vars *GetExporterVariables) (*GetExporter
 	}
 	b, err := json.Marshal(&GraphQLOperation{
 		Variables: variables,
-		Query: `query GetExporter($id: uuid!) {
-  exporter_by_pk(id: $id) {
+		Query: `query GetExporter($tenant_id: uuid!, $id: uuid!) {
+  exporter(where: {tenant_id: {_eq: $tenant_id}, id: {_eq: $id}}) {
     id
     tenant_id
     name
+    key
     type
     credential {
       id
@@ -872,6 +896,7 @@ type GetExportersResponse struct {
 		ID         string `json:"id"`
 		TenantId   string `json:"tenant_id"`
 		Name       string `json:"name"`
+		Key        string `json:"key"`
 		Type       string `json:"type"`
 		Credential struct {
 			ID   string `json:"id"`
@@ -899,6 +924,7 @@ func NewGetExportersRequest(url string, vars *GetExportersVariables) (*GetExport
     id
     tenant_id
     name
+    key
     type
     credential {
       id
@@ -1023,20 +1049,24 @@ func (client *Client) GetExportersDump() (*GetExportersDumpResponse, error) {
 }
 
 //
-// mutation UpdateExporter($id: uuid!, $config: json!, $credential_id: uuid, $updated_at: timestamptz!)
+// mutation UpdateExporter($tenant_id: uuid!, $id: uuid!, $name: String!, $config: json!, $credential_id: uuid, $updated_at: timestamptz!)
 //
 
 type UpdateExporterVariables struct {
+	TenantId     UUID        `json:"tenant_id"`
 	ID           UUID        `json:"id"`
+	Name         String      `json:"name"`
 	Config       Json        `json:"config"`
 	CredentialId *UUID       `json:"credential_id,omitempty"`
 	UpdatedAt    Timestamptz `json:"updated_at"`
 }
 
 type UpdateExporterResponse struct {
-	UpdateExporterByPk struct {
-		ID string `json:"id"`
-	} `json:"update_exporter_by_pk"`
+	UpdateExporter struct {
+		Returning []struct {
+			ID string `json:"id"`
+		} `json:"returning"`
+	} `json:"update_exporter"`
 }
 
 type UpdateExporterRequest struct {
@@ -1050,9 +1080,11 @@ func NewUpdateExporterRequest(url string, vars *UpdateExporterVariables) (*Updat
 	}
 	b, err := json.Marshal(&GraphQLOperation{
 		Variables: variables,
-		Query: `mutation UpdateExporter($id: uuid!, $config: json!, $credential_id: uuid, $updated_at: timestamptz!) {
-  update_exporter_by_pk(_set: {config: $config, credential_id: $credential_id, updated_at: $updated_at}, pk_columns: {id: $id}) {
-    id
+		Query: `mutation UpdateExporter($tenant_id: uuid!, $id: uuid!, $name: String!, $config: json!, $credential_id: uuid, $updated_at: timestamptz!) {
+  update_exporter(where: {tenant_id: {_eq: $tenant_id}, id: {_eq: $id}}, _set: {name: $name, config: $config, credential_id: $credential_id, updated_at: $updated_at}) {
+    returning {
+      id
+    }
   }
 }`,
 	})
@@ -2810,8 +2842,9 @@ const (
 type CredentialConstraint string
 
 const (
-	CredentialConstraintCredentialIdKey CredentialConstraint = "credential_id_key"
-	CredentialConstraintCredentialPkey  CredentialConstraint = "credential_pkey"
+	CredentialConstraintCredentialIdKey  CredentialConstraint = "credential_id_key"
+	CredentialConstraintCredentialKeyKey CredentialConstraint = "credential_key_key"
+	CredentialConstraintCredentialPkey   CredentialConstraint = "credential_pkey"
 )
 
 type CredentialSelectColumn string
@@ -2819,6 +2852,7 @@ type CredentialSelectColumn string
 const (
 	CredentialSelectColumnCreatedAt CredentialSelectColumn = "created_at"
 	CredentialSelectColumnID        CredentialSelectColumn = "id"
+	CredentialSelectColumnKey       CredentialSelectColumn = "key"
 	CredentialSelectColumnName      CredentialSelectColumn = "name"
 	CredentialSelectColumnTenantId  CredentialSelectColumn = "tenant_id"
 	CredentialSelectColumnType      CredentialSelectColumn = "type"
@@ -2831,6 +2865,7 @@ type CredentialUpdateColumn string
 const (
 	CredentialUpdateColumnCreatedAt CredentialUpdateColumn = "created_at"
 	CredentialUpdateColumnID        CredentialUpdateColumn = "id"
+	CredentialUpdateColumnKey       CredentialUpdateColumn = "key"
 	CredentialUpdateColumnName      CredentialUpdateColumn = "name"
 	CredentialUpdateColumnTenantId  CredentialUpdateColumn = "tenant_id"
 	CredentialUpdateColumnType      CredentialUpdateColumn = "type"
@@ -3205,6 +3240,7 @@ type CredentialBoolExp struct {
 	CreatedAt *TimestamptzComparisonExp `json:"created_at,omitempty"`
 	Exporters *ExporterBoolExp          `json:"exporters,omitempty"`
 	ID        *UuidComparisonExp        `json:"id,omitempty"`
+	Key       *StringComparisonExp      `json:"key,omitempty"`
 	Name      *StringComparisonExp      `json:"name,omitempty"`
 	Tenant    *TenantBoolExp            `json:"tenant,omitempty"`
 	TenantId  *UuidComparisonExp        `json:"tenant_id,omitempty"`
@@ -3217,6 +3253,7 @@ type CredentialInsertInput struct {
 	CreatedAt *Timestamptz               `json:"created_at,omitempty"`
 	Exporters *ExporterArrRelInsertInput `json:"exporters,omitempty"`
 	ID        *UUID                      `json:"id,omitempty"`
+	Key       *String                    `json:"key,omitempty"`
 	Name      *String                    `json:"name,omitempty"`
 	Tenant    *TenantObjRelInsertInput   `json:"tenant,omitempty"`
 	TenantId  *UUID                      `json:"tenant_id,omitempty"`
@@ -3228,6 +3265,7 @@ type CredentialInsertInput struct {
 type CredentialMaxOrderBy struct {
 	CreatedAt *OrderBy `json:"created_at,omitempty"`
 	ID        *OrderBy `json:"id,omitempty"`
+	Key       *OrderBy `json:"key,omitempty"`
 	Name      *OrderBy `json:"name,omitempty"`
 	TenantId  *OrderBy `json:"tenant_id,omitempty"`
 	Type      *OrderBy `json:"type,omitempty"`
@@ -3237,6 +3275,7 @@ type CredentialMaxOrderBy struct {
 type CredentialMinOrderBy struct {
 	CreatedAt *OrderBy `json:"created_at,omitempty"`
 	ID        *OrderBy `json:"id,omitempty"`
+	Key       *OrderBy `json:"key,omitempty"`
 	Name      *OrderBy `json:"name,omitempty"`
 	TenantId  *OrderBy `json:"tenant_id,omitempty"`
 	Type      *OrderBy `json:"type,omitempty"`
@@ -3258,6 +3297,7 @@ type CredentialOrderBy struct {
 	CreatedAt          *OrderBy                  `json:"created_at,omitempty"`
 	ExportersAggregate *ExporterAggregateOrderBy `json:"exporters_aggregate,omitempty"`
 	ID                 *OrderBy                  `json:"id,omitempty"`
+	Key                *OrderBy                  `json:"key,omitempty"`
 	Name               *OrderBy                  `json:"name,omitempty"`
 	Tenant             *TenantOrderBy            `json:"tenant,omitempty"`
 	TenantId           *OrderBy                  `json:"tenant_id,omitempty"`
@@ -3273,6 +3313,7 @@ type CredentialPkColumnsInput struct {
 type CredentialSetInput struct {
 	CreatedAt *Timestamptz `json:"created_at,omitempty"`
 	ID        *UUID        `json:"id,omitempty"`
+	Key       *String      `json:"key,omitempty"`
 	Name      *String      `json:"name,omitempty"`
 	TenantId  *UUID        `json:"tenant_id,omitempty"`
 	Type      *String      `json:"type,omitempty"`
@@ -4103,6 +4144,7 @@ type Credential struct {
 	Exporters          *[]Exporter       `json:"exporters,omitempty"`
 	ExportersAggregate ExporterAggregate `json:"exporters_aggregate"`
 	ID                 UUID              `json:"id"`
+	Key                String            `json:"key"`
 	Name               String            `json:"name"`
 	Tenant             Tenant            `json:"tenant"`
 	TenantId           UUID              `json:"tenant_id"`
@@ -4125,6 +4167,7 @@ type CredentialAggregateFields struct {
 type CredentialMaxFields struct {
 	CreatedAt *Timestamptz `json:"created_at,omitempty"`
 	ID        *UUID        `json:"id,omitempty"`
+	Key       *String      `json:"key,omitempty"`
 	Name      *String      `json:"name,omitempty"`
 	TenantId  *UUID        `json:"tenant_id,omitempty"`
 	Type      *String      `json:"type,omitempty"`
@@ -4134,6 +4177,7 @@ type CredentialMaxFields struct {
 type CredentialMinFields struct {
 	CreatedAt *Timestamptz `json:"created_at,omitempty"`
 	ID        *UUID        `json:"id,omitempty"`
+	Key       *String      `json:"key,omitempty"`
 	Name      *String      `json:"name,omitempty"`
 	TenantId  *UUID        `json:"tenant_id,omitempty"`
 	Type      *String      `json:"type,omitempty"`
@@ -4151,7 +4195,7 @@ type Exporter struct {
 	Credential   *Credential `json:"credential,omitempty"`
 	CredentialId *UUID       `json:"credential_id,omitempty"`
 	ID           UUID        `json:"id"`
-	Key          *String     `json:"key,omitempty"`
+	Key          String      `json:"key"`
 	Name         String      `json:"name"`
 	Tenant       Tenant      `json:"tenant"`
 	TenantId     UUID        `json:"tenant_id"`
@@ -4489,7 +4533,7 @@ type Tenant struct {
 	Exporters            *[]Exporter         `json:"exporters,omitempty"`
 	ExportersAggregate   ExporterAggregate   `json:"exporters_aggregate"`
 	ID                   UUID                `json:"id"`
-	Key                  *String             `json:"key,omitempty"`
+	Key                  String              `json:"key"`
 	Name                 String              `json:"name"`
 	Type                 String              `json:"type"`
 }
