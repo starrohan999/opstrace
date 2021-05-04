@@ -433,6 +433,73 @@ func (client *Client) GetCredential(vars *GetCredentialVariables) (*GetCredentia
 }
 
 //
+// query GetCredentialIdByName($tenant_id: uuid!, $name: String!)
+//
+
+type GetCredentialIdByNameVariables struct {
+	TenantId UUID   `json:"tenant_id"`
+	Name     String `json:"name"`
+}
+
+type GetCredentialIdByNameResponse struct {
+	Credential []struct {
+		ID string `json:"id"`
+	} `json:"credential"`
+}
+
+type GetCredentialIdByNameRequest struct {
+	*http.Request
+}
+
+func NewGetCredentialIdByNameRequest(url string, vars *GetCredentialIdByNameVariables) (*GetCredentialIdByNameRequest, error) {
+	variables, err := json.Marshal(vars)
+	if err != nil {
+		return nil, err
+	}
+	b, err := json.Marshal(&GraphQLOperation{
+		Variables: variables,
+		Query: `query GetCredentialIdByName($tenant_id: uuid!, $name: String!) {
+  credential(where: {tenant_id: {_eq: $tenant_id}, name: {_eq: $name}}) {
+    id
+  }
+}`,
+	})
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(b))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	return &GetCredentialIdByNameRequest{req}, nil
+}
+
+func (req *GetCredentialIdByNameRequest) Execute(client *http.Client) (*GetCredentialIdByNameResponse, error) {
+	resp, err := execute(client, req.Request)
+	if err != nil {
+		return nil, err
+	}
+	var result GetCredentialIdByNameResponse
+	if err := json.Unmarshal(resp.Data, &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func GetCredentialIdByName(url string, client *http.Client, vars *GetCredentialIdByNameVariables) (*GetCredentialIdByNameResponse, error) {
+	req, err := NewGetCredentialIdByNameRequest(url, vars)
+	if err != nil {
+		return nil, err
+	}
+	return req.Execute(client)
+}
+
+func (client *Client) GetCredentialIdByName(vars *GetCredentialIdByNameVariables) (*GetCredentialIdByNameResponse, error) {
+	return GetCredentialIdByName(client.Url, client.Client, vars)
+}
+
+//
 // query GetCredentials($tenant_id: uuid!)
 //
 
@@ -881,6 +948,73 @@ func GetExporter(url string, client *http.Client, vars *GetExporterVariables) (*
 
 func (client *Client) GetExporter(vars *GetExporterVariables) (*GetExporterResponse, error) {
 	return GetExporter(client.Url, client.Client, vars)
+}
+
+//
+// query GetExporterIdByName($tenant_id: uuid!, $name: String!)
+//
+
+type GetExporterIdByNameVariables struct {
+	TenantId UUID   `json:"tenant_id"`
+	Name     String `json:"name"`
+}
+
+type GetExporterIdByNameResponse struct {
+	Exporter []struct {
+		ID string `json:"id"`
+	} `json:"exporter"`
+}
+
+type GetExporterIdByNameRequest struct {
+	*http.Request
+}
+
+func NewGetExporterIdByNameRequest(url string, vars *GetExporterIdByNameVariables) (*GetExporterIdByNameRequest, error) {
+	variables, err := json.Marshal(vars)
+	if err != nil {
+		return nil, err
+	}
+	b, err := json.Marshal(&GraphQLOperation{
+		Variables: variables,
+		Query: `query GetExporterIdByName($tenant_id: uuid!, $name: String!) {
+  exporter(where: {tenant_id: {_eq: $tenant_id}, name: {_eq: $name}}) {
+    id
+  }
+}`,
+	})
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(b))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	return &GetExporterIdByNameRequest{req}, nil
+}
+
+func (req *GetExporterIdByNameRequest) Execute(client *http.Client) (*GetExporterIdByNameResponse, error) {
+	resp, err := execute(client, req.Request)
+	if err != nil {
+		return nil, err
+	}
+	var result GetExporterIdByNameResponse
+	if err := json.Unmarshal(resp.Data, &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func GetExporterIdByName(url string, client *http.Client, vars *GetExporterIdByNameVariables) (*GetExporterIdByNameResponse, error) {
+	req, err := NewGetExporterIdByNameRequest(url, vars)
+	if err != nil {
+		return nil, err
+	}
+	return req.Execute(client)
+}
+
+func (client *Client) GetExporterIdByName(vars *GetExporterIdByNameVariables) (*GetExporterIdByNameResponse, error) {
+	return GetExporterIdByName(client.Url, client.Client, vars)
 }
 
 //
@@ -1976,6 +2110,154 @@ func (client *Client) GetAlertmanager(vars *GetAlertmanagerVariables) (*GetAlert
 }
 
 //
+// query GetTenantById($tenant_id: uuid!)
+//
+
+type GetTenantByIdVariables struct {
+	TenantId UUID `json:"tenant_id"`
+}
+
+type GetTenantByIdResponse struct {
+	TenantByPk struct {
+		ID        string `json:"id"`
+		Key       string `json:"key"`
+		Name      string `json:"name"`
+		Type      string `json:"type"`
+		CreatedAt string `json:"created_at"`
+	} `json:"tenant_by_pk"`
+}
+
+type GetTenantByIdRequest struct {
+	*http.Request
+}
+
+func NewGetTenantByIdRequest(url string, vars *GetTenantByIdVariables) (*GetTenantByIdRequest, error) {
+	variables, err := json.Marshal(vars)
+	if err != nil {
+		return nil, err
+	}
+	b, err := json.Marshal(&GraphQLOperation{
+		Variables: variables,
+		Query: `query GetTenantById($tenant_id: uuid!) {
+  tenant_by_pk(id: $tenant_id) {
+    id
+    key
+    name
+    type
+    created_at
+  }
+}`,
+	})
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(b))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	return &GetTenantByIdRequest{req}, nil
+}
+
+func (req *GetTenantByIdRequest) Execute(client *http.Client) (*GetTenantByIdResponse, error) {
+	resp, err := execute(client, req.Request)
+	if err != nil {
+		return nil, err
+	}
+	var result GetTenantByIdResponse
+	if err := json.Unmarshal(resp.Data, &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func GetTenantById(url string, client *http.Client, vars *GetTenantByIdVariables) (*GetTenantByIdResponse, error) {
+	req, err := NewGetTenantByIdRequest(url, vars)
+	if err != nil {
+		return nil, err
+	}
+	return req.Execute(client)
+}
+
+func (client *Client) GetTenantById(vars *GetTenantByIdVariables) (*GetTenantByIdResponse, error) {
+	return GetTenantById(client.Url, client.Client, vars)
+}
+
+//
+// query GetTenantByName($tenant_name: String!)
+//
+
+type GetTenantByNameVariables struct {
+	TenantName String `json:"tenant_name"`
+}
+
+type GetTenantByNameResponse struct {
+	Tenant []struct {
+		ID        string `json:"id"`
+		Key       string `json:"key"`
+		Name      string `json:"name"`
+		Type      string `json:"type"`
+		CreatedAt string `json:"created_at"`
+	} `json:"tenant"`
+}
+
+type GetTenantByNameRequest struct {
+	*http.Request
+}
+
+func NewGetTenantByNameRequest(url string, vars *GetTenantByNameVariables) (*GetTenantByNameRequest, error) {
+	variables, err := json.Marshal(vars)
+	if err != nil {
+		return nil, err
+	}
+	b, err := json.Marshal(&GraphQLOperation{
+		Variables: variables,
+		Query: `query GetTenantByName($tenant_name: String!) {
+  tenant(where: {name: {_eq: $tenant_name}}) {
+    id
+    key
+    name
+    type
+    created_at
+  }
+}`,
+	})
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(b))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	return &GetTenantByNameRequest{req}, nil
+}
+
+func (req *GetTenantByNameRequest) Execute(client *http.Client) (*GetTenantByNameResponse, error) {
+	resp, err := execute(client, req.Request)
+	if err != nil {
+		return nil, err
+	}
+	var result GetTenantByNameResponse
+	if err := json.Unmarshal(resp.Data, &result); err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func GetTenantByName(url string, client *http.Client, vars *GetTenantByNameVariables) (*GetTenantByNameResponse, error) {
+	req, err := NewGetTenantByNameRequest(url, vars)
+	if err != nil {
+		return nil, err
+	}
+	return req.Execute(client)
+}
+
+func (client *Client) GetTenantByName(vars *GetTenantByNameVariables) (*GetTenantByNameResponse, error) {
+	return GetTenantByName(client.Url, client.Client, vars)
+}
+
+//
 // query GetTenants
 //
 
@@ -2842,9 +3124,9 @@ const (
 type CredentialConstraint string
 
 const (
-	CredentialConstraintCredentialIdKey              CredentialConstraint = "credential_id_key"
-	CredentialConstraintCredentialPkey               CredentialConstraint = "credential_pkey"
-	CredentialConstraintCredentialUniqueKeyForTenant CredentialConstraint = "credential_unique_key_for_tenant"
+	CredentialConstraintCredentialIdKey  CredentialConstraint = "credential_id_key"
+	CredentialConstraintCredentialKeyKey CredentialConstraint = "credential_key_key"
+	CredentialConstraintCredentialPkey   CredentialConstraint = "credential_pkey"
 )
 
 type CredentialSelectColumn string
@@ -2876,9 +3158,9 @@ const (
 type ExporterConstraint string
 
 const (
-	ExporterConstraintExporterIdKey              ExporterConstraint = "exporter_id_key"
-	ExporterConstraintExporterPkey               ExporterConstraint = "exporter_pkey"
-	ExporterConstraintExporterUniqueKeyForTenant ExporterConstraint = "exporter_unique_key_for_tenant"
+	ExporterConstraintExporterIdKey  ExporterConstraint = "exporter_id_key"
+	ExporterConstraintExporterKeyKey ExporterConstraint = "exporter_key_key"
+	ExporterConstraintExporterPkey   ExporterConstraint = "exporter_pkey"
 )
 
 type ExporterSelectColumn string

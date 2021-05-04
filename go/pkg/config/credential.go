@@ -30,10 +30,10 @@ func NewCredentialAccess(graphqlURL *url.URL, graphqlSecret string) CredentialAc
 	}
 }
 
-func (c *CredentialAccess) List(tenant string) (*graphql.GetCredentialsResponse, error) {
+func (c *CredentialAccess) ListID(tenantID string) (*graphql.GetCredentialsResponse, error) {
 	req, err := graphql.NewGetCredentialsRequest(
 		c.access.URL,
-		&graphql.GetCredentialsVariables{Tenant: graphql.String(tenant)},
+		&graphql.GetCredentialsVariables{TenantId: graphql.UUID(tenantID)},
 	)
 	if err != nil {
 		return nil, err
@@ -46,10 +46,30 @@ func (c *CredentialAccess) List(tenant string) (*graphql.GetCredentialsResponse,
 	return &result, nil
 }
 
-func (c *CredentialAccess) Get(tenant string, name string) (*graphql.GetCredentialResponse, error) {
+func (c *CredentialAccess) GetIDByName(tenantID string, name string) (*string, error) {
+	req, err := graphql.NewGetCredentialIdByNameRequest(
+		c.access.URL,
+		&graphql.GetCredentialIdByNameVariables{TenantId: graphql.UUID(tenantID), Name: graphql.String(name)},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var result graphql.GetCredentialIdByNameResponse
+	if err := c.access.Execute(req.Request, &result); err != nil {
+		return nil, err
+	}
+	if len(result.Credential) != 1 {
+		// Not found
+		return nil, nil
+	}
+	return &result.Credential[0].ID, nil
+}
+
+func (c *CredentialAccess) GetID(tenantID string, id string) (*graphql.GetCredentialResponse, error) {
 	req, err := graphql.NewGetCredentialRequest(
 		c.access.URL,
-		&graphql.GetCredentialVariables{Tenant: graphql.String(tenant), Name: graphql.String(name)},
+		&graphql.GetCredentialVariables{TenantId: graphql.UUID(tenantID), ID: graphql.UUID(id)},
 	)
 	if err != nil {
 		return nil, err
@@ -59,17 +79,17 @@ func (c *CredentialAccess) Get(tenant string, name string) (*graphql.GetCredenti
 	if err := c.access.Execute(req.Request, &result); err != nil {
 		return nil, err
 	}
-	if result.CredentialByPk.Name == "" {
+	if len(result.Credential) != 1 {
 		// Not found
 		return nil, nil
 	}
 	return &result, nil
 }
 
-func (c *CredentialAccess) Delete(tenant string, name string) (*graphql.DeleteCredentialResponse, error) {
+func (c *CredentialAccess) DeleteID(tenantID string, id string) (*string, error) {
 	req, err := graphql.NewDeleteCredentialRequest(
 		c.access.URL,
-		&graphql.DeleteCredentialVariables{Tenant: graphql.String(tenant), Name: graphql.String(name)},
+		&graphql.DeleteCredentialVariables{TenantId: graphql.UUID(tenantID), ID: graphql.UUID(id)},
 	)
 	if err != nil {
 		return nil, err
@@ -80,20 +100,20 @@ func (c *CredentialAccess) Delete(tenant string, name string) (*graphql.DeleteCr
 	if err := c.access.Execute(req.Request, &result); err != nil {
 		return nil, err
 	}
-	if result.DeleteCredentialByPk.Name == "" {
+	if len(result.DeleteCredential.Returning) != 1 {
 		// Not found
 		return nil, nil
 	}
-	return &result, nil
+	return &result.DeleteCredential.Returning[0].ID, nil
 }
 
 // Insert inserts one or more credentials, returns an error if any already exists.
-func (c *CredentialAccess) Insert(tenant string, inserts []graphql.CredentialInsertInput) error {
-	// Ensure the inserts each have the correct tenant name
-	gtenant := graphql.String(tenant)
+func (c *CredentialAccess) InsertID(tenantID string, inserts []graphql.CredentialInsertInput) error {
+	// Ensure the inserts each have the correct tenant
+	gtenantID := graphql.UUID(tenantID)
 	insertsWithTenant := make([]graphql.CredentialInsertInput, 0)
 	for _, insert := range inserts {
-		insert.Tenant = &gtenant
+		insert.TenantId = &gtenantID
 		insertsWithTenant = append(insertsWithTenant, insert)
 	}
 
@@ -110,9 +130,9 @@ func (c *CredentialAccess) Insert(tenant string, inserts []graphql.CredentialIns
 }
 
 // Update updates an existing credential, returns an error if a credential of the same tenant/name doesn't exist.
-func (c *CredentialAccess) Update(tenant string, update graphql.UpdateCredentialVariables) error {
-	// Ensure the update has the correct tenant name
-	update.Tenant = graphql.String(tenant)
+func (c *CredentialAccess) UpdateID(tenantID string, update graphql.UpdateCredentialVariables) error {
+	// Ensure the update has the correct tenant
+	update.TenantId = graphql.UUID(tenantID)
 
 	req, err := graphql.NewUpdateCredentialRequest(c.access.URL, &update)
 	if err != nil {

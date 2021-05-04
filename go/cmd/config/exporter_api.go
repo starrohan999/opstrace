@@ -31,6 +31,7 @@ import (
 
 // Information about an exporter. Custom type which omits the tenant field.
 type ExporterInfo struct {
+	ID         string      `yaml:"id"`
 	Name       string      `yaml:"name"`
 	Type       string      `yaml:"type,omitempty"`
 	Credential string      `yaml:"credential,omitempty"`
@@ -41,6 +42,7 @@ type ExporterInfo struct {
 
 // Exporter entry for validation and interaction with GraphQL.
 type Exporter struct {
+	ID         string
 	Name       string
 	Type       string
 	Credential string
@@ -49,6 +51,7 @@ type Exporter struct {
 
 // Raw exporter entry received from a POST request, converted to an Exporter.
 type yamlExporter struct {
+	ID         string      `yaml:"id"`
 	Name       string      `yaml:"name"`
 	Type       string      `yaml:"type"`
 	Credential string      `yaml:"credential,omitempty"`
@@ -58,17 +61,36 @@ type yamlExporter struct {
 type exporterAPI struct {
 	credentialAccess *config.CredentialAccess
 	exporterAccess   *config.ExporterAccess
+	tenantAccess     *config.TenantAccess
 }
 
-func newExporterAPI(credentialAccess *config.CredentialAccess, exporterAccess *config.ExporterAccess) *exporterAPI {
+func newExporterAPI(
+	credentialAccess *config.CredentialAccess,
+	exporterAccess *config.ExporterAccess,
+	tenantAccess *config.TenantAccess,
+) *exporterAPI {
 	return &exporterAPI{
 		credentialAccess,
 		exporterAccess,
+		tenantAccess,
 	}
 }
 
 func (e *exporterAPI) listExporters(tenant string, w http.ResponseWriter, r *http.Request) {
-	resp, err := e.exporterAccess.List(tenant)
+	tenantInfo, err := e.tenantAccess.GetByName(tenant)
+	if err != nil {
+		log.Warnf("Fetching tenant %s failed: %s", tenant, err)
+		http.Error(w, fmt.Sprintf("Fetching tenant %s failed: %s", tenant, err), http.StatusInternalServerError)
+		return
+	}
+	if tenantInfo == nil {
+		log.Warnf("Tenant %s not found", tenant)
+		http.Error(w, fmt.Sprintf("Tenant %s not found", tenant), http.StatusNotFound)
+		return
+	}
+	tenantID := tenantInfo.Tenant[0].ID
+
+	resp, err := e.exporterAccess.ListID(tenantID)
 	if err != nil {
 		log.Warnf("Listing exporters failed: %s", err)
 		http.Error(w, fmt.Sprintf("Listing exporters failed: %s", err), http.StatusInternalServerError)
@@ -91,7 +113,7 @@ func (e *exporterAPI) listExporters(tenant string, w http.ResponseWriter, r *htt
 		entries[i] = ExporterInfo{
 			Name:       exporter.Name,
 			Type:       exporter.Type,
-			Credential: exporter.Credential,
+			Credential: exporter.Credential.ID,
 			Config:     configJSON,
 			CreatedAt:  exporter.CreatedAt,
 			UpdatedAt:  exporter.UpdatedAt,
@@ -103,18 +125,31 @@ func (e *exporterAPI) listExporters(tenant string, w http.ResponseWriter, r *htt
 }
 
 func (e *exporterAPI) writeExporters(tenant string, w http.ResponseWriter, r *http.Request) {
-	decoder := yaml.NewDecoder(r.Body)
-	// Return error for unrecognized or duplicate fields in the input
-	decoder.SetStrict(true)
+	tenantInfo, err := e.tenantAccess.GetByName(tenant)
+	if err != nil {
+		log.Warnf("Fetching tenant %s failed: %s", tenant, err)
+		http.Error(w, fmt.Sprintf("Fetching tenant %s failed: %s", tenant, err), http.StatusInternalServerError)
+		return
+	}
+	if tenantInfo == nil {
+		log.Warnf("Tenant %s not found", tenant)
+		http.Error(w, fmt.Sprintf("Tenant %s not found", tenant), http.StatusNotFound)
+		return
+	}
+	tenantID := tenantInfo.Tenant[0].ID
 
 	// Collect map of existing name->type so that we can decide between insert vs update
-	existingTypes, err := e.listExporterTypes(tenant)
+	existingTypes, err := e.listExporterTypesID(tenantID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Listing exporters failed: %s", err), http.StatusInternalServerError)
 		return
 	}
 
 	now := nowTimestamp()
+
+	decoder := yaml.NewDecoder(r.Body)
+	// Return error for unrecognized or duplicate fields in the input
+	decoder.SetStrict(true)
 
 	var inserts []graphql.ExporterInsertInput
 	var updates []graphql.UpdateExporterVariables
@@ -130,11 +165,12 @@ func (e *exporterAPI) writeExporters(tenant string, w http.ResponseWriter, r *ht
 			break
 		}
 
-		var credential *graphql.String
+		var credential *graphql.UUID
 		if yamlExporter.Credential == "" {
 			credential = nil
 		} else {
-			gcredential := graphql.String(yamlExporter.Credential)
+			// TODO name -> uuid
+			gcredential := graphql.UUID(yamlExporter.Credential)
 			credential = &gcredential
 		}
 
@@ -147,8 +183,8 @@ func (e *exporterAPI) writeExporters(tenant string, w http.ResponseWriter, r *ht
 			return
 		}
 
-		exists, err := e.validateExporter(
-			tenant,
+		exists, err := e.validateExporterID(
+			tenantID,
 			existingTypes,
 			Exporter{
 				Name:       yamlExporter.Name,
@@ -162,25 +198,30 @@ func (e *exporterAPI) writeExporters(tenant string, w http.ResponseWriter, r *ht
 			return
 		}
 
+		// TODO in insert case, generate ID if not provided
+		id := graphql.String(yamlExporter.ID)
+		gid := graphql.UUID(id)
 		name := graphql.String(yamlExporter.Name)
 		gconfig := graphql.Json(*config)
 		if exists {
 			// TODO check for no-op updates and skip them (and avoid unnecessary changes to UpdatedAt)
 			updates = append(updates, graphql.UpdateExporterVariables{
-				Name:       name,
-				Credential: credential,
-				Config:     gconfig,
-				UpdatedAt:  now,
+				ID:           gid,
+				Name:         name,
+				CredentialId: credential,
+				Config:       gconfig,
+				UpdatedAt:    now,
 			})
 		} else {
 			expType := graphql.String(yamlExporter.Type)
 			inserts = append(inserts, graphql.ExporterInsertInput{
-				Name:       &name,
-				Type:       &expType,
-				Credential: credential,
-				Config:     &gconfig,
-				CreatedAt:  &now,
-				UpdatedAt:  &now,
+				ID:           &gid,
+				Name:         &name,
+				Type:         &expType,
+				CredentialId: credential,
+				Config:       &gconfig,
+				CreatedAt:    &now,
+				UpdatedAt:    &now,
 			})
 		}
 	}
@@ -194,7 +235,7 @@ func (e *exporterAPI) writeExporters(tenant string, w http.ResponseWriter, r *ht
 	log.Debugf("Writing exporters: %d insert, %d update", len(inserts), len(updates))
 
 	if len(inserts) != 0 {
-		if err := e.exporterAccess.Insert(tenant, inserts); err != nil {
+		if err := e.exporterAccess.InsertID(tenantID, inserts); err != nil {
 			log.Warnf("Insert: %d exporters failed: %s", len(inserts), err)
 			http.Error(w, fmt.Sprintf("Creating %d exporters failed: %s", len(inserts), err), http.StatusInternalServerError)
 			return
@@ -202,7 +243,7 @@ func (e *exporterAPI) writeExporters(tenant string, w http.ResponseWriter, r *ht
 	}
 	if len(updates) != 0 {
 		for _, update := range updates {
-			if err := e.exporterAccess.Update(tenant, update); err != nil {
+			if err := e.exporterAccess.UpdateID(tenantID, update); err != nil {
 				log.Warnf("Update: Exporter %s/%s failed: %s", tenant, update.Name, err)
 				http.Error(w, fmt.Sprintf("Updating exporter %s failed: %s", update.Name, err), http.StatusInternalServerError)
 				return
@@ -213,9 +254,34 @@ func (e *exporterAPI) writeExporters(tenant string, w http.ResponseWriter, r *ht
 
 func (e *exporterAPI) getExporter(tenant string, w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
-	log.Debugf("Getting exporter: %s", name)
+	log.Debugf("Getting exporter: %s/%s", tenant, name)
 
-	resp, err := e.exporterAccess.Get(tenant, name)
+	tenantInfo, err := e.tenantAccess.GetByName(tenant)
+	if err != nil {
+		log.Warnf("Fetching tenant %s failed: %s", tenant, err)
+		http.Error(w, fmt.Sprintf("Fetching tenant %s failed: %s", tenant, err), http.StatusInternalServerError)
+		return
+	}
+	if tenantInfo == nil {
+		log.Warnf("Tenant %s not found", tenant)
+		http.Error(w, fmt.Sprintf("Tenant %s not found", tenant), http.StatusNotFound)
+		return
+	}
+	tenantID := tenantInfo.Tenant[0].ID
+
+	id, err := e.exporterAccess.GetIDByName(tenantID, name)
+	if err != nil {
+		log.Warnf("Get: Credential %s ID failed: %s", name, err)
+		http.Error(w, fmt.Sprintf("Getting credential ID failed: %s", err), http.StatusInternalServerError)
+		return
+	}
+	if id == nil {
+		log.Debugf("Get: Credential %s ID not found", name)
+		http.Error(w, fmt.Sprintf("Credential ID not found: %s", name), http.StatusNotFound)
+		return
+	}
+
+	resp, err := e.exporterAccess.GetID(tenantID, *id)
 	if err != nil {
 		log.Warnf("Get: Exporter %s/%s failed: %s", tenant, name, err)
 		http.Error(w, fmt.Sprintf("Getting exporter failed: %s", err), http.StatusInternalServerError)
@@ -228,23 +294,23 @@ func (e *exporterAPI) getExporter(tenant string, w http.ResponseWriter, r *http.
 	}
 
 	configJSON := make(map[string]interface{})
-	if err = json.Unmarshal([]byte(resp.ExporterByPk.Config), &configJSON); err != nil {
+	if err = json.Unmarshal([]byte(resp.Exporter[0].Config), &configJSON); err != nil {
 		// give up and pass-through the json
 		log.Warnf(
 			"Failed to decode JSON config for exporter %s (err: %s): %s",
-			resp.ExporterByPk.Name, err, resp.ExporterByPk.Config,
+			resp.Exporter[0].Name, err, resp.Exporter[0].Config,
 		)
-		configJSON["json"] = resp.ExporterByPk.Config
+		configJSON["json"] = resp.Exporter[0].Config
 	}
 
 	encoder := yaml.NewEncoder(w)
 	encoder.Encode(ExporterInfo{
-		Name:       resp.ExporterByPk.Name,
-		Type:       resp.ExporterByPk.Type,
-		Credential: resp.ExporterByPk.Credential,
+		Name:       resp.Exporter[0].Name,
+		Type:       resp.Exporter[0].Type,
+		Credential: resp.Exporter[0].Credential.Name,
 		Config:     configJSON,
-		CreatedAt:  resp.ExporterByPk.CreatedAt,
-		UpdatedAt:  resp.ExporterByPk.UpdatedAt,
+		CreatedAt:  resp.Exporter[0].CreatedAt,
+		UpdatedAt:  resp.Exporter[0].UpdatedAt,
 	})
 }
 
@@ -252,26 +318,51 @@ func (e *exporterAPI) deleteExporter(tenant string, w http.ResponseWriter, r *ht
 	name := mux.Vars(r)["name"]
 	log.Debugf("Deleting exporter: %s/%s", tenant, name)
 
-	resp, err := e.exporterAccess.Delete(tenant, name)
+	tenantInfo, err := e.tenantAccess.GetByName(tenant)
+	if err != nil {
+		log.Warnf("Fetching tenant %s failed: %s", tenant, err)
+		http.Error(w, fmt.Sprintf("Fetching tenant %s failed: %s", tenant, err), http.StatusInternalServerError)
+		return
+	}
+	if tenantInfo == nil {
+		log.Warnf("Tenant %s not found", tenant)
+		http.Error(w, fmt.Sprintf("Tenant %s not found", tenant), http.StatusNotFound)
+		return
+	}
+	tenantID := tenantInfo.Tenant[0].ID
+
+	reqid, err := e.exporterAccess.GetIDByName(tenantID, name)
+	if err != nil {
+		log.Warnf("Get: Credential %s ID failed: %s", name, err)
+		http.Error(w, fmt.Sprintf("Getting credential ID failed: %s", err), http.StatusInternalServerError)
+		return
+	}
+	if reqid == nil {
+		log.Debugf("Get: Credential %s ID not found", name)
+		http.Error(w, fmt.Sprintf("Credential ID not found: %s", name), http.StatusNotFound)
+		return
+	}
+
+	delid, err := e.exporterAccess.DeleteID(tenantID, *reqid)
 	if err != nil {
 		log.Warnf("Delete: Exporter %s/%s failed: %s", tenant, name, err)
 		http.Error(w, fmt.Sprintf("Deleting exporter failed: %s", err), http.StatusInternalServerError)
 		return
 	}
-	if resp == nil {
+	if delid == nil {
 		log.Debugf("Delete: Exporter %s/%s not found", tenant, name)
 		http.Error(w, fmt.Sprintf("Exporter not found: %s", name), http.StatusNotFound)
 		return
 	}
 
 	encoder := yaml.NewEncoder(w)
-	encoder.Encode(ExporterInfo{Name: resp.DeleteExporterByPk.Name})
+	encoder.Encode(ExporterInfo{Name: *delid})
 }
 
-func (e *exporterAPI) listExporterTypes(tenant string) (map[string]string, error) {
+func (e *exporterAPI) listExporterTypesID(tenantID string) (map[string]string, error) {
 	// Collect map of existing name->type so that we can decide between insert vs update
 	existingTypes := make(map[string]string)
-	resp, err := e.exporterAccess.List(tenant)
+	resp, err := e.exporterAccess.ListID(tenantID)
 	if err != nil {
 		log.Warnf("Listing exporters failed: %s", err)
 		return nil, err
@@ -284,8 +375,8 @@ func (e *exporterAPI) listExporterTypes(tenant string) (map[string]string, error
 
 // Accepts the tenant name, the name->type mapping of any existing exporters, and the new exporter payload.
 // Returns whether the exporter already exists, and any validation error.
-func (e *exporterAPI) validateExporter(
-	tenant string,
+func (e *exporterAPI) validateExporterID(
+	tenantID string,
 	existingTypes map[string]string,
 	exporter Exporter,
 ) (bool, error) {
@@ -304,7 +395,20 @@ func (e *exporterAPI) validateExporter(
 		// Check that the referenced credential exists and has a compatible type for this exporter.
 		// If the credential didn't exist, then the graphql insert would fail anyway due to a missing relation,
 		// but type mismatches are not validated by graphql.
-		cred, err := e.credentialAccess.Get(tenant, exporter.Credential)
+		reqid, err := e.credentialAccess.GetIDByName(tenantID, exporter.Credential)
+		if err != nil {
+			return false, fmt.Errorf(
+				"failed to read credential %s id referenced in new exporter %s",
+				exporter.Credential, exporter.Name,
+			)
+		}
+		if reqid == nil {
+			return false, fmt.Errorf(
+				"missing credential %s referenced in exporter %s", exporter.Credential, exporter.Name,
+			)
+		}
+
+		cred, err := e.credentialAccess.GetID(tenantID, *reqid)
 		if err != nil {
 			return false, fmt.Errorf(
 				"failed to read credential %s referenced in new exporter %s",
@@ -314,7 +418,7 @@ func (e *exporterAPI) validateExporter(
 			return false, fmt.Errorf(
 				"missing credential %s referenced in exporter %s", exporter.Credential, exporter.Name,
 			)
-		} else if err := validateExporterTypes(exporter.Type, &cred.CredentialByPk.Type); err != nil {
+		} else if err := validateExporterTypes(exporter.Type, &cred.Credential[0].Type); err != nil {
 			return false, fmt.Errorf("invalid exporter input %s: %s", exporter.Name, err)
 		}
 	}

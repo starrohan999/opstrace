@@ -30,10 +30,10 @@ func NewExporterAccess(graphqlURL *url.URL, graphqlSecret string) ExporterAccess
 	}
 }
 
-func (c *ExporterAccess) List(tenant string) (*graphql.GetExportersResponse, error) {
+func (c *ExporterAccess) ListID(tenantID string) (*graphql.GetExportersResponse, error) {
 	req, err := graphql.NewGetExportersRequest(
 		c.access.URL,
-		&graphql.GetExportersVariables{Tenant: graphql.String(tenant)},
+		&graphql.GetExportersVariables{TenantId: graphql.UUID(tenantID)},
 	)
 	if err != nil {
 		return nil, err
@@ -46,10 +46,30 @@ func (c *ExporterAccess) List(tenant string) (*graphql.GetExportersResponse, err
 	return &result, nil
 }
 
-func (c *ExporterAccess) Get(tenant string, name string) (*graphql.GetExporterResponse, error) {
+func (c *ExporterAccess) GetIDByName(tenantID string, name string) (*string, error) {
+	req, err := graphql.NewGetExporterIdByNameRequest(
+		c.access.URL,
+		&graphql.GetExporterIdByNameVariables{TenantId: graphql.UUID(tenantID), Name: graphql.String(name)},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var result graphql.GetExporterIdByNameResponse
+	if err := c.access.Execute(req.Request, &result); err != nil {
+		return nil, err
+	}
+	if len(result.Exporter) != 1 {
+		// Not found
+		return nil, nil
+	}
+	return &result.Exporter[0].ID, nil
+}
+
+func (c *ExporterAccess) GetID(tenantID string, id string) (*graphql.GetExporterResponse, error) {
 	req, err := graphql.NewGetExporterRequest(
 		c.access.URL,
-		&graphql.GetExporterVariables{Tenant: graphql.String(tenant), Name: graphql.String(name)},
+		&graphql.GetExporterVariables{TenantId: graphql.UUID(tenantID), ID: graphql.UUID(id)},
 	)
 	if err != nil {
 		return nil, err
@@ -59,17 +79,17 @@ func (c *ExporterAccess) Get(tenant string, name string) (*graphql.GetExporterRe
 	if err := c.access.Execute(req.Request, &result); err != nil {
 		return nil, err
 	}
-	if result.ExporterByPk.Name == "" {
+	if len(result.Exporter) != 1 {
 		// Not found
 		return nil, nil
 	}
 	return &result, nil
 }
 
-func (c *ExporterAccess) Delete(tenant string, name string) (*graphql.DeleteExporterResponse, error) {
+func (c *ExporterAccess) DeleteID(tenantID string, id string) (*string, error) {
 	req, err := graphql.NewDeleteExporterRequest(
 		c.access.URL,
-		&graphql.DeleteExporterVariables{Tenant: graphql.String(tenant), Name: graphql.String(name)},
+		&graphql.DeleteExporterVariables{TenantId: graphql.UUID(tenantID), ID: graphql.UUID(id)},
 	)
 	if err != nil {
 		return nil, err
@@ -79,20 +99,20 @@ func (c *ExporterAccess) Delete(tenant string, name string) (*graphql.DeleteExpo
 	if err := c.access.Execute(req.Request, &result); err != nil {
 		return nil, err
 	}
-	if result.DeleteExporterByPk.Name == "" {
+	if len(result.DeleteExporter.Returning) != 1 {
 		// Not found
 		return nil, nil
 	}
-	return &result, nil
+	return &result.DeleteExporter.Returning[0].ID, nil
 }
 
 // Insert inserts one or more exporters, returns an error if any already exists.
-func (c *ExporterAccess) Insert(tenant string, inserts []graphql.ExporterInsertInput) error {
-	// Ensure the inserts each have the correct tenant name
-	gtenant := graphql.String(tenant)
+func (c *ExporterAccess) InsertID(tenantID string, inserts []graphql.ExporterInsertInput) error {
+	// Ensure the inserts each have the correct tenant
+	gtenantID := graphql.UUID(tenantID)
 	insertsWithTenant := make([]graphql.ExporterInsertInput, 0)
 	for _, insert := range inserts {
-		insert.Tenant = &gtenant
+		insert.TenantId = &gtenantID
 		insertsWithTenant = append(insertsWithTenant, insert)
 	}
 
@@ -109,9 +129,9 @@ func (c *ExporterAccess) Insert(tenant string, inserts []graphql.ExporterInsertI
 }
 
 // Update updates an existing exporter, returns an error if a exporter of the same tenant/name doesn't exist.
-func (c *ExporterAccess) Update(tenant string, update graphql.UpdateExporterVariables) error {
-	// Ensure the update has the correct tenant name
-	update.Tenant = graphql.String(tenant)
+func (c *ExporterAccess) UpdateID(tenantID string, update graphql.UpdateExporterVariables) error {
+	// Ensure the update has the correct tenant
+	update.TenantId = graphql.UUID(tenantID)
 
 	req, err := graphql.NewUpdateExporterRequest(c.access.URL, &update)
 	if err != nil {

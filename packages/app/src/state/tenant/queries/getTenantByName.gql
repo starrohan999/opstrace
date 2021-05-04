@@ -1,0 +1,10 @@
+# Returns tenant information for a given tenant name
+query GetTenantByName($tenant_name: String!) {
+  tenant(where: {name: {_eq: $tenant_name}}) {
+    id
+    key
+    name
+    type
+    created_at
+  }
+}

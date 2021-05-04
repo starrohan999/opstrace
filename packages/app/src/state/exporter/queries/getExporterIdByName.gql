@@ -1,0 +1,11 @@
+# Returns exporter ID given a user-facing name
+query GetExporterIdByName($tenant_id: uuid!, $name: String!) {
+  exporter(
+    where: {
+      tenant_id: {_eq: $tenant_id},
+      name: {_eq: $name}
+    }
+  ) {
+    id
+  }
+}

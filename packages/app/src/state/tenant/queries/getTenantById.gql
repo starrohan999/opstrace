@@ -1,0 +1,10 @@
+# Returns tenant information for a given tenant id
+query GetTenantById($tenant_id: uuid!) {
+  tenant_by_pk(id: $tenant_id) {
+    id
+    key
+    name
+    type
+    created_at
+  }
+}

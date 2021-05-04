@@ -354,7 +354,7 @@ func toGetRuleGroupResponse(
 }
 
 func (h *HasuraHandler) validateCredential(request actions.ValidateCredentialPayload) actions.StatusResponse {
-	existingTypes, err := h.credentialAPI.listCredentialTypes(request.Input.TenantID)
+	existingTypes, err := h.credentialAPI.listCredentialTypesID(request.Input.TenantID)
 	if err != nil {
 		return actions.ToValidateError(actions.ServiceErrorType, "listing credentials failed", err.Error())
 	}
@@ -377,7 +377,7 @@ func (h *HasuraHandler) validateCredential(request actions.ValidateCredentialPay
 }
 
 func (h *HasuraHandler) validateExporter(request actions.ValidateExporterPayload) actions.StatusResponse {
-	existingTypes, err := h.exporterAPI.listExporterTypes(request.Input.TenantID)
+	existingTypes, err := h.exporterAPI.listExporterTypesID(request.Input.TenantID)
 	if err != nil {
 		return actions.ToValidateError(actions.ServiceErrorType, "listing exporters failed", err.Error())
 	}
@@ -396,7 +396,7 @@ func (h *HasuraHandler) validateExporter(request actions.ValidateExporterPayload
 		ConfigJSON: request.Input.Config,
 	}
 
-	_, err = h.exporterAPI.validateExporter(request.Input.TenantID, existingTypes, exporter)
+	_, err = h.exporterAPI.validateExporterID(request.Input.TenantID, existingTypes, exporter)
 	if err != nil {
 		return actions.ToValidateError(actions.ValidationFailedType, "config validation failed", err.Error())
 	}

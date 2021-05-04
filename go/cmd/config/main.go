@@ -89,10 +89,11 @@ func main() {
 		}
 
 		// Create separate access objects to avoid potential threading issues with config handler below
+		tenantAccess := config.NewTenantAccess(graphqlURL, graphqlSecret)
 		credentialAccess := config.NewCredentialAccess(graphqlURL, graphqlSecret)
-		credentialAPI := newCredentialAPI(&credentialAccess)
+		credentialAPI := newCredentialAPI(&credentialAccess, &tenantAccess)
 		exporterAccess := config.NewExporterAccess(graphqlURL, graphqlSecret)
-		exporterAPI := newExporterAPI(&credentialAccess, &exporterAccess)
+		exporterAPI := newExporterAPI(&credentialAccess, &exporterAccess, &tenantAccess)
 		handler := NewHasuraHandler(alertmanagerURL, actionSecret, credentialAPI, exporterAPI)
 		// Not blocking on this one, but it will panic internally if there's a problem
 		go runActionHandler(handler, actionAddress)
@@ -166,10 +167,11 @@ func buildConfigHandler(
 
 	credentialAccess := config.NewCredentialAccess(graphqlURL, graphqlSecret)
 	exporterAccess := config.NewExporterAccess(graphqlURL, graphqlSecret)
+	tenantAccess := config.NewTenantAccess(graphqlURL, graphqlSecret)
 
 	// Credentials/exporters: Specify exact paths, but manually allow with and without a trailing '/'
 	credentialRouter := router.PathPrefix("/api/v1/credentials").Subrouter()
-	credentialAPI := newCredentialAPI(&credentialAccess)
+	credentialAPI := newCredentialAPI(&credentialAccess, &tenantAccess)
 	setupConfigAPI(
 		credentialRouter,
 		credentialAPI.listCredentials,
@@ -179,7 +181,7 @@ func buildConfigHandler(
 		disableAPIAuthentication,
 	)
 	exporterRouter := router.PathPrefix("/api/v1/exporters").Subrouter()
-	exporterAPI := newExporterAPI(&credentialAccess, &exporterAccess)
+	exporterAPI := newExporterAPI(&credentialAccess, &exporterAccess, &tenantAccess)
 	setupConfigAPI(
 		exporterRouter,
 		exporterAPI.listExporters,
