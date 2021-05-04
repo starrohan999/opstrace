@@ -441,9 +441,9 @@ export enum Credential_Constraint {
   /** unique or primary key constraint */
   CredentialIdKey = "credential_id_key",
   /** unique or primary key constraint */
-  CredentialKeyKey = "credential_key_key",
+  CredentialPkey = "credential_pkey",
   /** unique or primary key constraint */
-  CredentialPkey = "credential_pkey"
+  CredentialUniqueKeyForTenant = "credential_unique_key_for_tenant"
 }
 
 /** input type for inserting data into table "credential" */
@@ -673,9 +673,9 @@ export enum Exporter_Constraint {
   /** unique or primary key constraint */
   ExporterIdKey = "exporter_id_key",
   /** unique or primary key constraint */
-  ExporterKeyKey = "exporter_key_key",
+  ExporterPkey = "exporter_pkey",
   /** unique or primary key constraint */
-  ExporterPkey = "exporter_pkey"
+  ExporterUniqueKeyForTenant = "exporter_unique_key_for_tenant"
 }
 
 /** input type for inserting data into table "exporter" */

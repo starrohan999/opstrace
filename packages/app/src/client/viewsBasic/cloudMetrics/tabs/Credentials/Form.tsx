@@ -61,6 +61,8 @@ export function CredentialsForm(props: {
   });
   const cloudProvider = watch("cloudProvider");
 
+  console.log(tenantId);
+
   return (
     <>
       <div className={classes.grid}>

@@ -20,6 +20,9 @@ import { map } from "ramda";
 
 import useHasura from "client/hooks/useHasura";
 
+import { Tenant } from "state/tenant/types";
+import { withTenant } from "client/views/tenant/utils";
+
 import { CredentialsTable } from "./Table";
 import { CredentialsForm } from "./Form";
 
@@ -34,19 +37,30 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function Credentials() {
-  const { tenantId } = useParams<{ tenantId: string }>();
+const Credentials = (props: {}) => {
+  const { tenantKey } = useParams<{ tenantKey: string }>();
+  const Component = withTenant(BaseCredentials, tenantKey);
+  return <Component {...props} />;
+};
+
+type BaseCredentialsProps = {
+  tenant: Tenant;
+};
+
+function BaseCredentials({ tenant }: BaseCredentialsProps) {
   const classes = useStyles();
 
+  console.log(tenant);
   const { data, mutate: changeCallback } = useHasura(
     `
-      query credentials($tenant_id: String!) {
+      query credentials($tenant_id: uuid!) {
         credential(where: {tenant_id: {_eq: $tenant_id}}) {
           id
           tenant_id
           name
           type
           created_at
+          updated_at
           exporters_aggregate {
             aggregate {
               count
@@ -55,17 +69,17 @@ function Credentials() {
         }
       }
      `,
-    { tenant_id: tenantId }
+    { tenant_id: tenant.id }
   );
 
   return (
     <div className={classes.gridContainer}>
       <CredentialsTable
-        tenantId={tenantId}
+        tenantId={tenant.id}
         onChange={changeCallback}
         rows={formatRows(data?.credential)}
       />
-      <CredentialsForm tenantId={tenantId} onCreate={changeCallback} />
+      <CredentialsForm tenantId={tenant.id} onCreate={changeCallback} />
     </div>
   );
 }
@@ -74,6 +88,7 @@ const formatRows = (data: any[] | undefined) => {
   if (data)
     return map((d: any) => ({
       id: d.id,
+      tenant_id: d.tenant_id,
       name: d.name,
       type: d.type,
       exporter_count: d.exporters_aggregate.aggregate.count,

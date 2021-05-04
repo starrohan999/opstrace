@@ -36,6 +36,7 @@ const useStyles = makeStyles({
 
 type Row = {
   id: string;
+  tenant_id: string;
   name: string;
   type: string;
   created_at: string;
@@ -57,10 +58,11 @@ export const CredentialsTable = (props: CredentialsTableProps) => {
       <Skeleton variant="rect" width="100%" height="100%" animation="wave" />
     );
 
-  const deleteCredential = (id: string) => {
+  const deleteCredential = (row: Row) => {
     graphqlClient
       .DeleteCredential({
-        id: id
+        tenant_id: row.tenant_id,
+        id: row.id
       })
       .then(response => {
         onChange();
@@ -92,7 +94,7 @@ export const CredentialsTable = (props: CredentialsTableProps) => {
                 <button
                   type="button"
                   disabled={row.exporter_count > 0}
-                  onClick={() => deleteCredential(row.id)}
+                  onClick={() => deleteCredential(row)}
                 >
                   Delete
                 </button>

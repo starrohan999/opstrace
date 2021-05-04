@@ -18,6 +18,9 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { map } from "ramda";
 
+import { Tenant } from "state/tenant/types";
+import { withTenant } from "client/views/tenant/utils";
+
 import useHasura from "client/hooks/useHasura";
 
 import { ExportersTable } from "./Table";
@@ -34,12 +37,21 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Exporters = () => {
-  const { tenantId } = useParams<{ tenantId: string }>();
+const Exporters = (props: {}) => {
+  const { tenantKey } = useParams<{ tenantKey: string }>();
+  const Component = withTenant(BaseExporters, tenantKey);
+  return <Component {...props} />;
+};
+
+type BaseExportersProps = {
+  tenant: Tenant;
+};
+
+function BaseExporters({ tenant }: BaseExportersProps) {
   const classes = useStyles();
 
   const { data, mutate: changeCallback } = useHasura(
-    `query exporters($tenant_id: String!) {
+    `query exporters($tenant_id: uuid!) {
        exporter(where: {tenant_id: {_eq: $tenant_id}}) {
          id
          tenant_id
@@ -53,21 +65,21 @@ const Exporters = () => {
          created_at
        }
      }`,
-    { tenant_id: tenantId }
+    { tenant_id: tenant.id }
   );
 
   return (
     <div className={classes.gridContainer}>
       <ExportersTable
-        tenantId={tenantId}
+        tenantId={tenant.id}
         onChange={changeCallback}
         rows={formatRows(data?.exporter)}
       />
 
-      <ExporterForm tenantId={tenantId} onCreate={changeCallback} />
+      <ExporterForm tenantId={tenant.id} onCreate={changeCallback} />
     </div>
   );
-};
+}
 
 const formatRows = (data: any[] | undefined) => {
   if (data)

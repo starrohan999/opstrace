@@ -100,6 +100,40 @@
         table:
           schema: public
           name: exporter
+  insert_permissions:
+  - role: user_admin
+    permission:
+      check: {}
+      columns:
+      - key
+      - name
+      - tenant_id
+      - type
+      - value
+      backend_only: false
+  select_permissions:
+  - role: user_admin
+    permission:
+      columns:
+      - created_at
+      - id
+      - key
+      - name
+      - tenant_id
+      - type
+      - updated_at
+      filter: {}
+      allow_aggregations: true
+  update_permissions:
+  - role: user_admin
+    permission:
+      columns:
+      - key
+      - name
+      - tenant_id
+      - type
+      filter: {}
+      check: null
   delete_permissions:
   - role: user_admin
     permission:
@@ -114,6 +148,42 @@
   - name: tenant
     using:
       foreign_key_constraint_on: tenant_id
+  insert_permissions:
+  - role: user_admin
+    permission:
+      check: {}
+      columns:
+      - config
+      - credential_id
+      - key
+      - name
+      - tenant_id
+      - type
+      backend_only: false
+  select_permissions:
+  - role: user_admin
+    permission:
+      columns:
+      - config
+      - created_at
+      - credential_id
+      - id
+      - key
+      - name
+      - tenant_id
+      - type
+      - updated_at
+      filter: {}
+      allow_aggregations: true
+  update_permissions:
+  - role: user_admin
+    permission:
+      columns:
+      - config
+      - name
+      - type
+      filter: {}
+      check: null
   delete_permissions:
   - role: user_admin
     permission:

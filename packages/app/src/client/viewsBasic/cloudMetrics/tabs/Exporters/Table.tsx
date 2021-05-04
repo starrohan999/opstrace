@@ -46,6 +46,7 @@ const useStyles = makeStyles({
 
 type Row = {
   id: string;
+  tenant_id: string;
   name: string;
   type: string;
   credential: { id: string; name: string };
@@ -68,10 +69,11 @@ export const ExportersTable = (props: ExportersTableProps) => {
       <Skeleton variant="rect" width="100%" height="100%" animation="wave" />
     );
 
-  const deleteExporter = (id: string) => {
+  const deleteExporter = (row: Row) => {
     graphqlClient
       .DeleteExporter({
-        id: id
+        tenant_id: row.tenant_id,
+        id: row.id
       })
       .then(response => {
         onChange();
@@ -112,7 +114,7 @@ const getUnixNanoSecTime = (date: Date) => getUnixTime(date) * 1000000000;
 const ExportersRow = (props: {
   tenantId: string;
   row: Row;
-  onDelete: (id: string) => void;
+  onDelete: (row: Row) => void;
 }) => {
   const { tenantId, row, onDelete } = props;
   const [open, setOpen] = React.useState(false);
@@ -189,7 +191,7 @@ const ExportersRow = (props: {
           <button type="button" onClick={() => window.open(logsUrl)}>
             View Logs
           </button>
-          <button type="button" onClick={() => onDelete(row.id)}>
+          <button type="button" onClick={() => onDelete(row)}>
             Delete
           </button>
         </TableCell>

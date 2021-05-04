@@ -2842,9 +2842,9 @@ const (
 type CredentialConstraint string
 
 const (
-	CredentialConstraintCredentialIdKey  CredentialConstraint = "credential_id_key"
-	CredentialConstraintCredentialKeyKey CredentialConstraint = "credential_key_key"
-	CredentialConstraintCredentialPkey   CredentialConstraint = "credential_pkey"
+	CredentialConstraintCredentialIdKey              CredentialConstraint = "credential_id_key"
+	CredentialConstraintCredentialPkey               CredentialConstraint = "credential_pkey"
+	CredentialConstraintCredentialUniqueKeyForTenant CredentialConstraint = "credential_unique_key_for_tenant"
 )
 
 type CredentialSelectColumn string
@@ -2876,9 +2876,9 @@ const (
 type ExporterConstraint string
 
 const (
-	ExporterConstraintExporterIdKey  ExporterConstraint = "exporter_id_key"
-	ExporterConstraintExporterKeyKey ExporterConstraint = "exporter_key_key"
-	ExporterConstraintExporterPkey   ExporterConstraint = "exporter_pkey"
+	ExporterConstraintExporterIdKey              ExporterConstraint = "exporter_id_key"
+	ExporterConstraintExporterPkey               ExporterConstraint = "exporter_pkey"
+	ExporterConstraintExporterUniqueKeyForTenant ExporterConstraint = "exporter_unique_key_for_tenant"
 )
 
 type ExporterSelectColumn string

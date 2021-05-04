@@ -160,7 +160,7 @@ const CloudWatchForm = (props: { tenantId: string; control: any }) => {
   const classes = useStyles();
 
   const { data: credentials } = useHasura(
-    `query credentials($tenant_id: String!, $type: String!) {
+    `query credentials($tenant_id: uuid!, $type: String!) {
        credential(where: { tenant_id: { _eq: $tenant_id }, type: {_eq: $type} }) {
          id
          name
@@ -241,7 +241,7 @@ const StackdriverForm = (props: { tenantId: string; control: any }) => {
   const classes = useStyles();
 
   const { data: credentials } = useHasura(
-    `query credentials($tenant_id: String!, $type: String!) {
+    `query credentials($tenant_id: uuid!, $type: String!) {
        credential(where: { tenant_id: { _eq: $tenant_id }, type: {_eq: $type} }) {
          id
          name
