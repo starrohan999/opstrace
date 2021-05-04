@@ -1,17 +1,25 @@
 mutation UpdateExporter(
+  $tenant_id: uuid!
   $id: uuid!
+  $name: String!
   $config: json!
   $credential_id: uuid
   $updated_at: timestamptz!
 ) {
-  update_exporter_by_pk(
+  update_exporter(
+    where: {
+      tenant_id: {_eq: $tenant_id},
+      id: {_eq: $id}
+    },
     _set: {
-      config: $config
-      credential_id: $credential_id
+      name: $name,
+      config: $config,
+      credential_id: $credential_id,
       updated_at: $updated_at
     }
-    pk_columns: { id: $id }
   ) {
-    id
+    returning {
+      id
+    }
   }
 }

@@ -1,5 +1,12 @@
-mutation DeleteExporter($id: uuid!) {
-  delete_exporter_by_pk(id: $id) {
-    id
+mutation DeleteExporter($tenant_id: uuid!, $id: uuid!) {
+  delete_exporter(
+    where: {
+      tenant_id: {_eq: $tenant_id},
+      id: {_eq: $id}
+    }
+  ) {
+    returning {
+      id
+    }
   }
 }

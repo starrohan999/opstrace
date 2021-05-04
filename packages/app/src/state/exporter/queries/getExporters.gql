@@ -4,6 +4,7 @@ query GetExporters($tenant_id: uuid!) {
     id
     tenant_id
     name
+    key
     type
     credential {
       id

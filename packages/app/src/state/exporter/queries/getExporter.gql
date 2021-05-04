@@ -1,9 +1,15 @@
 # Returns exporter configuration for a single entry.
-query GetExporter($id: uuid!) {
-  exporter_by_pk(id: $id) {
+query GetExporter($tenant_id: uuid!, $id: uuid!) {
+  exporter(
+    where: {
+      tenant_id: {_eq: $tenant_id},
+      id: {_eq: $id}
+    }
+  ) {
     id
     tenant_id
     name
+    key
     type
     credential {
       id
