@@ -33,6 +33,7 @@ import HelpDialog from "./help";
 import NotFound from "./404/404";
 import FullPage from "client/layout/FullPage";
 import { ActivityBar } from "./common/ActivityBar";
+import { WelcomePage } from "client/viewsBasic/welcomePage";
 
 export const scopedModulePathParams = ":branch/@:scope/:name@:version/:path*";
 export const modulePathParams = ":branch/:name@:version/:path*";
@@ -97,6 +98,7 @@ const AuthenticatedRoutes = () => {
           <Redirect exact key="/module" from="/module" to="/module/main" />
         )}
 
+        <Route exact key="/" path="/" component={WelcomePage} />
         <Redirect
           exact
           key="/cluster"
@@ -124,11 +126,6 @@ const AuthenticatedRoutes = () => {
 const Routes = () => {
   return (
     <Switch>
-      {EARLY_PREVIEW ? (
-        <Redirect exact key="/" from="/" to="/module/main" />
-      ) : (
-        <Redirect exact key="/" from="/" to="/cluster" />
-      )}
       <Route
         exact
         key="/login"
