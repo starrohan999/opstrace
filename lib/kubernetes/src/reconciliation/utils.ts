@@ -87,7 +87,7 @@ import {
   V1OrderResource
 } from "../custom-resources";
 
-type ReduceCollectionType = {
+export type ReduceCollectionType = {
   Ingresses: Ingress[];
   StorageClasses: StorageClass[];
   PersistentVolumeClaims: PersistentVolumeClaim[];

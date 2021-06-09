@@ -17,6 +17,7 @@
 import yaml from "js-yaml";
 
 import { State } from "./reducer";
+import { Secret } from "@opstrace/kubernetes";
 import { LatestControllerConfigType } from "@opstrace/controller-config";
 import { Tenant, Tenants } from "@opstrace/tenants";
 import { log } from "@opstrace/utils";
@@ -52,8 +53,8 @@ export const getControllerConfig = (
 };
 
 // getControllerConfigOverrides checks if there's a ConfigMap named
-// "opstrace-controller-config-overrides in the default namespace. If it exists
-// then parses the `key` field and returns the corresponding object. If the
+// "opstrace-controller-config-overrides" in the default namespace. If it exists
+// then the object under the specified `key` field is returned. If the
 // ConfigMap does not exist it returns an empty object. If there's an error
 // parsing the config overrides it logs the error and returns an empty object.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,7 +76,6 @@ function getControllerConfigOverrides(state: State, key: string): any {
     return {};
   }
 }
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getControllerCortexConfigOverrides = (state: State): any => {
   return getControllerConfigOverrides(state, "cortex");
@@ -86,6 +86,20 @@ export const getControllerCortexConfigOverrides = (state: State): any => {
 export const getControllerLokiConfigOverrides = (state: State): any => {
   return getControllerConfigOverrides(state, "loki");
 };
+
+
+// getImagePullSecret checks if there's a Secret named
+// "opstrace-image-pull-secret" in the default namespace.
+// If it exists then the decoded secret is returned, otherwise null is returned.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getImagePullSecret(state: State): Secret | null {
+  const secret = state.kubernetes.cluster.Secrets.resources.find(
+    s =>
+      s.namespace === "default" &&
+      s.name === "opstrace-image-pull-secret"
+  );
+  return secret ?? null;
+}
 
 export const toTenantNamespace = (tenantName: string): string =>
   `${tenantName}-tenant`;

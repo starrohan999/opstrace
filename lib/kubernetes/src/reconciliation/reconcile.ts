@@ -30,6 +30,7 @@ import {
   PersistentVolumes,
   StatefulSets,
   Services,
+  Secret,
   Secrets,
   RoleBindings,
   Roles,
@@ -41,8 +42,7 @@ import {
   DaemonSets,
   ClusterRoles,
   PodSecurityPolicies,
-  ApiServices,
-  ResourceCollection
+  ApiServices
 } from "../kinds";
 
 import { createResource, updateResource, deleteResource } from "../api";
@@ -115,12 +115,8 @@ export type ReconcileResourceTypes = {
   Orders: V1OrderResources;
 };
 
-export function* reconcile(
-  desired: ResourceCollection,
-  actual: Partial<ReconcileResourceTypes>,
-  isDestroyingCluster: boolean
-): Generator<CallEffect, void, unknown> {
-  const actualState: ReconcileResourceTypes = {
+function fromPartial(partial: Partial<ReconcileResourceTypes>): ReconcileResourceTypes {
+  return {
     Nodes: [],
     Ingresses: [],
     StorageClasses: [],
@@ -152,14 +148,23 @@ export function* reconcile(
     ClusterIssuers: [],
     Issuers: [],
     Orders: [],
-    ...actual
+    ...partial
   };
+}
+
+export function* reconcile(
+  desired: Partial<ReconcileResourceTypes>,
+  actual: Partial<ReconcileResourceTypes>,
+  desiredTransform: (ReconcileResourceTypes => ReconcileResourceTypes) | null,
+  imagePullSecret: Secret | null,
+  isDestroyingCluster: boolean
+): Generator<CallEffect, void, unknown> {
+  const desiredState = fromPartial(desired);
+  const actualState = fromPartial(actual);
   try {
     const createCollection: K8sResource[] = [];
     const deleteCollection: K8sResource[] = [];
     const updateCollection: K8sResource[] = [];
-
-    const desiredState = reduceCollection(desired.get());
 
     // Add an annotation with the controller version. This is used to check if
     // the CRD requires an update since typescript fails at comparing the CRD
@@ -167,6 +172,27 @@ export function* reconcile(
     desiredState.CustomResourceDefinitions.map((e) => {
       e.setManagementVersion();
     });
+
+    // If an image pull secret is configured:
+    // - Add it as a Secret to all the Namespaces
+    // - Insert its name into all Deployments, StatefulSets, and DaemonSets
+    if (imagePullSecret != null) {
+      desiredState.Namespaces.map((n) => {
+        desiredState.Secrets.push(new Secret(
+          {
+            apiVersion: "v1",
+            kind: "Secret",
+            metadata: {
+              name: imagePullSecret.name,
+              namespace: n.name,
+            },
+            // Pass through the secret data as-is
+            data: imagePullSecret.data
+          },
+          kubeConfig: imagePullSecret.conf
+        ));
+      });
+    }
 
     // First thing is to ensure CRDs are reconciled otherwise we might end up
     // trying to create resources (ex Prometheus ServiceMonitor objects) when

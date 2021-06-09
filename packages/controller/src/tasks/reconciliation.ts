@@ -26,10 +26,10 @@ import { State } from "../reducer";
 
 import { SECOND, entries } from "@opstrace/utils";
 import {
-  reconcile,
-  ResourceCollection,
   K8sResource,
-  reduceCollection
+  reconcile,
+  reduceCollection,
+  ResourceCollection
 } from "@opstrace/kubernetes";
 
 import { KubeConfig } from "@kubernetes/client-node";
@@ -46,7 +46,7 @@ import { RedisResources } from "../resources/redis";
 import { StorageResources } from "../resources/storage";
 import { TenantResources } from "../resources/tenants";
 
-import { getControllerConfig } from "../helpers";
+import { getControllerConfig, getImagePullSecret } from "../helpers";
 
 export function* reconciliationLoop(
   kubeConfig: KubeConfig
@@ -66,7 +66,7 @@ export function* reconciliationLoop(
     });
 
     if (getControllerConfig(state).terminate) {
-      yield call(reconcile, desired, reduceCollection(actualCollection), true);
+      yield call(reconcile, reduceCollection(desired.get()), reduceCollection(actualCollection), null, true);
 
       continue;
     }
@@ -84,6 +84,8 @@ export function* reconciliationLoop(
     desired.add(TenantResources(state, kubeConfig));
     desired.add(IntegrationResources(state, kubeConfig));
 
-    yield call(reconcile, desired, reduceCollection(actualCollection), false);
+    const imagePullSecret = getImagePullSecret(state);
+
+    yield call(reconcile, reduceCollection(desired.get()), reduceCollection(actualCollection), imagePullSecret, false);
   }
 }
